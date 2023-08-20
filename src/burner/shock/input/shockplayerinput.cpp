@@ -4,7 +4,7 @@
 #include "shock/input/shockinput.h"
 #include "shock/input/shockplayerinput.h"
 #include "shock/shockconfig.h"
-#include "shock/Shockfocus.h"
+#include "shock/shockfocus.h"
 #include "shock/shockprofiler.h"
 #include "shock/util/util.h"
 
