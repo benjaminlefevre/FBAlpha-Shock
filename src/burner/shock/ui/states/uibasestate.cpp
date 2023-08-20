@@ -90,6 +90,6 @@ void UIBaseState::RenderTitle( const char *pText )
     
     char message[ MAX_PATH ] = { 0 };
     strncpy( message, pText, sizeof( message ) - 1 );
-    xPos = GetCenteredXPos( message, FontType_Upheaval );
-    UIRenderer::DrawText( message, xPos, yPos, 0xFFFF, FontType_Upheaval );
+    xPos = GetCenteredXPos( message );
+    UIRenderer::DrawText( message, xPos, yPos, 0xFFFF );
 }

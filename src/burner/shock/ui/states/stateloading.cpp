@@ -45,8 +45,9 @@ UIState StateLoading::Update( )
 
 void StateLoading::DrawMenu( )
 {
-    UIRenderer::DrawSprite( gMainBGHeader, 0, 0, BG_HEADER_WIDTH, BG_HEADER_HEIGHT );
-    
+   // UIRenderer::DrawSprite( gMainBGHeader, 0, 0, BG_HEADER_WIDTH, BG_HEADER_HEIGHT );
+    UIBaseState::RenderTitle( "FBA 100 MEGA SHock - neogeo turbo" );
+
     char loadStr[ MAX_PATH ] = { 0 };
     snprintf( loadStr, sizeof( loadStr ), "LOADING GAME" );
     int loadStrLen = strlen( loadStr );

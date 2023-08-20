@@ -145,7 +145,8 @@ UIState StateMainMenu::Update( )
 
 void StateMainMenu::DrawMenu( )
 {
-    UIRenderer::DrawSprite( gMainBGHeader, 0, 0, BG_HEADER_WIDTH, BG_HEADER_HEIGHT );
+    //UIRenderer::DrawSprite( gMainBGHeader, 0, 0, BG_HEADER_WIDTH, BG_HEADER_HEIGHT );
+    UIBaseState::RenderTitle( "FBA 100 MEGA SHock - neogeo turbo" );
     
     int i = 0;
     for( i = 0; i < mNumMenuItems; i++ )
