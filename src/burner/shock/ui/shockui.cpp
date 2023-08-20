@@ -33,7 +33,7 @@ void ShockUI::Create( )
         for( int x = 0; x < UI_WIDTH; x++ )
         {
             // color the bg red
-            pCurrBufferPos[ x ] = 0xB800;
+            pCurrBufferPos[ x ] = 0x0000B8;
         }
         
         pCurrBufferPos += UI_WIDTH;
