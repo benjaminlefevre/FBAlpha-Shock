@@ -132,7 +132,7 @@ struct NeoMediaInfo {
 #if defined Z80_SPEED_ADJUST
  static INT32 nZ80Clockspeed;
 #else
- static const INT32 nZ80Clockspeed = 4000000;
+ static const INT32 nZ80Clockspeed = 8000000;
 #endif
 
 #if defined RASTER_KLUDGE
@@ -3313,9 +3313,9 @@ void __fastcall neogeoWriteWordCDROM(UINT32 sekAddress, UINT16 wordValue)
 // LC8951RegistersR[1] |= 0x20;
 
 			if (nff0002 & 0x0500)
-				nNeoCDCyclesIRQPeriod = (INT32)(12000000.0 * nBurnCPUSpeedAdjust / (256.0 * 75.0));
+				nNeoCDCyclesIRQPeriod = (INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 * 75.0));
 			else
-				nNeoCDCyclesIRQPeriod = (INT32)(12000000.0 * nBurnCPUSpeedAdjust / (256.0 *  75.0));
+				nNeoCDCyclesIRQPeriod = (INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 *  75.0));
 
 			break;
 
@@ -3936,7 +3936,7 @@ static INT32 NeoInitCommon()
 	}
 
 #if defined Z80_SPEED_ADJUST
-	nZ80Clockspeed = 4000000;
+	nZ80Clockspeed = 8000000;
 #endif
 
 	if (nNeoSystemType & NEO_SYS_CART) {
@@ -4548,24 +4548,24 @@ INT32 NeoFrame()
 
 	if (nPrevBurnCPUSpeedAdjust != nBurnCPUSpeedAdjust) {
 		// 68K CPU clock is 12MHz, modified by nBurnCPUSpeedAdjust
-		nCyclesTotal[0] = (INT32)((INT64)12000000 * nBurnCPUSpeedAdjust / (256.0 * NEO_VREFRESH));
+		nCyclesTotal[0] = (INT32)((INT64)24000000 * nBurnCPUSpeedAdjust / (256.0 * NEO_VREFRESH));
 		
 #if defined Z80_SPEED_ADJUST
 		// Z80 CPU clock always 68K / 3
 		nCyclesTotal[1] = nCyclesTotal[0] / 3;
-		nZ80Clockspeed = (INT32)((INT64)4000000 * nBurnCPUSpeedAdjust / 256);
+		nZ80Clockspeed = (INT32)((INT64)8000000 * nBurnCPUSpeedAdjust / 256);
 		BurnTimerAttachZet(nZ80Clockspeed);
 #else
 		// Z80 CPU clock is always 4MHz
-		nCyclesTotal[1] = 4000000.0 / NEO_VREFRESH;
+		nCyclesTotal[1] = 8000000.0 / NEO_VREFRESH;
 #endif
 		// 68K cycles executed each scanline
 		SekOpen(0);
-		SekSetCyclesScanline((INT32)(12000000.0 * nBurnCPUSpeedAdjust / (256.0 * NEO_HREFRESH)));
+		SekSetCyclesScanline((INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 * NEO_HREFRESH)));
 		SekClose();
 
 		// uPD499A ticks per second (same as 68K clock)
-		uPD499ASetTicks((INT64)12000000 * nBurnCPUSpeedAdjust / 256);
+		uPD499ASetTicks((INT64)24000000 * nBurnCPUSpeedAdjust / 256);
 
 		nPrevBurnCPUSpeedAdjust = nBurnCPUSpeedAdjust;
 	}
