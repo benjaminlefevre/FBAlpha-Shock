@@ -27,6 +27,7 @@ struct GameConfig
     SavedFireInput savedConfigInputs;
     int displayMode;
     int displayFilter;
+    int neogeoTurboMode;
     int reserved[ 1024 ]; //for future use
 };
 
@@ -51,6 +52,9 @@ public:
 
     static int  GetShowFPS( );
     static void SetShowFPS( int enabled );
+
+    static int  GetTurboHack( );
+    static void SetTurboHack( int enabled );
 
     static int  GetShowLoadWarnings( );
     static void SetShowLoadWarnings( int enabled );

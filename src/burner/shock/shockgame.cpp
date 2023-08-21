@@ -91,6 +91,7 @@ LoadGameResult ShockGame::LoadGame( const char *pRomset )
     nBurnBpp = GAME_BUFFER_BPP;
 
     nBurnSoundRate = SAMPLE_RATE;
+    nNeogeoTurboHack = ShockConfig::GetTurboHack() + 1;
     pBurnSoundOut = (int16_t *)mBurnAudioBuffer;
     nFMInterpolation = 2;
     nInterpolation = 2;

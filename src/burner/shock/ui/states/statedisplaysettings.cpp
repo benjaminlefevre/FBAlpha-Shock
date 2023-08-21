@@ -20,7 +20,11 @@ void StateDisplaySettings::Create( )
     
     yPos += UI_ROW_HEIGHT;
     mMenuItemList[ mNumMenuItems++ ].Create( "Aspect Ratio (Full Screen)", xPos, yPos, 0xFFFF ); 
-    
+
+    yPos += UI_ROW_HEIGHT;
+     mMenuItemList[ mNumMenuItems++ ].Create( "Neogeo Turbo mode (needs to restart game)", xPos, yPos, 0xFFFF );
+
+
     yPos += UI_ROW_HEIGHT * 3;
     mMenuItemList[ mNumMenuItems++ ].Create( "Display Filter: ", xPos, yPos, 0xFFFF );
     
@@ -80,8 +84,11 @@ UIState StateDisplaySettings::Update( )
         if ( mMenuSelection < 2 )
         {
             ShockConfig::SetDisplayMode( (ShockDisplayMode)mMenuSelection );
-        }
-        else if ( mMenuSelection == 2 )
+        } else  if ( mMenuSelection == 2 )
+       {
+           ShockConfig::SetTurboHack(  !ShockConfig::GetTurboHack( ) );
+       }
+        else if ( mMenuSelection == 3 )
         {
             int displayFilter = ShockConfig::GetDisplayFilter( );
             displayFilter = (displayFilter + 1) % ShockDisplayFilter_Count;
@@ -104,8 +111,12 @@ void StateDisplaySettings::DrawMenu( )
     textColor = ShockConfig::GetDisplayMode() == 1 ? textColor = UI_COLOR_ENABLED : 0xFFFF;
     mMenuItemList[1].SetColor( textColor );
     mMenuItemList[1].Draw( );
+
+     textColor = ShockConfig::GetTurboHack() == 1 ? textColor = UI_COLOR_ENABLED : 0xFFFF;
+     mMenuItemList[2].SetColor( textColor );
+     mMenuItemList[2].Draw( );
     
-    // seperator
+    // separator
     int lineWidth = 200;
     int xPos = ( UI_WIDTH - lineWidth ) / 2;
     int yPos = mMenuItemList[ 2 ].GetYPos( ) + 50;
@@ -118,7 +129,7 @@ void StateDisplaySettings::DrawMenu( )
     char explanationThreeStr[ MAX_PATH ] = { 0 };
     int menuItemLen = 0;
     
-    mMenuItemList[ 2 ].Draw( );
+    mMenuItemList[ 3 ].Draw( );
     switch ( ShockConfig::GetDisplayFilter( ) )
     {
         case ShockDisplayFilter_Pixel:
@@ -155,18 +166,18 @@ void StateDisplaySettings::DrawMenu( )
             break;
         }
     }
-    menuItemLen = Font::MeasureStringWidth( mMenuItemList[ 2 ].GetText( ) );
-    UIRenderer::DrawText( displayStr, mMenuItemList[ 2 ].GetXPos( ) + menuItemLen, mMenuItemList[ 2 ].GetYPos( ), UI_COLOR_ENABLED );
+    menuItemLen = Font::MeasureStringWidth( mMenuItemList[ 3 ].GetText( ) );
+    UIRenderer::DrawText( displayStr, mMenuItemList[ 3 ].GetXPos( ) + menuItemLen, mMenuItemList[ 3 ].GetYPos( ), UI_COLOR_ENABLED );
 
-    yPos = mMenuItemList[ 2 ].GetYPos( ) + UI_ROW_HEIGHT * 2;
-    UIRenderer::DrawText( explanationOneStr, mMenuItemList[ 2 ].GetXPos( ), yPos, 0xFFFF );
+    yPos = mMenuItemList[ 3 ].GetYPos( ) + UI_ROW_HEIGHT * 2;
+    UIRenderer::DrawText( explanationOneStr, mMenuItemList[ 3 ].GetXPos( ), yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( explanationTwoStr, mMenuItemList[ 2 ].GetXPos( ), yPos, 0xFFFF );
+    UIRenderer::DrawText( explanationTwoStr, mMenuItemList[ 3 ].GetXPos( ), yPos, 0xFFFF );
 
     if ( ActivePlatform_ASP == gActivePlatform )
     {
         yPos += UI_ROW_HEIGHT / 2;
-        UIRenderer::DrawText( explanationThreeStr, mMenuItemList[ 2 ].GetXPos( ), yPos + UI_ROW_HEIGHT / 2, 0xFFFF );
+        UIRenderer::DrawText( explanationThreeStr, mMenuItemList[ 3 ].GetXPos( ), yPos + UI_ROW_HEIGHT / 2, 0xFFFF );
     }
     
     // Cursor

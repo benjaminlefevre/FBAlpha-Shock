@@ -224,6 +224,7 @@ extern bool bBurnUseBlend;
 
 extern INT32 nBurnFPS;
 extern INT32 nBurnCPUSpeedAdjust;
+extern INT32 nNeogeoTurboHack;
 
 extern UINT32 nBurnDrvCount;			// Count of game drivers
 extern UINT32 nBurnDrvActive;			// Which game driver is selected

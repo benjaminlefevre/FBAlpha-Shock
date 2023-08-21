@@ -169,6 +169,17 @@ void ShockConfig::SetDisplayFilter( int displayFilter )
     mGameConfig.displayFilter = displayFilter;
 }
 
+
+int ShockConfig::GetTurboHack( )
+{
+    return mGameConfig.neogeoTurboMode;
+}
+
+void ShockConfig::SetTurboHack( int enabled )
+{
+    mGameConfig.neogeoTurboMode = enabled;
+}
+
 int ShockConfig::GetShowFPS( )
 {
     return mSystemConfig.showFPS;
@@ -178,6 +189,8 @@ void ShockConfig::SetShowFPS( int enabled )
 {
     mSystemConfig.showFPS = enabled;
 }
+
+
 
 int ShockConfig::GetShowTimers( )
 {
