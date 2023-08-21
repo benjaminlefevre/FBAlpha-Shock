@@ -132,7 +132,7 @@ struct NeoMediaInfo {
 #if defined Z80_SPEED_ADJUST
  static INT32 nZ80Clockspeed;
 #else
- static const INT32 nZ80Clockspeed = 8000000;
+ static const INT32 nZ80Clockspeed = 4000000;
 #endif
 
 #if defined RASTER_KLUDGE
@@ -309,6 +309,8 @@ static INT32 /*nNeoCDCyclesIRQ = 0,*/ nNeoCDCyclesIRQPeriod = 0;
 #ifdef BUILD_A68K
 static bool bUseAsm68KCoreOldValue = false;
 #endif
+
+static INT32 hackTurbo = 2;
 
 bool IsNeoGeoCD() {
 	return (nNeoSystemType & NEO_SYS_CD);
@@ -3313,9 +3315,9 @@ void __fastcall neogeoWriteWordCDROM(UINT32 sekAddress, UINT16 wordValue)
 // LC8951RegistersR[1] |= 0x20;
 
 			if (nff0002 & 0x0500)
-				nNeoCDCyclesIRQPeriod = (INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 * 75.0));
+				nNeoCDCyclesIRQPeriod = (INT32)(12000000.0 * hackTurbo * nBurnCPUSpeedAdjust / (256.0 * 75.0));
 			else
-				nNeoCDCyclesIRQPeriod = (INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 *  75.0));
+				nNeoCDCyclesIRQPeriod = (INT32)(12000000.0 * hackTurbo * nBurnCPUSpeedAdjust / (256.0 *  75.0));
 
 			break;
 
@@ -3724,6 +3726,16 @@ static void SwitchToMusashi()
 
 static INT32 NeoInitCommon()
 {
+if (
+!strcmp("ssideki", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("ssideki2", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("ssideki3", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("neocup98", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("ssideki4", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("ridhero", BurnDrvGetTextA(DRV_NAME))
+|| !strcmp("ridheroh", BurnDrvGetTextA(DRV_NAME))
+) hackTurbo = 1;
+
 	BurnSetRefreshRate(NEO_VREFRESH);
 	INT32 nNeoScreenHeight; // not used
 	BurnDrvGetFullSize(&nNeoScreenWidth, &nNeoScreenHeight);
@@ -3936,7 +3948,7 @@ static INT32 NeoInitCommon()
 	}
 
 #if defined Z80_SPEED_ADJUST
-	nZ80Clockspeed = 8000000;
+	nZ80Clockspeed = 4000000;
 #endif
 
 	if (nNeoSystemType & NEO_SYS_CART) {
@@ -3949,7 +3961,7 @@ static INT32 NeoInitCommon()
 	BurnYM2610SetRoute(BURN_SND_YM2610_YM2610_ROUTE_2, 1.00, BURN_SND_ROUTE_RIGHT);
 	BurnYM2610SetRoute(BURN_SND_YM2610_AY8910_ROUTE, 0.20, BURN_SND_ROUTE_BOTH);
 
-	BurnTimerAttachZet(nZ80Clockspeed);
+	BurnTimerAttachZet(nZ80Clockspeed * hackTurbo);
 
 	if ((BurnDrvGetHardwareCode() & HARDWARE_PUBLIC_MASK) == HARDWARE_SNK_MVS) {
 		for (nNeoActiveSlot = 0; nNeoActiveSlot < MAX_SLOT; nNeoActiveSlot++) {
@@ -4548,12 +4560,12 @@ INT32 NeoFrame()
 
 	if (nPrevBurnCPUSpeedAdjust != nBurnCPUSpeedAdjust) {
 		// 68K CPU clock is 12MHz, modified by nBurnCPUSpeedAdjust
-		nCyclesTotal[0] = (INT32)((INT64)24000000 * nBurnCPUSpeedAdjust / (256.0 * NEO_VREFRESH));
+		nCyclesTotal[0] = (INT32)((INT64)12000000 * hackTurbo * nBurnCPUSpeedAdjust / (256.0 * NEO_VREFRESH));
 		
 #if defined Z80_SPEED_ADJUST
 		// Z80 CPU clock always 68K / 3
 		nCyclesTotal[1] = nCyclesTotal[0] / 3;
-		nZ80Clockspeed = (INT32)((INT64)8000000 * nBurnCPUSpeedAdjust / 256);
+		nZ80Clockspeed = (INT32)((INT64)4000000 * hackTurbo * nBurnCPUSpeedAdjust / 256);
 		BurnTimerAttachZet(nZ80Clockspeed);
 #else
 		// Z80 CPU clock is always 4MHz
@@ -4561,11 +4573,11 @@ INT32 NeoFrame()
 #endif
 		// 68K cycles executed each scanline
 		SekOpen(0);
-		SekSetCyclesScanline((INT32)(24000000.0 * nBurnCPUSpeedAdjust / (256.0 * NEO_HREFRESH)));
+		SekSetCyclesScanline((INT32)(12000000.0 * hackTurbo * nBurnCPUSpeedAdjust / (256.0 * NEO_HREFRESH)));
 		SekClose();
 
 		// uPD499A ticks per second (same as 68K clock)
-		uPD499ASetTicks((INT64)24000000 * nBurnCPUSpeedAdjust / 256);
+		uPD499ASetTicks((INT64)12000000 * hackTurbo * nBurnCPUSpeedAdjust / 256);
 
 		nPrevBurnCPUSpeedAdjust = nBurnCPUSpeedAdjust;
 	}
