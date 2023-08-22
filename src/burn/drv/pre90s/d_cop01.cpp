@@ -366,7 +366,7 @@ static void mightguy_prot_data_write(UINT8 data)
 		case 0x43: break;
 		case 0x92: break;
 #endif
-	    default: DrvProtRAM[protection_command] = data; bprintf(0, _T("%02X %02X\n"), protection_command, data); break;
+	    default: DrvProtRAM[protection_command] = data; break; //bprintf(0, _T("%02X %02X\n"), protection_command, data); break;
 	}
 }
 
@@ -684,7 +684,7 @@ static INT32 MightguyInit()
 	ZetClose();
 
 	BurnYM3526Init(4000000, NULL, 0);
-	BurnTimerAttachZetYM3526(4000000);
+	BurnTimerAttachYM3526(&ZetConfig, 4000000);
 	BurnYM3526SetRoute(BURN_SND_YM3526_ROUTE, 1.00, BURN_SND_ROUTE_BOTH);
 
 	DACInit(0, 0, 1, DrvSyncDAC);
@@ -783,19 +783,7 @@ static void draw_sprites()
 
 		if (code & 0x80) code += bank;
 
-		if (flipy) {
-			if (flipx) {
-				Render16x16Tile_Mask_FlipXY_Clip(pTransDraw, code, sx, sy - 16, color, 4, 0, 0x200, DrvGfxROM2);
-			} else {
-				Render16x16Tile_Mask_FlipY_Clip(pTransDraw, code, sx, sy - 16, color, 4, 0, 0x200, DrvGfxROM2);
-			}
-		} else {
-			if (flipx) {
-				Render16x16Tile_Mask_FlipX_Clip(pTransDraw, code, sx, sy - 16, color, 4, 0, 0x200, DrvGfxROM2);
-			} else {
-				Render16x16Tile_Mask_Clip(pTransDraw, code, sx, sy - 16, color, 4, 0, 0x200, DrvGfxROM2);
-			}
-		}
+		Draw16x16MaskTile(pTransDraw, code, sx, sy - 16, flipx, flipy, color, 4, 0, 0x200, DrvGfxROM2);
 	}
 }
 

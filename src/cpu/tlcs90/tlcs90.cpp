@@ -2078,7 +2078,7 @@ INT32 tlcs90TotalCycles()
 	return cpustate->total_cycles;// + (cpustate->nCycles - cpustate->icount);
 }
 
-INT32 tlcs90Reset()
+void tlcs90Reset()
 {
 	t90_Regs *cpustate = &tlcs90_data[0]; //get_safe_token(device);
 	cpustate->irq_state = 0;
@@ -2093,8 +2093,6 @@ INT32 tlcs90Reset()
     but PC IFF BX BY = 0, A undefined
 */
 	memset(&cpustate->internal_registers, 0, sizeof(cpustate->internal_registers));
-
-	return 0;
 }
 
 void tlcs90BurnCycles(INT32 cycles)

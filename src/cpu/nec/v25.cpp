@@ -35,12 +35,9 @@
     among other benefits.
 
 ****************************************************************************/
-
-#include <stdlib.h>
-#include <stdio.h>
+#include "burnint.h"
 #include <stddef.h>
 #include "driver.h"
-#include "state.h"
 #include "nec_intf.h"
 #include "bitswap.h"
 
