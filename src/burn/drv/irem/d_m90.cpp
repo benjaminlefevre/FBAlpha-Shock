@@ -967,11 +967,6 @@ static void m72YM2151IRQHandler(INT32 nStatus)
 	setvector_callback(nStatus ? YM2151_ASSERT : YM2151_CLEAR);
 }
 
-static INT32 m90SyncDAC()
-{
-	return (INT32)(float)(nBurnSoundLen * (ZetTotalCycles() / (3579545.000 / (nBurnFPS / 100.000))));
-}
-
 static INT32 DrvDoReset()
 {
 	memset (AllRam, 0, RamEnd - AllRam);
@@ -1086,7 +1081,7 @@ static void map_main_cpu(UINT8 *decrypt_table, INT32 codesize, INT32 spriteram)
 	if (spriteram) {
 		VezMapArea(0x00000 + spriteram, 0x00fff + spriteram, 0, DrvSprRAM); // 00e - fff // ??
 		VezMapArea(0x00000 + spriteram, 0x00fff + spriteram, 1, DrvSprRAM);
-		VezMapArea(0x00000 + spriteram, 0x00fff + spriteram, 2, DrvSprRAM);	
+		VezMapArea(0x00000 + spriteram, 0x00fff + spriteram, 2, DrvSprRAM);
 	}
 
 	VezSetReadHandler(m90_main_read);
@@ -1126,7 +1121,7 @@ static INT32 DrvInit(INT32 codesize, INT32 gfxlen, INT32 samples, INT32 bank, IN
 	memset(AllMem, 0, nLen);
 	MemIndex();
 
-	if (DrvLoadRoms(codesize, samples, bank)) return 1; 
+	if (DrvLoadRoms(codesize, samples, bank)) return 1;
 
 	DrvGfxDecode();
 
@@ -1144,7 +1139,7 @@ static INT32 DrvInit(INT32 codesize, INT32 gfxlen, INT32 samples, INT32 bank, IN
 	YM2151SetIrqHandler(0, &m72YM2151IRQHandler);
 	BurnYM2151SetAllRoutes(0.15, BURN_SND_ROUTE_BOTH);
 
-	DACInit(0, 0, 1, m90SyncDAC);
+	DACInit(0, 0, 1, ZetTotalCycles, 3579545);
 	DACSetRoute(0, 0.10, BURN_SND_ROUTE_BOTH);
 
 	code_mask[0] = ((gfxlen * 2) - 1) / (8 * 8);

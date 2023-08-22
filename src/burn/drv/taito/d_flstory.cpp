@@ -890,11 +890,6 @@ static UINT8 __fastcall flstory_sound_read(UINT16 address)
 	return 0;
 }
 
-static INT32 flstoryDACSync()
-{
-	return (INT32)(float)(nBurnSoundLen * (ZetTotalCycles() / (4000000.000 / (nBurnFPS / 100.000))));
-}
-
 static INT32 DrvDoReset()
 {
 	DrvReset = 0;
@@ -1007,7 +1002,7 @@ static INT32 DrvInit()
 			if (BurnLoadRom(DrvGfxROM0 + 0x14000, 10, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM0 + 0x18000, 11, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM0 + 0x1c000, 12, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvMcuROM  + 0x00000, 13, 1)) return 1;
 		} else if (select_game == 1) {
 			if (BurnLoadRom(DrvZ80ROM0 + 0x00000,  0, 1)) return 1;
@@ -1028,7 +1023,7 @@ static INT32 DrvInit()
 			if (BurnLoadRom(DrvGfxROM0 + 0x14000, 13, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM0 + 0x18000, 14, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM0 + 0x1c000, 15, 1)) return 1;
-			
+
 			if (BurnLoadRom(DrvMcuROM  + 0x00000, 16, 1)) return 1;
 		} else if (select_game == 2) {
 			if (BurnLoadRom(DrvZ80ROM0 + 0x00000,  0, 1)) return 1;
@@ -1061,7 +1056,7 @@ static INT32 DrvInit()
 			if (BurnLoadRom(DrvZ80ROM1 + 0x00000,  3, 1)) return 1;
 			if (BurnLoadRom(DrvZ80ROM1 + 0x02000,  4, 1)) return 1;
 			if (BurnLoadRom(DrvZ80ROM1 + 0x04000,  5, 1)) return 1;
-			
+
 			if (BurnLoadRom(DrvMcuROM  + 0x00000,  6, 1)) return 1;
 
 			if (BurnLoadRom(DrvGfxROM0 + 0x02000,  7, 1)) return 1;
@@ -1148,7 +1143,7 @@ static INT32 DrvInit()
 	MSM5232SetRoute(1.00, BURN_SND_MSM5232_ROUTE_6);
 	MSM5232SetRoute(1.00, BURN_SND_MSM5232_ROUTE_7);
 
-	DACInit(0, 0, 1, flstoryDACSync);
+	DACInit(0, 0, 1, ZetTotalCycles, 4000000);
 	DACSetRoute(0, 0.20, BURN_SND_ROUTE_BOTH);
 
 	GenericTilesInit();

@@ -912,12 +912,7 @@ static void kageki_ym2203_write_portB(UINT32, UINT32 data)
 
 inline static void DrvYM2203IRQHandler(INT32, INT32 nStatus)
 {
-	Z80SetIrqLine(Z80_INPUT_LINE_NMI, nStatus & 1);
-}
-
-static INT32 kabukizSyncDAC()
-{
-	return (INT32)(float)(nBurnSoundLen * (ZetTotalCycles() / (6000000.000 / (nBurnFPS / 100.000))));
+	ZetSetIRQLine(CPU_IRQLINE_NMI, (nStatus) ? CPU_IRQSTATUS_ACK : CPU_IRQSTATUS_NONE);
 }
 
 static INT32 DrvDoReset()
@@ -937,13 +932,13 @@ static INT32 DrvDoReset()
 	}
 
 	tnzs_mcu_reset();
-	
+
 	if (tnzs_mcu_type() == MCU_NONE_JPOPNICS) {
 		BurnYM2151Reset();
 	} else {
 		BurnYM2203Reset();
 	}
-	
+
 	DACReset();
 
 	kageki_sample_pos = 0;
@@ -969,7 +964,7 @@ static INT32 MemIndex()
 	DrvSndROM		= Next; Next += 0x010000;
 
 	DrvPalette		= (UINT32*)Next; Next += 0x0200 * sizeof(UINT32);
-	
+
 	SampleBuffer    = (INT16*)Next; Next += nBurnSoundLen * 2 * sizeof(INT16);
 
 	AllRam			= Next;
@@ -1027,7 +1022,7 @@ static void kageki_sample_init()
 			*dest++ = ((*scan++) ^ 0x80) << 8;
 		}
 	}
-	
+
 	kageki_sample_gain = 0.45;
 	kageki_sample_output_dir = BURN_SND_ROUTE_BOTH;
 }
@@ -1111,7 +1106,7 @@ static INT32 Type1Init(INT32 mcutype)
 			if (BurnLoadRom(DrvZ80ROM0 + 0x10000,  0, 1)) return 1;
 			memcpy (DrvZ80ROM0 + 0x00000, DrvZ80ROM0 + 0x10000, 0x08000);
 			if (BurnLoadRom(DrvZ80ROM0 + 0x20000,  1, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvZ80ROM1 + 0x00000,  2, 1)) return 1;
 
 			if (BurnLoadRom(DrvGfxROM + 0x000000,  4, 1)) return 1;
@@ -1132,7 +1127,7 @@ static INT32 Type1Init(INT32 mcutype)
 			if (BurnLoadRom(DrvZ80ROM0 + 0x10000, 0, 1)) return 1;
 			memcpy (DrvZ80ROM0 + 0x00000, DrvZ80ROM0 + 0x10000, 0x08000);
 			if (BurnLoadRom(DrvZ80ROM1 + 0x00000, 1, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvGfxROM + 0x000000,  3, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x020000,  4, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x080000,  5, 1)) return 1;
@@ -1153,7 +1148,7 @@ static INT32 Type1Init(INT32 mcutype)
 			if (BurnLoadRom(DrvZ80ROM0 + 0x20000, 1, 1)) return 1;
 
 			if (BurnLoadRom(DrvZ80ROM1 + 0x00000, 2, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvGfxROM + 0x000000,  4, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x020000,  5, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x080000,  6, 1)) return 1;
@@ -1260,9 +1255,9 @@ static INT32 Type1Init(INT32 mcutype)
 			if (BurnLoadRom(DrvZ80ROM0 + 0x10000,  0, 1)) return 1;
 			memcpy (DrvZ80ROM0 + 0x00000, DrvZ80ROM0 + 0x10000, 0x08000);
 			if (BurnLoadRom(DrvZ80ROM0 + 0x20000,  1, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvZ80ROM1 + 0x00000,  2, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvGfxROM + 0x000000,  3, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x020000,  4, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x080000,  5, 1)) return 1;
@@ -1271,7 +1266,7 @@ static INT32 Type1Init(INT32 mcutype)
 			if (BurnLoadRom(DrvGfxROM + 0x120000,  8, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x180000,  9, 1)) return 1;
 			if (BurnLoadRom(DrvGfxROM + 0x1a0000, 10, 1)) return 1;
-	
+
 			if (BurnLoadRom(DrvSndROM + 0x000000, 11, 1)) return 1;
 
 			if (tnzs_gfx_decode()) return 1;
@@ -1364,9 +1359,9 @@ static INT32 Type1Init(INT32 mcutype)
 		} else {
 			BurnYM2203SetPorts(0, &tnzs_ym2203_portA, &tnzs_ym2203_portB, NULL, NULL);
 		}
-	}	
+	}
 
-	DACInit(0, 0, 1, kabukizSyncDAC); // kabukiz
+	DACInit(0, 0, 1, ZetTotalCycles, 6000000); // kabukiz
 	DACSetRoute(0, 0.10, BURN_SND_ROUTE_BOTH);
 
 	GenericTilesInit();
@@ -1473,7 +1468,7 @@ static INT32 Type2Init()
 	BurnYM2203SetPorts(0, NULL, NULL, &kabukiz_sound_bankswitch, &kabukiz_dac_write);
 	BurnTimerAttachZet(6000000);
 	BurnYM2203SetAllRoutes(0, 0.30, BURN_SND_ROUTE_BOTH);
-	
+
 	if (game_kabukiz || strncmp(BurnDrvGetTextA(DRV_NAME), "tnzs", 5) == 0) {
 		BurnYM2203SetRoute(0, BURN_SND_YM2203_YM2203_ROUTE, 2.00, BURN_SND_ROUTE_BOTH);
 		BurnYM2203SetRoute(0, BURN_SND_YM2203_AY8910_ROUTE_1, 1.00, BURN_SND_ROUTE_BOTH);
@@ -1481,7 +1476,7 @@ static INT32 Type2Init()
 		BurnYM2203SetRoute(0, BURN_SND_YM2203_AY8910_ROUTE_3, 1.00, BURN_SND_ROUTE_BOTH);
 	}
 
-	DACInit(0, 0, 1, kabukizSyncDAC); // kabukiz
+	DACInit(0, 0, 1, ZetTotalCycles, 6000000); // kabukiz
 	DACSetRoute(0, 0.10, BURN_SND_ROUTE_BOTH);
 
 	GenericTilesInit();
