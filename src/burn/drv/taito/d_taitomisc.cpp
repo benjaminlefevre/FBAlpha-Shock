@@ -3184,8 +3184,8 @@ void __fastcall Rastan68KWriteWord(UINT32 a, UINT16 d)
 static UINT8 TopspeedInputBypassRead()
 {
 	UINT8 Port = TC0220IOCPortRead();
-	
-	INT32 Steer = (TaitoAnalogPort0 >> 4);
+
+	INT16 Steer = (TaitoAnalogPort0 >> 3);
 	
 	switch (Port) {
 		case 0x0c: {

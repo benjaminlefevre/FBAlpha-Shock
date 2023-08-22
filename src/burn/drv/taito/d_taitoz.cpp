@@ -4080,49 +4080,54 @@ static const UINT8 nightstr_stick[128]=
 	0x46,0x47,0x48,0x49,0xb8
 };
 
-UINT32 scalerange(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
+static UINT32 scalerange(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+static UINT8 ananice(INT16 anaval, INT32 reversed, INT32 deadzone, UINT8 scalemin, UINT8 scalemax)
+{
+	INT16 Temp = (reversed) ? (0x7f - (anaval / 16)) : (0x7f + (anaval / 16));  // - for reversed, + for normal
+	if (Temp < 0x3f) Temp = 0x3f;       // clamping for happy scalerange()
+	if (Temp > 0xbf) Temp = 0xbf;
+	Temp = scalerange(Temp, 0x3f, 0xbf, scalemin, scalemax);
+
+	// deadzones
+	// 0x7f is center, 0x01 right, 0xfe left.  0x7f +-10 is noise.
+	if (deadzone && !(Temp < 0x7f-10 || Temp > 0x7f+10)) Temp = 0x7f;
+
+	return Temp;
 }
 
 static UINT8 NightstrStickRead(INT32 Offset)
 {
 	switch (Offset) {      // p0: 3f - be  p1: bf - 40
 		case 0x00: {
-			UINT8 Temp = 0x7f + (TaitoAnalogPort0 >> 4);
-			UINT8 Temp2 = 0;
-			if (Temp < 0x01) Temp = 0x01;
-			if (Temp > 0xfe) Temp = 0xfe;
-			Temp2 = scalerange(Temp, 0x3f, 0xbe, 0x01, 0xfe);
+			UINT8 Temp = ananice(TaitoAnalogPort0, 0, 0, 0x00, 0xff);
 			//bprintf(0, _T("Port0-temp[%X] scaled[%X]\n"), Temp, Temp2);
-			return nightstr_stick[(Temp2 * 0x64) / 0x100];
+			return nightstr_stick[(Temp * 0x64) / 0x100];
 		}
-		
+
 		case 0x01: {
-			UINT8 Temp = 0x7f - (TaitoAnalogPort1 >> 4);
-			UINT8 Temp2 = 0;
-			if (Temp < 0x01) Temp = 0x01;
-			if (Temp > 0xfe) Temp = 0xfe;
-			Temp2 = scalerange(Temp, 0x40, 0xbf, 0x01, 0xfe);
-			//bprintf(0, _T("Port1-temp[%X]\n"), Temp);
-			return nightstr_stick[(Temp2 * 0x64) / 0x100];
+			UINT8 Temp = ananice(TaitoAnalogPort1, 1, 0, 0x00, 0xff);
+			return nightstr_stick[(Temp * 0x64) / 0x100];
 		}
-		
+
 		case 0x02: {
 			return 0xff;
 		}
-		
+
 		case 0x03: {
 			return 0xff;
 		}
 	}
-	
+
 	return 0xff;
 }
 
 UINT8 __fastcall Nightstr68K1ReadByte(UINT32 a)
 {
 	TC0220IOCHalfWordRead_Map(0x400000)
-	
+
 	switch (a) {
 		case 0xe40001:
 		case 0xe40003:
@@ -4130,12 +4135,12 @@ UINT8 __fastcall Nightstr68K1ReadByte(UINT32 a)
 		case 0xe40007: {
 			return NightstrStickRead((a - 0xe40000) >> 1);
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Read byte => %06X\n"), a);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -4143,7 +4148,7 @@ void __fastcall Nightstr68K1WriteByte(UINT32 a, UINT8 d)
 {
 	TC0220IOCHalfWordWrite_Map(0x400000)
 	TC0100SCN0ByteWrite_Map(0xc00000, 0xc0ffff)
-	
+
 	switch (a) {
 		case 0xe00000:
 		case 0xe00008:
@@ -4151,7 +4156,7 @@ void __fastcall Nightstr68K1WriteByte(UINT32 a, UINT8 d)
 			// nop
 			return;
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Write byte => %06X, %02X\n"), a, d);
 		}
@@ -4164,16 +4169,16 @@ UINT16 __fastcall Nightstr68K1ReadWord(UINT32 a)
 		case 0x820002: {
 			return TC0140SYTCommRead();
 		}
-		
+
 		case 0xa00002: {
 			return TC0110PCRWordRead(0);
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Read word => %06X\n"), a);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -4182,36 +4187,36 @@ void __fastcall Nightstr68K1WriteWord(UINT32 a, UINT16 d)
 	TC0220IOCHalfWordWrite_Map(0x400000)
 	TC0100SCN0WordWrite_Map(0xc00000, 0xc0ffff)
 	TC0100SCN0CtrlWordWrite_Map(0xc20000)
-	
+
 	switch (a) {
 		case 0x800000: {
 			TaitoZCpuAReset(d);
 			return;
 		}
-		
+
 		case 0x820000: {
 			TC0140SYTPortWrite(d & 0xff);
 			return;
 		}
-		
+
 		case 0x820002: {
 			TC0140SYTCommWrite(d & 0xff);
 			return;
 		}
-		
+
 		case 0xa00000:
 		case 0xa00002: {
 			TC0110PCRStep1WordWrite(0, (a - 0xa00000) >> 1, d);
 			return;
 		}
-		
+
 		case 0xe00000:
 		case 0xe00008:
 		case 0xe00010: {
 			// nop
 			return;
 		}
-		
+
 		case 0xe40000:
 		case 0xe40002:
 		case 0xe40004:
@@ -4223,7 +4228,7 @@ void __fastcall Nightstr68K1WriteWord(UINT32 a, UINT16 d)
 			TaitoZINT6timer = SekTotalCycles();
 			return;
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Write word => %06X, %04X\n"), a, d);
 		}
@@ -4233,50 +4238,50 @@ void __fastcall Nightstr68K1WriteWord(UINT32 a, UINT16 d)
 UINT8 __fastcall Racingb68K1ReadByte(UINT32 a)
 {
 	TC0510NIOHalfWordSwapRead_Map(0x300000)
-	
+
 	switch (a) {
 		case 0x300019:
 		case 0x30001b: {
 			return DblaxleSteerRead((a - 0x300010) >> 1);
 		}
-		
+
 		case 0x520003: {
 			return TC0140SYTCommRead();
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Read byte => %06X\n"), a);
 		}
 	}
-	
+
 	return 0;
 }
 
 void __fastcall Racingb68K1WriteByte(UINT32 a, UINT8 d)
 {
 	TC0510NIOHalfWordSwapWrite_Map(0x300000)
-	
+
 	switch (a) {
 		case 0x500002: {
 			TaitoZCpuAReset(d);
 			return;
 		}
-		
+
 		case 0x520001: {
 			TC0140SYTPortWrite(d);
 			return;
 		}
-		
+
 		case 0x520003: {
 			TC0140SYTCommWrite(d);
 			return;
 		}
-		
+
 		case 0xb08000: {
 			SciSpriteFrame = d;
 			return;
 		}
-		
+
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Write byte => %06X, %02X\n"), a, d);
 		}
@@ -4290,7 +4295,7 @@ UINT16 __fastcall Racingb68K1ReadWord(UINT32 a)
 			bprintf(PRINT_NORMAL, _T("68K #1 Read word => %06X\n"), a);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -4298,7 +4303,7 @@ void __fastcall Racingb68K1WriteWord(UINT32 a, UINT16 d)
 {
 	TC0510NIOHalfWordSwapWrite_Map(0x300000)
 	TC0480SCPCtrlWordWrite_Map(0x930000)
-	
+
 	switch (a) {
 		default: {
 			bprintf(PRINT_NORMAL, _T("68K #1 Write word => %06X, %04X\n"), a, d);
@@ -4306,27 +4311,9 @@ void __fastcall Racingb68K1WriteWord(UINT32 a, UINT16 d)
 	}
 }
 
-static UINT32 scalerange_skns(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-static UINT16 ananice_sci(INT16 anaval)
-{
-	if (anaval > 1024) anaval = 1024;
-	if (anaval < -1024) anaval = -1024; // clamp huge values so don't overflow INT8 conversion
-	// for inverted, use 0x7f - (anaval >> 4) :)
-	UINT8 Temp = (anaval >> 4) - 0x7f; // convert to INT8, but store in UINT8
-	if (Temp < 0x01) Temp = 0x01;
-	if (Temp > 0xfe) Temp = 0xfe;
-	UINT16 pad = scalerange_skns(Temp, 0x3f, 0xc0, 0x20, 0xe0);
-	if (pad > 0xff) pad = 0xff;
-	if (pad > 0x75 && pad < 0x85) pad = 0x7f; // dead zone
-	return pad;
-}
-
 static UINT8 SciSteerRead(INT32 Offset)
 {
-	INT32 Steer = ananice_sci(TaitoAnalogPort0) - 0x7f;
+	INT32 Steer = ananice(TaitoAnalogPort0, 0, 1, 0x20, 0xe0) - 0x7f;
 
 	switch (Offset) {
 		case 0x04: {
