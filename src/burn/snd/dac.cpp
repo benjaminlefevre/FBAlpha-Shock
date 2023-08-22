@@ -1,5 +1,6 @@
 #include "burnint.h"
 #include "burn_sound.h"
+#include "dac.h"
 
 #define DAC_NUM		(8)	// Maximum DAC chips
 
@@ -26,6 +27,14 @@ static INT16 *rBuffer = NULL;
 static INT32 NumChips;
 
 static INT32 bAddSignal;
+
+static INT32 (*pCPUTotalCycles)() = NULL;
+static UINT32 nDACCPUMHZ = 0;
+
+static INT32 DACSyncInternal()
+{
+	return (INT32)(float)(nBurnSoundLen * (pCPUTotalCycles() / (nDACCPUMHZ / (nBurnFPS / 100.0000))));
+}
 
 static void UpdateStream(INT32 chip, INT32 length)
 {
@@ -209,6 +218,22 @@ void DACStereoMode(INT32 Chip)
 	ptr->Stereo = 1;
 }
 
+void DACInit(INT32 Num, UINT32 Clock, INT32 bAdd, INT32 (*pCPUCyclesCB)(), INT32 nCpuMHZ)
+{
+	if (pCPUCyclesCB == NULL) {
+		bprintf(PRINT_ERROR, _T("DACInit pCPUCyclesCB is NULL.\n"));
+	}
+	if (nCpuMHZ == 0) {
+		bprintf(PRINT_ERROR, _T("DACInit nCPUMHZ is 0.\n"));
+	}
+
+	pCPUTotalCycles = pCPUCyclesCB;
+	nDACCPUMHZ = nCpuMHZ;
+
+	DACInit(Num, Clock, bAdd, DACSyncInternal);
+}
+
+
 void DACInit(INT32 Num, UINT32 /*Clock*/, INT32 bAdd, INT32 (*pSyncCB)())
 {
 #if defined FBA_DEBUG
@@ -219,7 +244,7 @@ void DACInit(INT32 Num, UINT32 /*Clock*/, INT32 bAdd, INT32 (*pSyncCB)())
 	struct dac_info *ptr;
 
 	DebugSnd_DACInitted = 1;
-	
+
 	NumChips = Num + 1;
 
 	ptr = &dac_table[Num];
@@ -233,7 +258,7 @@ void DACInit(INT32 Num, UINT32 /*Clock*/, INT32 bAdd, INT32 (*pSyncCB)())
 	ptr->pSyncCallback = pSyncCB;
 
 	DACBuildVolTables(); // necessary to build for every chip?
-	
+
 	bAddSignal = bAdd;
 }
 
@@ -285,8 +310,11 @@ void DACExit()
 		ptr->pSyncCallback = NULL;
 	}
 
+	pCPUTotalCycles = NULL;
+	nDACCPUMHZ = 0;
+
 	NumChips = 0;
-	
+
 	DebugSnd_DACInitted = 0;
 
 	BurnFree (lBuffer);
@@ -295,7 +323,7 @@ void DACExit()
 	rBuffer = NULL;
 }
 
-void DACScan(INT32 nAction,INT32 *pnMin)
+void DACScan(INT32 nAction, INT32 *pnMin)
 {
 #if defined FBA_DEBUG
 	if (!DebugSnd_DACInitted) bprintf(PRINT_ERROR, _T("DACScan called without init\n"));
