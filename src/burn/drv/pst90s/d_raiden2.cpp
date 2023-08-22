@@ -227,6 +227,57 @@ static struct BurnInputInfo NzeroteaInputList[] = {
 
 STDINPUTINFO(Nzerotea)
 
+static struct BurnInputInfo Zerotm2kInputList[] = {
+	{"P1 Coin",		BIT_DIGITAL,	DrvJoy4 + 0,	"p1 coin"	},
+	{"P1 Start",		BIT_DIGITAL,	DrvJoy3 + 0,	"p1 start"	},
+	{"P1 Up",		BIT_DIGITAL,	DrvJoy1 + 0,	"p1 up"		},
+	{"P1 Down",		BIT_DIGITAL,	DrvJoy1 + 1,	"p1 down"	},
+	{"P1 Left",		BIT_DIGITAL,	DrvJoy1 + 2,	"p1 left"	},
+	{"P1 Right",		BIT_DIGITAL,	DrvJoy1 + 3,	"p1 right"	},
+	{"P1 Button 1",		BIT_DIGITAL,	DrvJoy1 + 4,	"p1 fire 1"	},
+	{"P1 Button 2",		BIT_DIGITAL,	DrvJoy1 + 5,	"p1 fire 2"	},
+	{"P1 Button 3",		BIT_DIGITAL,	DrvJoy1 + 6,	"p1 fire 3"	},
+
+	{"P2 Coin",		BIT_DIGITAL,	DrvJoy4 + 1,	"p2 coin"	},
+	{"P2 Start",		BIT_DIGITAL,	DrvJoy3 + 1,	"p2 start"	},
+	{"P2 Up",		BIT_DIGITAL,	DrvJoy1 + 8,	"p2 up"		},
+	{"P2 Down",		BIT_DIGITAL,	DrvJoy1 + 9,	"p2 down"	},
+	{"P2 Left",		BIT_DIGITAL,	DrvJoy1 + 10,	"p2 left"	},
+	{"P2 Right",		BIT_DIGITAL,	DrvJoy1 + 11,	"p2 right"	},
+	{"P2 Button 1",		BIT_DIGITAL,	DrvJoy1 + 12,	"p2 fire 1"	},
+	{"P2 Button 2",		BIT_DIGITAL,	DrvJoy1 + 13,	"p2 fire 2"	},
+	{"P2 Button 3",		BIT_DIGITAL,	DrvJoy1 + 14,	"p2 fire 3"	},
+
+	{"P3 Coin",		BIT_DIGITAL,	DrvJoy4 + 2,	"p3 coin"	},
+	{"P3 Start",		BIT_DIGITAL,	DrvJoy3 + 2,	"p3 start"	},
+	{"P3 Up",		BIT_DIGITAL,	DrvJoy2 + 0,	"p3 up"		},
+	{"P3 Down",		BIT_DIGITAL,	DrvJoy2 + 1,	"p3 down"	},
+	{"P3 Left",		BIT_DIGITAL,	DrvJoy2 + 2,	"p3 left"	},
+	{"P3 Right",		BIT_DIGITAL,	DrvJoy2 + 3,	"p3 right"	},
+	{"P3 Button 1",		BIT_DIGITAL,	DrvJoy2 + 4,	"p3 fire 1"	},
+	{"P3 Button 2",		BIT_DIGITAL,	DrvJoy2 + 5,	"p3 fire 2"	},
+	{"P3 Button 3",		BIT_DIGITAL,	DrvJoy2 + 6,	"p3 fire 3"	},
+
+	{"P4 Coin",		BIT_DIGITAL,	DrvJoy4 + 3,	"p4 coin"	},
+	{"P4 Start",		BIT_DIGITAL,	DrvJoy3 + 3,	"p4 start"	},
+	{"P4 Up",		BIT_DIGITAL,	DrvJoy2 + 8,	"p4 up"		},
+	{"P4 Down",		BIT_DIGITAL,	DrvJoy2 + 9,	"p4 down"	},
+	{"P4 Left",		BIT_DIGITAL,	DrvJoy2 + 10,	"p4 left"	},
+	{"P4 Right",		BIT_DIGITAL,	DrvJoy2 + 11,	"p4 right"	},
+	{"P4 Button 1",		BIT_DIGITAL,	DrvJoy2 + 12,	"p4 fire 1"	},
+	{"P4 Button 2",		BIT_DIGITAL,	DrvJoy2 + 13,	"p4 fire 2"	},
+	{"P4 Button 3",		BIT_DIGITAL,	DrvJoy2 + 14,	"p4 fire 3"	},
+
+	{"Reset",		BIT_DIGITAL,	&DrvReset,	"reset"		},
+	{"Service",		BIT_DIGITAL,	DrvJoy3 + 4,	"service"	},
+	{"Service Mode",    BIT_DIGITAL,	DrvJoy3 + 5,	"diag"	},
+	{"Dip A",		BIT_DIPSWITCH,	DrvDips + 0,	"dip"		},
+	{"Dip B",		BIT_DIPSWITCH,	DrvDips + 1,	"dip"		},
+	{"Dip C",		BIT_DIPSWITCH,	DrvDips + 2,	"dip"		},
+};
+
+STDINPUTINFO(Zerotm2k)
+
 static struct BurnDIPInfo Raiden2DIPList[]=
 {
 	{0x12, 0xff, 0xff, 0xff, NULL			},
@@ -1166,7 +1217,7 @@ static void rd2_cop_write(UINT16 offset, UINT8 data)
 	if ((offset & 1) == 0) return; // necessary??
 
 	UINT16 *copram = (UINT16*)DrvMainRAM;
-	UINT16 dataword = copram[(offset & 0x7fe)/2];
+	UINT16 dataword = BURN_ENDIAN_SWAP_INT16(copram[(offset & 0x7fe)/2]);
 
 	switch (offset & 0x7fe)
 	{
@@ -1292,7 +1343,7 @@ static void rd2_cop_write(UINT16 offset, UINT8 data)
 
 		case 0x6c6:
 			dst1 = dataword;
-			copram[0x762/2] = dst1;
+			copram[0x762/2] = BURN_ENDIAN_SWAP_INT16(dst1);
 		return;
 
 		case 0x6ca:
@@ -1333,7 +1384,7 @@ static void rd2_cop_write(UINT16 offset, UINT8 data)
 static UINT8 rd2_cop_read(UINT16 offset)
 {
 	UINT16 *copram = (UINT16*)DrvMainRAM;
-	UINT16 ret = copram[offset/2];
+	UINT16 ret = BURN_ENDIAN_SWAP_INT16(copram[offset/2]);
 
 	if ((offset & 0xfffe0) == 0x00700) {
 		return seibu_main_word_read((offset & 0x1f)/2);
@@ -1404,7 +1455,7 @@ static UINT8 rd2_cop_read(UINT16 offset)
 
 static inline void palette_update_entry(INT32 entry)
 {
-	UINT16 p = *((UINT16*)(DrvPalRAM + entry));
+	UINT16 p = BURN_ENDIAN_SWAP_INT16(*((UINT16*)(DrvPalRAM + entry)));
 
 	UINT8 r = (p >> 0) & 0x1f;
 	UINT8 g = (p >> 5) & 0x1f;
@@ -1475,7 +1526,7 @@ static void __fastcall raidendx_main_write(UINT32 address, UINT8 data)
 		case 0x0470:
 		case 0x0471: {
 			DrvMainRAM[address] = data;
-			cop_bank = *((UINT16*)(DrvMainRAM + 0x470));
+			cop_bank = BURN_ENDIAN_SWAP_INT16(*((UINT16*)(DrvMainRAM + 0x470)));
 			if (address & 1) {
 				raidendx_bankswitch(cop_bank);
 			}
@@ -1580,7 +1631,7 @@ static void palettedma()
 {
 	for (INT32 i = 0; i < 0x1000 / 2; i++)
 	{
-		UINT16 palval = *((UINT16*)(DrvMainRAM + 0x1f000 + i * 2));
+		UINT16 palval = BURN_ENDIAN_SWAP_INT16(*((UINT16*)(DrvMainRAM + 0x1f000 + i * 2)));
 
 		UINT8 r = palval & 0x1f;
 		UINT8 g = (palval >> 5) & 0x1f;
@@ -1602,7 +1653,7 @@ static void __fastcall nzeroteam_main_write(UINT32 address, UINT8 data)
 	}
 
 	UINT16 *copram = (UINT16*)DrvMainRAM;
-	UINT16 dataword = copram[(address & 0x7fe)/2];
+	UINT16 dataword = BURN_ENDIAN_SWAP_INT16(copram[(address & 0x7fe)/2]);
 
 	if (address >= 0x600 && address <= 0x64f) {
 		raiden2_crtc_write(address & 0xff, data);
@@ -1774,7 +1825,7 @@ static void __fastcall r2dx_main_write(UINT32 address, UINT8 data)
 	}
 
 	UINT16 *copram = (UINT16*)DrvMainRAM;
-	UINT16 dataword = copram[(address & 0x7fe)/2];
+	UINT16 dataword = BURN_ENDIAN_SWAP_INT16(copram[(address & 0x7fe)/2]);
 
 	if ((address & 1) == 0 && address < 0x700) return; // necessary
 
@@ -1829,7 +1880,7 @@ static void __fastcall r2dx_main_write(UINT32 address, UINT8 data)
 
 		case 0x6c6:
 			dst1 = dataword;
-			copram[0x762/2] = dst1;
+			copram[0x762/2] = BURN_ENDIAN_SWAP_INT16(dst1);
 		return;
 
 		case 0x6d8:
@@ -2015,7 +2066,7 @@ static INT32 MemIndex()
 	DrvPalette		= (UINT32*)Next; Next += 0x0800 * sizeof(UINT32);
 
 	bitmap32		= (UINT32*)Next; Next += 320 * 256 * sizeof(UINT32);
-	DrvAlphaTable		= Next; Next += 0x000800;
+	DrvAlphaTable	= Next; Next += 0x000800;
 
 	AllRam			= Next;
 
@@ -2335,10 +2386,10 @@ static void raiden2_decrypt_sprites()
 {
 	UINT32 *data = (UINT32 *)DrvGfxROM2;
 
-	for(INT32 i=0; i<0x800000/4; i++)
+	for (INT32 i=0; i<0x800000/4; i++)
 	{
-		data[i] = core_decrypt(data[i],	(i&0xff) ^ BIT(i,15) ^ (BIT(i,20)<<8), (i&0xff) ^ BIT(i,15),
-			(i>>8) & 0xff, (i>>16) & 0xf, rotate_r2, x5_r2, x11_r2, 0x60860000, 0x176c91a8, 0x0f488000);
+		data[i] = BURN_ENDIAN_SWAP_INT32(core_decrypt(BURN_ENDIAN_SWAP_INT32(data[i]),	(i&0xff) ^ BIT(i,15) ^ (BIT(i,20)<<8), (i&0xff) ^ BIT(i,15),
+			(i>>8) & 0xff, (i>>16) & 0xf, rotate_r2, x5_r2, x11_r2, 0x60860000, 0x176c91a8, 0x0f488000));
 	}
 }
 
@@ -2346,11 +2397,10 @@ static void zeroteam_decrypt_sprites()
 {
 	UINT32 *data = (UINT32 *)DrvGfxROM2;
 
-	for(INT32 i=0; i<0x400000/4; i++)
+	for (INT32 i=0; i<0x400000/4; i++)
 	{
-		data[i] = core_decrypt(data[i], i & 0xff, i & 0xff, (i>>7) & 0x1ff, (i>>16) & 0xf,
-			rotate_zt, x5_zt, x11_zt, 0xa5800000, 0x7b67b7b9, 0xf1412ea8
-		);
+		data[i] = BURN_ENDIAN_SWAP_INT32(core_decrypt(BURN_ENDIAN_SWAP_INT32(data[i]), i & 0xff, i & 0xff, (i>>7) & 0x1ff, (i>>16) & 0xf,
+			rotate_zt, x5_zt, x11_zt, 0xa5800000, 0x7b67b7b9, 0xf1412ea8));
 	}
 }
 
@@ -3035,7 +3085,7 @@ static void draw_layer(UINT8 *ram, INT32 scr, UINT32 color_base, INT32 bank)
 
 		if (sy >= nScreenHeight || sx >= nScreenWidth) continue;
 
-		INT32 attr = vram[offs];
+		INT32 attr = BURN_ENDIAN_SWAP_INT16(vram[offs]);
 		INT32 color = attr >> 12;
 		INT32 code = (attr & 0xfff) + (bank << 12);
 
@@ -3084,7 +3134,7 @@ static void draw_txt_layer()
 
 		if (sy >= nScreenHeight || sx >= nScreenWidth) continue;
 
-		INT32 attr = vram[offs];
+		INT32 attr = BURN_ENDIAN_SWAP_INT16(vram[offs]);
 		INT32 color = attr >> 12;
 		INT32 code = (attr & 0xfff) + (tx_bank * 0x1000);
 
@@ -3163,9 +3213,9 @@ static void draw_sprites(INT32 priority)
 	UINT16 *source = sprites + sprites_cur_start/2;
 
 	while( source >= sprites ){
-		INT32 tile_number = source[1];
-		INT32 sx = source[2];
-		INT32 sy = source[3];
+		INT32 tile_number = BURN_ENDIAN_SWAP_INT16(source[1]);
+		INT32 sx = BURN_ENDIAN_SWAP_INT16(source[2]);
+		INT32 sy = BURN_ENDIAN_SWAP_INT16(source[3]);
 		INT32 colr;
 		INT32 xtiles, ytiles;
 		INT32 ytlim, xtlim;
@@ -3173,15 +3223,15 @@ static void draw_sprites(INT32 priority)
 		INT32 xstep, ystep;
 		INT32 pri;
 
-		ytlim = (source[0] >> 12) & 0x7;
-		xtlim = (source[0] >> 8 ) & 0x7;
+		ytlim = (BURN_ENDIAN_SWAP_INT16(source[0]) >> 12) & 0x7;
+		xtlim = (BURN_ENDIAN_SWAP_INT16(source[0]) >> 8 ) & 0x7;
 
-		xflip = (source[0] >> 15) & 0x1;
-		yflip = (source[0] >> 11) & 0x1;
+		xflip = (BURN_ENDIAN_SWAP_INT16(source[0]) >> 15) & 0x1;
+		yflip = (BURN_ENDIAN_SWAP_INT16(source[0]) >> 11) & 0x1;
 
-		colr = source[0] & 0x3f;
+		colr = BURN_ENDIAN_SWAP_INT16(source[0]) & 0x3f;
 
-		pri = (source[0] >> 6) & 3;
+		pri = (BURN_ENDIAN_SWAP_INT16(source[0]) >> 6) & 3;
 
 		if (pri != priority) {
 			source -= 4;
@@ -5026,7 +5076,7 @@ struct BurnDriver BurnDrvZerotm2k = {
 	"Zero Team 2000\0", NULL, "Seibu Kaihatsu", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_SCRFIGHT, 0,
-	NULL, zerotm2kRomInfo, zerotm2kRomName, NULL, NULL, ZeroteamInputInfo, NULL,
+	NULL, zerotm2kRomInfo, zerotm2kRomName, NULL, NULL, Zerotm2kInputInfo, NULL,
 	Zerotm2kInit, DrvExit, ZeroteamFrame, ZeroteamDraw, DrvScan, &DrvRecalc, 0x800,
 	320, 256, 4, 3
 };

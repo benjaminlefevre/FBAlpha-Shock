@@ -8,6 +8,7 @@
 #include "ymz280b.h"
 #include "sknsspr.h"
 #include "sh2_intf.h"
+#include "lowpass2.h"
 
 static UINT8 *AllMem;
 static UINT8 *MemEnd;
@@ -66,9 +67,11 @@ static INT32 sprite_kludge_y;
 static UINT8 DrvJoy1[32];
 static UINT8 DrvDips[2];
 static UINT32 DrvInputs[3];
-static INT32 DrvAnalogPort0 = 0;
-static INT32 DrvAnalogPort1 = 0;
+static INT16 DrvAnalogPort0 = 0;
+static INT16 DrvAnalogPort1 = 0;
 static UINT8 DrvReset;
+
+static UINT8 PaddleX[2] = { 0, 0 };
 
 static INT32 sixtyhz = 0;
 
@@ -76,8 +79,11 @@ static INT32 nGfxLen0 = 0;
 static INT32 nRedrawTiles = 0;
 static UINT32 speedhack_address = ~0;
 static UINT32 speedhack_pc[2] = { 0, 0 };
-static UINT8 m_region = 0; /* 0 Japan, 1 Europe, 2 Asia, 3 USA, 4 Korea */
+static UINT8 region = 0; /* 0 Japan, 1 Europe, 2 Asia, 3 USA, 4 Korea */
 static UINT32 Vblokbrk = 0;
+
+static class LowPass2 *LP1 = NULL, *LP2 = NULL;
+
 static struct BurnRomInfo emptyRomDesc[] = {
 	{ "",                    0,          0, 0 },
 };
@@ -280,6 +286,10 @@ static struct BurnDIPInfo CyvernDIPList[]=
 	{0   , 0xfe, 0   ,    2, "Speed Hacks"},
 	{0x14, 0x01, 0x01, 0x00, "No"		},
 	{0x14, 0x01, 0x01, 0x01, "Yes"		},
+
+	{0   , 0xfe, 0   ,    2, "Headache Filter (audio hack)"},
+	{0x14, 0x01, 0x02, 0x00, "No"		},
+	{0x14, 0x01, 0x02, 0x02, "Yes"		},
 };
 
 STDDIPINFO(Cyvern)
@@ -771,7 +781,7 @@ static void __fastcall suprnova_write_byte(UINT32 address, UINT8 data)
 			//  case 0x01800003:// sengeki writes here... puzzloop complains (security...)
 			{
 				hit.disconnect=1; /* hit2 stuff */
-				switch (m_region) /* 0 Japan, 1 Europe, 2 Asia, 3 USA, 4 Korea */
+				switch (region) /* 0 Japan, 1 Europe, 2 Asia, 3 USA, 4 Korea */
 				{
 					case 0:
 						if (data == 0) hit.disconnect= 0;
@@ -972,7 +982,7 @@ static INT32 DrvDoReset()
 
 	YMZ280BReset();
 
-	hit.disconnect = (m_region != 2) ? 1 : 0;
+	hit.disconnect = (region != 2) ? 1 : 0;
 
 	suprnova_alt_enable_sprites = 0;
 	bright_spc_g_trans = bright_spc_r_trans = bright_spc_b_trans = 0;
@@ -984,6 +994,8 @@ static INT32 DrvDoReset()
 
 	nRedrawTiles = 1;
 	olddepths[0] = olddepths[1] = 0xff;
+
+	PaddleX[0] = PaddleX[1] = 0;
 
 	HiscoreReset();
 
@@ -1075,7 +1087,7 @@ static INT32 DrvInit(INT32 bios)
 		if (DrvLoad(1)) return 1;
 
 		if (BurnLoadRom(DrvSh2BIOS, 0x00080 + bios, 1)) return 1;	// bios
-		m_region = bios;
+		region = bios;
 		BurnSwapEndian(DrvSh2BIOS, 0x80000);
 		BurnSwapEndian(DrvSh2ROM, 0x200000);
 	}
@@ -1125,6 +1137,11 @@ static INT32 DrvInit(INT32 bios)
 
 	GenericTilesInit();
 
+	{ // filter (for cyvern)
+		LP1 = new LowPass2(10900, nBurnSoundRate, 0.13, 1.0, 2300, 0.01, 1.0);
+		LP2 = new LowPass2(10900, nBurnSoundRate, 0.13, 1.0, 2300, 0.01, 1.0);
+	}
+
 	DrvDoReset();
 
 	return 0;
@@ -1150,6 +1167,10 @@ static INT32 DrvExit()
 
 	speedhack_address = ~0;
 	memset (speedhack_pc, 0, 2 * sizeof(INT32));
+
+	// de-init cyvern filter
+	delete LP1; LP1 = NULL;
+	delete LP2; LP2 = NULL;
 
 	return 0;
 }
@@ -1628,22 +1649,11 @@ static INT32 DrvDraw()
 	return 0;
 }
 
-static UINT32 scalerange_skns(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-static UINT8 Paddle_X = 0;
-
-static UINT8 Paddle_incdec(UINT32 PaddlePortnum) {
-	UINT8 Temp;
-
-	Temp = 0x7f + (PaddlePortnum >> 4);
-	if (Temp < 0x01) Temp = 0x01;
-	if (Temp > 0xfe) Temp = 0xfe;
-	Temp = scalerange_skns(Temp, 0x3f, 0xbe, 0x01, 0xfe);
-	if (Temp > 0x90) Paddle_X-=15;
-	if (Temp < 0x70) Paddle_X+=15;
-	return Paddle_X;
+static UINT8 Paddle_incdec(UINT32 PaddlePortnum, UINT32 player) {
+	UINT8 Temp = ProcessAnalog(PaddlePortnum, 0, 1, 0x01, 0xff);
+	if (Temp > 0x90) PaddleX[player]-=15;
+	if (Temp < 0x70) PaddleX[player]+=15;
+	return PaddleX[player];
 }
 
 static INT32 DrvFrame()
@@ -1659,7 +1669,7 @@ static INT32 DrvFrame()
 		}
 
 		DrvInputs[1] = 0x0000ff00 | DrvDips[0];
-		DrvInputs[1] |= Paddle_incdec(DrvAnalogPort0) << 24;
+		DrvInputs[1] |= (Paddle_incdec(DrvAnalogPort0, 0) << 24) | (Paddle_incdec(DrvAnalogPort1, 1) << 16);
 		DrvInputs[2] = 0xffffffff;
 	}
 
@@ -1668,7 +1678,6 @@ static INT32 DrvFrame()
 	INT32 nInterleave = 262;
 
 	for (INT32 i = 0; i < nInterleave; i++) {
-		//Sh2Run(nTotalCycles / nInterleave);
 		nCyclesDone += Sh2Run(((i + 1) * nTotalCycles / nInterleave) - nCyclesDone);
 
 		if (i == 1) {
@@ -1689,6 +1698,10 @@ static INT32 DrvFrame()
 
 	if (pBurnSoundOut) {
 		YMZ280BRender(pBurnSoundOut, nBurnSoundLen);
+		if (LP1 && LP2 && (DrvDips[1] & 2)) { // Cyvern "Headache Filter" dip
+			LP1->Filter(pBurnSoundOut + 0, nBurnSoundLen); // Left
+			LP2->Filter(pBurnSoundOut + 1, nBurnSoundLen); // Right
+		}
 	}
 
 	if (pBurnDraw) {
@@ -1739,6 +1752,7 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		SCAN_VAR(bright_v3_b);
 		SCAN_VAR(use_spc_bright);
 		SCAN_VAR(use_v3_bright);
+		SCAN_VAR(PaddleX);
 	}
 
 	if (nAction & ACB_NVRAM) {
@@ -2944,7 +2958,7 @@ struct BurnDriver BurnDrvVblokbrk = {
 	"vblokbrk", NULL, "skns", NULL, "1997",
 	"VS Block Breaker (Europe)\0", NULL, "Kaneko / Mediaworks", "Super Kaneko Nova System",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BALLPADDLE, 0,
+	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BREAKOUT, 0,
 	NULL, vblokbrkRomInfo, vblokbrkRomName, NULL, NULL, VblokbrkInputInfo, VblokbrkDIPInfo,
 	VblokbrkInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 0x8000,
 	320, 240, 4, 3
@@ -2983,7 +2997,7 @@ struct BurnDriver BurnDrvVblokbrka = {
 	"vblokbrka", "vblokbrk", "skns", NULL, "1997",
 	"VS Block Breaker (Asia)\0", NULL, "Kaneko / Mediaworks", "Super Kaneko Nova System",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BALLPADDLE, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BREAKOUT, 0,
 	NULL, vblokbrkaRomInfo, vblokbrkaRomName, NULL, NULL, VblokbrkInputInfo, VblokbrkDIPInfo,
 	VblokbrkaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 0x8000,
 	320, 240, 4, 3
@@ -3022,7 +3036,7 @@ struct BurnDriver BurnDrvSarukani = {
 	"sarukani", "vblokbrk", "skns", NULL, "1997",
 	"Saru-Kani-Hamu-Zou (Japan)\0", NULL, "Kaneko / Mediaworks", "Super Kaneko Nova System",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BALLPADDLE, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_KANEKO_SKNS, GBF_BREAKOUT, 0,
 	NULL, sarukaniRomInfo, sarukaniRomName, NULL, NULL, VblokbrkInputInfo, VblokbrkDIPInfo,
 	SarukaniInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 0x8000,
 	320, 240, 4, 3

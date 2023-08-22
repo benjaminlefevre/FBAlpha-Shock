@@ -835,12 +835,12 @@ static INT32 MemIndex()
 	Taito68KRom1			= Next; Next += 0x080000;
 	TaitoZ80Rom1			= Next; Next += 0x010000;
 
-	TaitoChars			= Next; Next += 0x800000;
+	TaitoChars			    = Next; Next += 0x800000;
 
 	TaitoYM2610BRom			= Next; Next += 0x080000;
 	TaitoYM2610ARom			= Next; Next += 0x080000;
 
-	transparent_tile_lut		= Next; Next += 0x800000 / 0x100;
+	transparent_tile_lut	= Next; Next += 0x800000 / 0x100;
 
 	TaitoPalette			= (UINT32*)Next; Next += 0x0220 * sizeof(UINT32);
 
@@ -856,11 +856,11 @@ static INT32 MemIndex()
 	TaitoVideoRam			= Next; Next += 0x021000;
 
 	TaitoZ80Ram1			= Next; Next += 0x002000;
-	TaitoCharsB			= Next; Next += 0x004000;
+	TaitoCharsB			    = Next; Next += 0x004000;
 
-	TaitoRamEnd			= Next;
+	TaitoRamEnd			    = Next;
 
-	TaitoMemEnd			= Next;
+	TaitoMemEnd			    = Next;
 
 	return 0;
 }
@@ -1013,7 +1013,7 @@ static INT32 DrvExit()
 {
 	SekExit();
 	ZetExit();
-	
+
 	BurnYM2610Exit();
 
 	TaitoExit();
@@ -1045,48 +1045,48 @@ static void DrvPaletteUpdate()
 
 static void copy_zoom(INT32 min_x, INT32 max_x, INT32 min_y, INT32 max_y, UINT32 startx, UINT32 starty, INT32 incxx, INT32 incyy)
 {
-	startx += min_x * incxx; 
-	starty += min_y * incyy; 
-       
-	INT32 numblocks = (max_x - min_x) / 4;            
+	startx += min_x * incxx;
+	starty += min_y * incyy;
 
-	for (INT32 cury = min_y; cury <= max_y; cury++)     
-	{         
+	INT32 numblocks = (max_x - min_x) / 4;
+
+	for (INT32 cury = min_y; cury <= max_y; cury++)
+	{
 		UINT16 *destptr = pTransDraw + ((cury - min_y) * nScreenWidth);
 		INT32 srcx = startx;
 		INT32 srcy = starty;
 
-		starty += incyy;    
-   
-		if ((UINT32)srcy < 0x4000000) 
-		{     
+		starty += incyy;
+
+		if ((UINT32)srcy < 0x4000000)
+		{
 			UINT16 *srcptr = TaitoTempBitmap[1] + (((srcy >> 16) & 0x3ff) * 0x400);
- 
-			for (INT32 curx = 0; curx < numblocks; curx++)   
-			{ 
+
+			for (INT32 curx = 0; curx < numblocks; curx++)
+			{
 				if ((UINT32)srcx < 0x4000000)
 					if (srcptr[srcx >> 16]) destptr[0] = srcptr[srcx >> 16];
 
-				srcx += incxx;           
+				srcx += incxx;
 
 				if ((UINT32)srcx < 0x4000000)
 					if (srcptr[srcx >> 16]) destptr[1] = srcptr[srcx >> 16];
 
-				srcx += incxx;           
+				srcx += incxx;
 
 				if ((UINT32)srcx < 0x4000000)
 					if (srcptr[srcx >> 16]) destptr[2] = srcptr[srcx >> 16];
 
-				srcx += incxx;           
+				srcx += incxx;
 
 				if ((UINT32)srcx < 0x4000000)
 					if (srcptr[srcx >> 16]) destptr[3] = srcptr[srcx >> 16];
 
-				srcx += incxx;           
+				srcx += incxx;
 
-				destptr += 4;              
+				destptr += 4;
 			}
-		}     
+		}
 	}
 }
 
@@ -1134,7 +1134,7 @@ static void bg1_tilemap_draw()
 	{
 		copy_layer(1, 1);
 	}
-	else 
+	else
 	{
 		INT32 zx, zy, dx, dy, ex, ey, sx,sy;
 
@@ -1196,7 +1196,7 @@ static void bg0_tilemap_draw()
 	else
 	{
 		INT32 sx, zoomx, zoomy, dx, ex, dy, ey, y_index;
-	
+
 		INT32 min_x = screen_x_adjust;
 		INT32 max_x = screen_x_adjust + (nScreenWidth) - 1;
 		INT32 min_y = screen_y_adjust;
@@ -1303,7 +1303,7 @@ static void update_layer(INT32 layer)
 			{
 				for (INT32 x = 0; x < 16; x++)
 				{
-					dst[x] = gfx[((y*16)+x)^flip] + color;					
+					dst[x] = gfx[((y*16)+x)^flip] + color;
 				}
 
 				dst += 1024;
@@ -1336,7 +1336,7 @@ static const INT32 zoomy_conv_table[0x80] = {
 	0x0b,0x0c,0x0c,0x0d,0x0e,0x0e,0x0f,0x10,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x16,
 	0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x24,0x25,0x26,0x27,
 	0x28,0x2a,0x2b,0x2c,0x2e,0x30,0x31,0x32,0x34,0x36,0x37,0x38,0x3a,0x3c,0x3e,0x3f,
-	0x40,0x41,0x42,0x42,0x43,0x43,0x44,0x44,0x45,0x45,0x46,0x46,0x47,0x47,0x48,0x49, 
+	0x40,0x41,0x42,0x42,0x43,0x43,0x44,0x44,0x45,0x45,0x46,0x46,0x47,0x47,0x48,0x49,
 	0x4a,0x4a,0x4b,0x4b,0x4c,0x4d,0x4e,0x4f,0x4f,0x50,0x51,0x51,0x52,0x53,0x54,0x55,
 	0x56,0x57,0x58,0x59,0x5a,0x5b,0x5c,0x5d,0x5e,0x5f,0x60,0x61,0x62,0x63,0x64,0x66,
 	0x67,0x68,0x6a,0x6b,0x6c,0x6e,0x6f,0x71,0x72,0x74,0x76,0x78,0x80,0x7b,0x7d,0x7f
@@ -1767,17 +1767,13 @@ static INT32 DrvFrame()
 	INT32 nInterleave = 100;
 	INT32 nCyclesTotal[2] = { SekSpeed / 60, ZetSpeed / 60 };
 	INT32 nCyclesDone[2] = { 0, 0 };
-	INT32 nNext[2] = { 0, 0 };
 
 	for (INT32 i = 0; i < nInterleave; i++) {
-		nNext[0] += nCyclesTotal[0] / nInterleave;
-		nCyclesDone[0] += SekRun(nNext[0] - nCyclesDone[0]);
+		nCyclesDone[0] += SekRun((nCyclesTotal[0] * (i + 1) / nInterleave) - nCyclesDone[0]);
 		if (i == (nInterleave / 1) - 1) SekSetIRQLine(irq_config, CPU_IRQSTATUS_AUTO);
-		nNext[1] += nCyclesTotal[1] / nInterleave;
 
 		ZetOpen(0);
-		BurnTimerUpdate(nNext[1]);
-		nCyclesDone[1] += nNext[1];
+		BurnTimerUpdate((i + 1) * nCyclesTotal[1] / nInterleave);
 		ZetClose();
 	}
 
@@ -1790,7 +1786,7 @@ static INT32 DrvFrame()
 
 	ZetClose();
 	SekClose();
-	
+
 	if (pBurnDraw) {
 		BurnDrvRedraw();
 	}
@@ -2002,7 +1998,7 @@ struct BurnDriver BurnDrvSyvalionu = {
 	"syvalionu", "syvalion", NULL, NULL, "1988",
 	"Syvalion (US, PS2 Taito Legends 2)\0", NULL, "Taito America Corporation", "Taito H System",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, syvalionuRomInfo, syvalionuRomName, NULL, NULL, SyvalionInputInfo, SyvalionDIPInfo,
 	SyvalionInit, DrvExit, DrvFrame, SyvalionDraw, DrvScan, NULL, 0x210,
 	512, 400, 4, 3

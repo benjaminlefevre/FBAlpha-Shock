@@ -350,41 +350,22 @@ static void __fastcall systeme_main_write(UINT16 address, UINT8 data)
 	}
 }
 
-static UINT32 scalerange(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-
-static UINT8 scale_wheel(UINT32 PaddlePortnum) {
-	UINT8 Temp;
-
-	Temp = 0x7f + (PaddlePortnum >> 4);
-	if (Temp < 0x01) Temp = 0x01;
-	if (Temp > 0xfe) Temp = 0xfe;
-	Temp = scalerange(Temp, 0x3f, 0xbe, 0x20, 0xe0);
-	return Temp;
-}
-
 static UINT8 scale_accel(UINT32 PaddlePortnum) {
-	UINT8 Temp;
-
-	Temp = PaddlePortnum >> 4;
+	UINT8 Temp = PaddlePortnum >> 4;
 	if (Temp < 0x08) Temp = 0x00; // sometimes default for digital button -> analog is "1"
 	if (Temp > 0x30) Temp = 0xff;
 
 	return Temp;
 }
 
-
 static UINT8 __fastcall hangonjr_port_f8_read(UINT8 port)
 {
 	UINT8 temp = 0;
-	//bprintf(0, _T("Wheel %.04X  Accel %.04X\n"), scale_wheel(DrvWheel), scale_accel(DrvAccel));
 
-	if (port_fa_last == 0x08)  /* 0000 1000 */ /* Angle */
-		temp = scale_wheel(DrvWheel);
+	if (port_fa_last == 0x08)
+		temp = ProcessAnalog(DrvWheel, 0, 0, 0x20, 0xe0);
 
-	if (port_fa_last == 0x09)  /* 0000 1001 */ /* Accel */
+	if (port_fa_last == 0x09)
 		temp = scale_accel(DrvAccel);
 
 	return temp;
@@ -1474,7 +1455,7 @@ struct BurnDriver BurnDrvHangonjr = {
 	"hangonjr", NULL, NULL, NULL, "1985",
 	"Hang-On Jr. Rev.B\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_RACING, 0,
 	NULL, hangonjrRomInfo, hangonjrRomName, NULL, NULL, HangonjrInputInfo, HangonjrDIPInfo,
 	DrvHangonJrInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	256, 192, 4, 3
@@ -1484,7 +1465,7 @@ struct BurnDriver BurnDrvTetrisse = {
 	"tetrisse", NULL, NULL, NULL, "1988",
 	"Tetris (Japan, System E)\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_PUZZLE, 0,
 	NULL, TetrisseRomInfo, TetrisseRomName, NULL, NULL, TetrisseInputInfo, TetrisseDIPInfo,
 	DrvTetrisInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	256, 192, 4, 3
@@ -1494,7 +1475,7 @@ struct BurnDriver BurnDrvTransfrm = {
 	"transfrm", NULL, NULL, NULL, "1986",
 	"Transformer\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_HORSHOOT, 0,
 	NULL, TransfrmRomInfo, TransfrmRomName, NULL, NULL, TransfrmInputInfo, TransfrmDIPInfo,
 	DrvTransfrmInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	256, 192, 4, 3
@@ -1519,7 +1500,7 @@ struct BurnDriver BurnDrvFantzn2 = {
 	"fantzn2", NULL, NULL, NULL, "1988",
 	"Fantasy Zone II - The Tears of Opa-Opa (MC-8123, 317-0057)\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_HORSHOOT, 0,
 	NULL, fantzn2RomInfo, fantzn2RomName, NULL, NULL, TransfrmInputInfo, Fantzn2DIPInfo,
 	DrvFantzn2Init, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	248, 192, 4, 3
@@ -1593,7 +1574,7 @@ struct BurnDriver BurnDrvSlapshtr = {
 	"slapshtr", NULL, NULL, NULL, "1986",
 	"Slap Shooter\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MISC, GBF_SPORTSMISC, 0,
 	NULL, slapshtrRomInfo, slapshtrRomName, NULL, NULL, TransfrmInputInfo, TransfrmDIPInfo,
 	DrvSlapshtrInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	256, 192, 4, 3
@@ -1617,7 +1598,7 @@ struct BurnDriver BurnDrvAstrofl = {
 	"astrofl", "transfrm", NULL, NULL, "1986",
 	"Astro Flash (Japan)\0", NULL, "Sega", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_SEGA_MISC, GBF_HORSHOOT, 0,
 	NULL, AstroflRomInfo, AstroflRomName, NULL, NULL, TransfrmInputInfo, TransfrmDIPInfo,
 	DrvAstroflInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	256, 192, 4, 3
@@ -1641,7 +1622,7 @@ struct BurnDriver BurnDrvRidleOfp = {
 	"ridleofp", NULL, NULL, NULL, "1986",
 	"Riddle of Pythagoras (Japan)\0", NULL, "Sega / Nasco", "System E",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_SEGA_MISC, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_SEGA_MISC, GBF_BREAKOUT, 0,
 	NULL, RidleOfpRomInfo, RidleOfpRomName, NULL, NULL, RidleofpInputInfo, RidleOfpDIPInfo,
 	DrvRidleOfpInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 64,
 	192, 240, 3, 4

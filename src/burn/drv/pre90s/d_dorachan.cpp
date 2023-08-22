@@ -210,10 +210,11 @@ static void draw_layer()
 
 	for (INT32 offs = 0; offs < (256 * 32); offs++)
 	{
-		UINT8 x = (offs / 0x100) * 8;
-		UINT8 y = offs; 
-		if (y < 16) continue;
-		y -= 16;
+		INT32 x = (offs / 0x100) * 8;
+		INT32 y = offs & 0xff;
+		y -= 8;
+
+		if (x < 0 || y < 0 || x >= nScreenWidth || y >= nScreenHeight) continue;
 
 		UINT16 color_address = ((((offs << 2) & 0x03e0) | (offs >> 8)) + 1) & 0x03ff;
 
@@ -340,7 +341,7 @@ struct BurnDriver BurnDrvDorachan = {
 	"dorachan", NULL, NULL, NULL, "1980",
 	"Dora-chan (Japan)\0", "No sound", "Alpha Denshi Co. / Craul Denshi", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_MAZE, 0,
 	NULL, dorachanRomInfo, dorachanRomName, NULL, NULL, DorachanInputInfo, NULL,
 	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 8,
 	240, 256, 3, 4

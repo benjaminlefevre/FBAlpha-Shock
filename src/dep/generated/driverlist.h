@@ -3497,7 +3497,6 @@ DRV		BurnDrvlasthope;
 DRV		BurnDrvlhcdb;
 DRV		BurnDrvLastkm;
 DRV		BurnDrvLastmsnj;
-DRV		BurnDrvLastmsno;
 DRV		BurnDrvLastmisn;
 DRV		BurnDrvLresort;
 DRV		BurnDrvLresortp;
@@ -7684,7 +7683,6 @@ DRV		BurnDrvmd_uzukeo;
 DRV		BurnDrvVFive;
 DRV		BurnDrvmd_vfive;
 DRV		BurnDrvvliner;
-DRV		BurnDrvvlinero;
 DRV		BurnDrvmd_valis;
 DRV		BurnDrvmd_valis3j;
 DRV		BurnDrvmd_valis3;
@@ -11850,7 +11848,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvlhcdb,				// Last Hope CD Beta (Neo CD conversion)
 	&BurnDrvLastkm,				// Last KM (Ver 1.0.0275)
 	&BurnDrvLastmsnj,			// Last Mission (Japan)
-	&BurnDrvLastmsno,			// Last Mission (US revision 5)
 	&BurnDrvLastmisn,			// Last Mission (US revision 6)
 	&BurnDrvLresort,			// Last Resort
 	&BurnDrvLresortp,			// Last Resort (prototype)
@@ -16038,7 +16035,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvVFive,				// V-Five (Japan)
 	&BurnDrvmd_vfive,			// V-Five (Jpn)
 	&BurnDrvvliner,				// V-Liner (set 1)
-	&BurnDrvvlinero,			// V-Liner (set 2)
 	&BurnDrvmd_valis,			// Valis (USA)
 	&BurnDrvmd_valis3j,			// Valis III (Jpn, Rev. A)
 	&BurnDrvmd_valis3,			// Valis III (USA)

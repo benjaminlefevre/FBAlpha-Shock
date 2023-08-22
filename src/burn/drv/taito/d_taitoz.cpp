@@ -2165,6 +2165,8 @@ static struct BurnRomInfo ChasehqRomDesc[] = {
 	
 	{ "b52-116.70",    0x80000, 0xad46983c, BRF_SND | TAITO_YM2610B },
 	
+	{ "27c256.ic17",   0x08000, 0xe52dfee1, BRF_OPT },
+	
 	{ "b52-01.7",      0x00100, 0x89719d17, BRF_OPT },
 	{ "b52-03.135",    0x00400, 0xa3f8490d, BRF_OPT },
 	{ "b52-06.24",     0x00100, 0xfbf81f30, BRF_OPT },
@@ -2234,6 +2236,8 @@ static struct BurnRomInfo ChasehqjRomDesc[] = {
 	{ "b52-39.73",     0x80000, 0xac9cbbd3, BRF_SND | TAITO_YM2610A },
 	
 	{ "b52-42.70",     0x80000, 0x6e617df1, BRF_SND | TAITO_YM2610B },
+	
+	{ "27c256.ic17",   0x08000, 0xe52dfee1, BRF_OPT },
 	
 	{ "b52-01.7",      0x00100, 0x89719d17, BRF_OPT },
 	{ "b52-03.135",    0x00400, 0xa3f8490d, BRF_OPT },
@@ -2374,6 +2378,8 @@ static struct BurnRomInfo ChasehquRomDesc[] = {
 	{ "b52-113.73",    0x80000, 0x2c6a3a05, BRF_SND | TAITO_YM2610A },
 	
 	{ "b52-116.70",    0x80000, 0xad46983c, BRF_SND | TAITO_YM2610B },
+	
+	{ "27c256.ic17",   0x08000, 0xe52dfee1, BRF_OPT },
 	
 	{ "b52-01.7",      0x00100, 0x89719d17, BRF_OPT },
 	{ "b52-03.135",    0x00400, 0xa3f8490d, BRF_OPT },
@@ -4080,35 +4086,17 @@ static const UINT8 nightstr_stick[128]=
 	0x46,0x47,0x48,0x49,0xb8
 };
 
-static UINT32 scalerange(UINT32 x, UINT32 in_min, UINT32 in_max, UINT32 out_min, UINT32 out_max) {
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-static UINT8 ananice(INT16 anaval, INT32 reversed, INT32 deadzone, UINT8 scalemin, UINT8 scalemax)
-{
-	INT16 Temp = (reversed) ? (0x7f - (anaval / 16)) : (0x7f + (anaval / 16));  // - for reversed, + for normal
-	if (Temp < 0x3f) Temp = 0x3f;       // clamping for happy scalerange()
-	if (Temp > 0xbf) Temp = 0xbf;
-	Temp = scalerange(Temp, 0x3f, 0xbf, scalemin, scalemax);
-
-	// deadzones
-	// 0x7f is center, 0x01 right, 0xfe left.  0x7f +-10 is noise.
-	if (deadzone && !(Temp < 0x7f-10 || Temp > 0x7f+10)) Temp = 0x7f;
-
-	return Temp;
-}
-
 static UINT8 NightstrStickRead(INT32 Offset)
 {
 	switch (Offset) {      // p0: 3f - be  p1: bf - 40
 		case 0x00: {
-			UINT8 Temp = ananice(TaitoAnalogPort0, 0, 0, 0x00, 0xff);
+			UINT8 Temp = ProcessAnalog(TaitoAnalogPort0, 0, 0, 0x00, 0xff);
 			//bprintf(0, _T("Port0-temp[%X] scaled[%X]\n"), Temp, Temp2);
 			return nightstr_stick[(Temp * 0x64) / 0x100];
 		}
 
 		case 0x01: {
-			UINT8 Temp = ananice(TaitoAnalogPort1, 1, 0, 0x00, 0xff);
+			UINT8 Temp = ProcessAnalog(TaitoAnalogPort1, 1, 0, 0x00, 0xff);
 			return nightstr_stick[(Temp * 0x64) / 0x100];
 		}
 
@@ -4313,7 +4301,7 @@ void __fastcall Racingb68K1WriteWord(UINT32 a, UINT16 d)
 
 static UINT8 SciSteerRead(INT32 Offset)
 {
-	INT32 Steer = ananice(TaitoAnalogPort0, 0, 1, 0x20, 0xe0) - 0x7f;
+	INT32 Steer = 0xFF80 + ProcessAnalog(TaitoAnalogPort0, 0, 1, 0x20, 0xe0);
 
 	switch (Offset) {
 		case 0x04: {

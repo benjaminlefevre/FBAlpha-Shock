@@ -2076,7 +2076,7 @@ struct BurnDriver BurnDrvTouchgo = {
 	"touchgo", NULL, NULL, NULL, "1995",
 	"Touch & Go (World)\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 4, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING, 4, HARDWARE_MISC_POST90S, GBF_SPORTSMISC, 0,
 	NULL, touchgoRomInfo, touchgoRomName, NULL, NULL, TouchgoInputInfo, TouchgoDIPInfo,
 	touchgoInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	480, 240, 4, 3
@@ -2086,8 +2086,8 @@ struct BurnDriver BurnDrvTouchgo = {
 // Touch & Go (Non North America)
 
 static struct BurnRomInfo touchgonRomDesc[] = {
-	{ "tg56.bin",		0x080000, 0xfd3b4642, 1 | BRF_PRG | BRF_ESS }, //  0 68k Code
-	{ "tg57.bin",		0x080000, 0xee891835, 1 | BRF_PRG | BRF_ESS }, //  1
+	{ "1.ic63",			0x080000, 0xfd3b4642, 1 | BRF_PRG | BRF_ESS }, //  0 68k Code
+	{ "2.ic64",			0x080000, 0xee891835, 1 | BRF_PRG | BRF_ESS }, //  1
 
 	{ "tg_ic69.ic69",	0x200000, 0x18bb12d4, 2 | BRF_GRA },           //  2 Graphics & Samples
 	{ "tg_ic65.ic65",	0x400000, 0x91b89c7c, 2 | BRF_GRA },           //  3
@@ -2105,7 +2105,7 @@ struct BurnDriver BurnDrvTouchgon = {
 	"touchgon", "touchgo", NULL, NULL, "1995",
 	"Touch & Go (Non North America)\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_SPORTSMISC, 0,
 	NULL, touchgonRomInfo, touchgonRomName, NULL, NULL, TouchgoInputInfo, TouchgoDIPInfo,
 	touchgoInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	480, 240, 4, 3
@@ -2115,8 +2115,8 @@ struct BurnDriver BurnDrvTouchgon = {
 // Touch & Go (earlier revision)
 
 static struct BurnRomInfo touchgoeRomDesc[] = {
-	{ "tg56",		0x080000, 0x6d0f5c65, 1 | BRF_PRG | BRF_ESS }, //  0 68k Code
-	{ "tg57",		0x080000, 0x845787b5, 1 | BRF_PRG | BRF_ESS }, //  1
+	{ "tg56.ic63",		0x080000, 0x6d0f5c65, 1 | BRF_PRG | BRF_ESS }, //  0 68k Code
+	{ "tg57.ic64",		0x080000, 0x845787b5, 1 | BRF_PRG | BRF_ESS }, //  1
 
 	{ "tg_ic69.ic69",	0x200000, 0x18bb12d4, 2 | BRF_GRA },           //  2 Graphics & Samples
 	{ "tg_ic65.ic65",	0x400000, 0x91b89c7c, 2 | BRF_GRA },           //  3
@@ -2134,7 +2134,7 @@ struct BurnDriver BurnDrvTouchgoe = {
 	"touchgoe", "touchgo", NULL, NULL, "1995",
 	"Touch & Go (earlier revision)\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_SPORTSMISC, 0,
 	NULL, touchgoeRomInfo, touchgoeRomName, NULL, NULL, TouchgoInputInfo, TouchgoDIPInfo,
 	touchgoInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	480, 240, 4, 3
@@ -2160,7 +2160,7 @@ struct BurnDriver BurnDrvTouchgok = {
 	"touchgok", "touchgo", NULL, NULL, "1995",
 	"Touch & Go (Korea, unprotected)\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_MISC_POST90S, GBF_SPORTSMISC, 0,
 	NULL, touchgokRomInfo, touchgokRomName, NULL, NULL, TouchgoInputInfo, TouchgoDIPInfo,
 	touchgoInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	480, 240, 4, 3
@@ -2207,7 +2207,7 @@ struct BurnDriver BurnDrvBang = {
 	"bang", NULL, NULL, NULL, "1998",
 	"Bang!\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_SHOOT, 0,
 	NULL, bangRomInfo, bangRomName, NULL, NULL, BangInputInfo, NULL,
 	bangInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	320, 240, 4, 3
@@ -2243,7 +2243,7 @@ struct BurnDriver BurnDrvBangj = {
 	"bangj", "bang", NULL, NULL, "1998",
 	"Gun Gabacho (Japan)\0", NULL, "Gaelco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_SHOOT, 0,
 	NULL, bangjRomInfo, bangjRomName, NULL, NULL, BangInputInfo, NULL,
 	bangInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x10000,
 	320, 240, 4, 3
