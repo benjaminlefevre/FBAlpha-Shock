@@ -2116,7 +2116,7 @@ static INT32 DrvFrame()
 
 		if (z80_reset == 0) {
 			nCyclesDone[1] += ZetRun((nCyclesTotal[1] * (i + 1) / nInterleave) - nCyclesDone[1]);
-			if (i%multiplier==2 && i/multiplier & 1 && z80samplecount < (128-3)) { // 128-3 times per frame any more/less sounds nasty (test: dbreed coin up, hharry "lets get busy" startup)
+			if (i%multiplier==2 && i/multiplier & 1 && z80samplecount < 128) {
 				if (z80_nmi_enable == Z80_FAKE_NMI) {
 					z80samplecount++;
 					if (DrvSndROM[sample_address]) {
@@ -3126,6 +3126,11 @@ static struct BurnRomInfo rtype2jRomDesc[] = {
 	
 	{ "rt2_b-4n-.bin",	0x00100, 0xb460c438, 0x00 | BRF_OPT },           // 18 Proms
 	{ "rt2_b-4p-.bin",	0x00100, 0xa4f2c4bc, 0x00 | BRF_OPT },           // 19
+	
+	{ "rt2-a-2h-.5",	0x00104, 0x00000000, 0x00 | BRF_OPT | BRF_NODUMP },
+	{ "rt2-a-5l-.33",	0x00104, 0x00000000, 0x00 | BRF_OPT | BRF_NODUMP },
+	{ "rt2-b-3a-.9",	0x00104, 0x00000000, 0x00 | BRF_OPT | BRF_NODUMP },
+	{ "rt2-a-7d-.45",	0x00104, 0x53c1e087, 0x00 | BRF_OPT },
 };
 
 STD_ROM_PICK(rtype2j)

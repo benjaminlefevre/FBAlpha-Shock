@@ -1597,7 +1597,6 @@ DRV		BurnDrvmd_dstrike;
 DRV		BurnDrvmd_dstrikej;
 DRV		BurnDrvDetatwin;
 DRV		BurnDrvpce_twinbee;
-DRV		BurnDrvDevstors3;
 DRV		BurnDrvDevstors2;
 DRV		BurnDrvDevstors;
 DRV		BurnDrvpce_devlcrsh;
@@ -3413,7 +3412,6 @@ DRV		BurnDrvMyangel2;
 DRV		BurnDrvLegofair;
 DRV		BurnDrvmd_koteteik;
 DRV		BurnDrvStrahl;
-DRV		BurnDrvStrahla;
 DRV		BurnDrvKozure;
 DRV		BurnDrvKrzybowl;
 DRV		BurnDrvmd_krusty1;
@@ -7277,7 +7275,6 @@ DRV		BurnDrvSimpsons2p;
 DRV		BurnDrvSimpsons2p2;
 DRV		BurnDrvSimpsons2p3;
 DRV		BurnDrvSimpsons;
-DRV		BurnDrvSimpsons4pa;
 DRV		BurnDrvmd_bartvssm1;
 DRV		BurnDrvmd_bartvssm;
 DRV		BurnDrvmd_bartnigh;
@@ -9946,7 +9943,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvmd_dstrikej,		// Desert Strike (Jpn, Kor)
 	&BurnDrvDetatwin,			// Detana!! Twin Bee (Japan ver. J)
 	&BurnDrvpce_twinbee,		// Detana!! Twinbee
-	&BurnDrvDevstors3,			// Devastators (ver. V)
 	&BurnDrvDevstors2,			// Devastators (ver. X)
 	&BurnDrvDevstors,			// Devastators (ver. Z)
 	&BurnDrvpce_devlcrsh,		// Devil Crash - Naxat Pinball
@@ -11761,7 +11757,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvLegofair,			// Koukuu Kihei Monogatari - The Legend of Air Cavalry (Japan)
 	&BurnDrvmd_koteteik,		// Koutetsu Teikoku (Jpn)
 	&BurnDrvStrahl,				// Koutetsu Yousai Strahl (Japan set 1)
-	&BurnDrvStrahla,			// Koutetsu Yousai Strahl (Japan set 2)
 	&BurnDrvKozure,				// Kozure Ookami (Japan)
 	&BurnDrvKrzybowl,			// Krazy Bowl
 	&BurnDrvmd_krusty1,			// Krusty's Super Fun House (Euro, USA)
@@ -15626,7 +15621,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvSimpsons2p2,		// The Simpsons (2 Players World, set 2)
 	&BurnDrvSimpsons2p3,		// The Simpsons (2 Players World, set 3)
 	&BurnDrvSimpsons,			// The Simpsons (4 Players World, set 1)
-	&BurnDrvSimpsons4pa,		// The Simpsons (4 Players World, set 2)
 	&BurnDrvmd_bartvssm1,		// The Simpsons - Bart Vs The Space Mutants (Euro, USA)
 	&BurnDrvmd_bartvssm,		// The Simpsons - Bart Vs The Space Mutants (Euro, USA, Rev. A)
 	&BurnDrvmd_bartnigh,		// The Simpsons - Bart's Nightmare (Euro, USA)

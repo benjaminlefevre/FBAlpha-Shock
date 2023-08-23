@@ -63,7 +63,6 @@ static INT32 is_8bpp = 0;
 static INT32 global_y_offset = 16;
 static INT32 screen_flip_y = 0;
 static UINT32 nNMK004CpuSpeed;
-static INT32 nNMK004EnableIrq2;
 static INT32 NMK004_enabled = 0;
 static INT32 NMK112_enabled = 0;
 static INT32 macross2_sound_enable;
@@ -77,6 +76,7 @@ static INT32 Strahlmode = 0;
 static INT32 Tdragon2mode = 0; // use draw_sprites_tdragon2()
 static INT32 GunnailMode = 0;
 static INT32 TharrierShakey = 0; // kludge for shakey-ship on the end of level cutscene
+static INT32 HachamfTdragonMCU = 0; // mcu active for hachamf, tdragon?
 
 static INT32 mustang_bg_xscroll = 0;
 
@@ -585,6 +585,70 @@ static struct BurnDIPInfo HachamfbDIPList[]=
 
 STDDIPINFO(Hachamfb)
 
+static struct BurnDIPInfo HachamfpDIPList[]=
+{
+	{0x12, 0xff, 0xff, 0xff, NULL				},
+	{0x13, 0xff, 0xff, 0xff, NULL				},
+
+	{0   , 0xfe, 0   ,    2, "Flip Screen"			},
+	{0x12, 0x01, 0x01, 0x01, "Off"				},
+	{0x12, 0x01, 0x01, 0x00, "On"				},
+
+	{0   , 0xfe, 0   ,    2, "Unused"			},
+	{0x12, 0x01, 0x02, 0x02, "Japanese"			},
+	{0x12, 0x01, 0x02, 0x00, "English"			},
+
+	{0   , 0xfe, 0   ,    4, "Difficulty"			},
+	{0x12, 0x01, 0x0c, 0x04, "Easy"				},
+	{0x12, 0x01, 0x0c, 0x0c, "Normal"			},
+	{0x12, 0x01, 0x0c, 0x08, "Hard"				},
+	{0x12, 0x01, 0x0c, 0x00, "Hardest"			},
+
+	{0   , 0xfe, 0   ,    2, "Unused"			},
+	{0x12, 0x01, 0x10, 0x10, "Off"				},
+	{0x12, 0x01, 0x10, 0x00, "On"				},
+
+	{0   , 0xfe, 0   ,    2, "Unused"			},
+	{0x12, 0x01, 0x20, 0x20, "Off"				},
+	{0x12, 0x01, 0x20, 0x00, "On"				},
+
+	{0   , 0xfe, 0   ,    4, "Lives"			},
+	{0x12, 0x01, 0xc0, 0x00, "1"				},
+	{0x12, 0x01, 0xc0, 0x40, "2"				},
+	{0x12, 0x01, 0xc0, 0xc0, "3"				},
+	{0x12, 0x01, 0xc0, 0x80, "4"				},
+
+	{0   , 0xfe, 0   ,    2, "Unused"			},
+	{0x13, 0x01, 0x01, 0x00, "Off"				},
+	{0x13, 0x01, 0x01, 0x01, "On"				},
+
+	{0   , 0xfe, 0   ,    2, "Demo Sounds"			},
+	{0x13, 0x01, 0x02, 0x00, "Off"				},
+	{0x13, 0x01, 0x02, 0x02, "On"				},
+
+	{0   , 0xfe, 0   ,    8, "Coin B"			},
+	{0x13, 0x01, 0x1c, 0x10, "4 Coins 1 Credits"		},
+	{0x13, 0x01, 0x1c, 0x08, "3 Coins 1 Credits"		},
+	{0x13, 0x01, 0x1c, 0x18, "2 Coins 1 Credits"		},
+	{0x13, 0x01, 0x1c, 0x1c, "1 Coin  1 Credits"		},
+	{0x13, 0x01, 0x1c, 0x0c, "1 Coin  2 Credits"		},
+	{0x13, 0x01, 0x1c, 0x14, "1 Coin  3 Credits"		},
+	{0x13, 0x01, 0x1c, 0x04, "1 Coin  4 Credits"		},
+	{0x13, 0x01, 0x1c, 0x00, "Free Play"			},
+
+	{0   , 0xfe, 0   ,    8, "Coin A"			},
+	{0x13, 0x01, 0xe0, 0x80, "4 Coins 1 Credits"		},
+	{0x13, 0x01, 0xe0, 0x40, "3 Coins 1 Credits"		},
+	{0x13, 0x01, 0xe0, 0xc0, "2 Coins 1 Credits"		},
+	{0x13, 0x01, 0xe0, 0xe0, "1 Coin  1 Credits"		},
+	{0x13, 0x01, 0xe0, 0x60, "1 Coin  2 Credits"		},
+	{0x13, 0x01, 0xe0, 0xa0, "1 Coin  3 Credits"		},
+	{0x13, 0x01, 0xe0, 0x20, "1 Coin  4 Credits"		},
+	{0x13, 0x01, 0xe0, 0x00, "Free Play"			},
+};
+
+STDDIPINFO(Hachamfp)
+
 static struct BurnDIPInfo VandykeDIPList[]=
 {
 	{0x12, 0xff, 0xff, 0xff, NULL			},
@@ -794,7 +858,7 @@ static struct BurnDIPInfo TharrierDIPList[]=
 //	{0x14, 0x01, 0x01, 0x00, "Cocktail"			},
 
 	{0   , 0xfe, 0   ,    4, "Difficulty"			},
-	{0x14, 0x01, 0x0c, 0x04, "Easy"				},	
+	{0x14, 0x01, 0x0c, 0x04, "Easy"				},
 	{0x14, 0x01, 0x0c, 0x0c, "Normal"			},
 	{0x14, 0x01, 0x0c, 0x08, "Hard"				},
 	{0x14, 0x01, 0x0c, 0x00, "Hardest"			},
@@ -1114,7 +1178,7 @@ static struct BurnDIPInfo GrdnstrmDIPList[]=
 	{0   , 0xfe, 0   ,    2, "Bombs"		},
 	{0x12, 0x01, 0x08, 0x08, "2"			},
 	{0x12, 0x01, 0x08, 0x00, "3"			},
-	
+
 	{0   , 0xfe, 0   ,    4, "Lives"		},
 	{0x12, 0x01, 0xc0, 0x00, "1"			},
 	{0x12, 0x01, 0xc0, 0x80, "2"			},
@@ -1899,7 +1963,7 @@ static struct BurnDIPInfo DolmenDIPList[]=
 	{0x12, 0x01, 0xc0, 0xc0, "800k"			},
 	{0x12, 0x01, 0xc0, 0x40, "1000k"		},
 	{0x12, 0x01, 0xc0, 0x00, "1500k"		},
-	
+
 	{0   , 0xfe, 0   ,    2, "Demo Sounds"		},
 	{0x13, 0x01, 0x02, 0x00, "Off"			},
 	{0x13, 0x01, 0x02, 0x02, "On"			},
@@ -2238,12 +2302,12 @@ static void mcu_run(UINT8 dsw_setting)
 
 //-------------------------------------------------------------------------------------------------
 
-void __fastcall tharrier_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall tharrier_main_write_byte(UINT32 address, UINT8 data)
 {
 	STRANGE_RAM_WRITE_BYTE(0xf0000)
 }
-	
-void __fastcall tharrier_main_write_word(UINT32 address, UINT16 data)
+
+static void __fastcall tharrier_main_write_word(UINT32 address, UINT16 data)
 {
 	STRANGE_RAM_WRITE_WORD(0xf0000)
 
@@ -2258,7 +2322,7 @@ void __fastcall tharrier_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-UINT8 __fastcall tharrier_main_read_byte(UINT32 address)
+static UINT8 __fastcall tharrier_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2276,7 +2340,7 @@ UINT8 __fastcall tharrier_main_read_byte(UINT32 address)
 
 		case 0x080004:
 			return DrvDips[1];
-	
+
 		case 0x080005:
 			return DrvDips[0];
 
@@ -2294,7 +2358,7 @@ UINT8 __fastcall tharrier_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall tharrier_main_read_word(UINT32 address)
+static UINT16 __fastcall tharrier_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2317,7 +2381,7 @@ UINT16 __fastcall tharrier_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall manybloc_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall manybloc_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -2333,7 +2397,7 @@ void __fastcall manybloc_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall manybloc_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall manybloc_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -2347,7 +2411,7 @@ void __fastcall manybloc_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-UINT8 __fastcall manybloc_main_read_byte(UINT32 address)
+static UINT8 __fastcall manybloc_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2377,7 +2441,7 @@ UINT8 __fastcall manybloc_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall manybloc_main_read_word(UINT32 address)
+static UINT16 __fastcall manybloc_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2397,7 +2461,7 @@ UINT16 __fastcall manybloc_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall ssmissin_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall ssmissin_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -2421,7 +2485,7 @@ void __fastcall ssmissin_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall ssmissin_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall ssmissin_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -2442,7 +2506,7 @@ void __fastcall ssmissin_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-UINT8 __fastcall ssmissin_main_read_byte(UINT32 address)
+static UINT8 __fastcall ssmissin_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2468,7 +2532,7 @@ UINT8 __fastcall ssmissin_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall ssmissin_main_read_word(UINT32 address)
+static UINT16 __fastcall ssmissin_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2485,7 +2549,7 @@ UINT16 __fastcall ssmissin_main_read_word(UINT32 address)
 	return 0;
 }
 
-UINT8 __fastcall macross2_main_read_byte(UINT32 address)
+static UINT8 __fastcall macross2_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2517,7 +2581,7 @@ UINT8 __fastcall macross2_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall macross2_main_read_word(UINT32 address)
+static UINT16 __fastcall macross2_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2540,10 +2604,8 @@ UINT16 __fastcall macross2_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall macross2_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall macross2_main_write_byte(UINT32 address, UINT8 data)
 {
-	bprintf (0, _T("%x, %x wb\n"), address, data);
-
 	switch (address)
 	{
 		case 0x100014:
@@ -2553,7 +2615,7 @@ void __fastcall macross2_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall macross2_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall macross2_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -2582,7 +2644,7 @@ void __fastcall macross2_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall afega_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall afega_main_write_word(UINT32 address, UINT16 data)
 {
 	if (address & 0xfff00000) {
 		SekWriteWord(address & 0xfffff, data);
@@ -2619,7 +2681,7 @@ void __fastcall afega_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall afega_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall afega_main_write_byte(UINT32 address, UINT8 data)
 {
 	if (address & 0xfff00000) {
 		SekWriteByte(address & 0xfffff, data);
@@ -2644,7 +2706,7 @@ void __fastcall afega_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall afega_main_read_byte(UINT32 address)
+static UINT8 __fastcall afega_main_read_byte(UINT32 address)
 {
 	if (address & 0xfff00000) {
 		return SekReadByte(address & 0xfffff);
@@ -2678,7 +2740,7 @@ UINT8 __fastcall afega_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall afega_main_read_word(UINT32 address)
+static UINT16 __fastcall afega_main_read_word(UINT32 address)
 {
 	if (address & 0xfff00000) {
 		return SekReadWord(address & 0xfffff);
@@ -2702,7 +2764,7 @@ UINT16 __fastcall afega_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall bjtwin_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall bjtwin_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -2720,7 +2782,7 @@ void __fastcall bjtwin_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall bjtwin_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall bjtwin_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -2755,7 +2817,7 @@ void __fastcall bjtwin_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-UINT8 __fastcall bjtwin_main_read_byte(UINT32 address)
+static UINT8 __fastcall bjtwin_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2791,7 +2853,7 @@ UINT8 __fastcall bjtwin_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall bjtwin_main_read_word(UINT32 address)
+static UINT16 __fastcall bjtwin_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2817,7 +2879,7 @@ UINT16 __fastcall bjtwin_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall mustangb_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall mustangb_main_write_word(UINT32 address, UINT16 data)
 {
 	STRANGE_RAM_WRITE_WORD(0xf0000)
 
@@ -2836,7 +2898,7 @@ void __fastcall mustangb_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall mustangb_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall mustangb_main_write_byte(UINT32 address, UINT8 data)
 {
 	STRANGE_RAM_WRITE_BYTE(0xf0000)
 
@@ -2859,7 +2921,7 @@ void __fastcall mustangb_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-UINT16 __fastcall mustangb_main_read_word(UINT32 address)
+static UINT16 __fastcall mustangb_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2885,7 +2947,7 @@ UINT16 __fastcall mustangb_main_read_word(UINT32 address)
 	return 0;
 }
 
-UINT8 __fastcall mustangb_main_read_byte(UINT32 address)
+static UINT8 __fastcall mustangb_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2924,7 +2986,7 @@ UINT8 __fastcall mustangb_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT8 __fastcall mustang_main_read_byte(UINT32 address)
+static UINT8 __fastcall mustang_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -2948,7 +3010,7 @@ UINT8 __fastcall mustang_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall mustang_main_read_word(UINT32 address)
+static UINT16 __fastcall mustang_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -2968,7 +3030,7 @@ UINT16 __fastcall mustang_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall mustang_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall mustang_main_write_word(UINT32 address, UINT16 data)
 {
 	STRANGE_RAM_WRITE_WORD(0xf0000)
 
@@ -3001,7 +3063,7 @@ void __fastcall mustang_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall mustang_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall mustang_main_write_byte(UINT32 address, UINT8 data)
 {
 	STRANGE_RAM_WRITE_BYTE(0xf0000)
 	switch (address)
@@ -3017,7 +3079,7 @@ void __fastcall mustang_main_write_byte(UINT32 address, UINT8 data)
         }
 }
 
-UINT8 __fastcall acrobatm_main_read_byte(UINT32 address)
+static UINT8 __fastcall acrobatm_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -3044,7 +3106,7 @@ UINT8 __fastcall acrobatm_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall acrobatm_main_read_word(UINT32 address)
+static UINT16 __fastcall acrobatm_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -3067,7 +3129,7 @@ UINT16 __fastcall acrobatm_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall acrobatm_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall acrobatm_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -3094,7 +3156,7 @@ void __fastcall acrobatm_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall acrobatm_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall acrobatm_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3122,7 +3184,7 @@ void __fastcall acrobatm_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall tdragon_main_read_byte(UINT32 address)
+static UINT8 __fastcall tdragon_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -3150,7 +3212,7 @@ UINT8 __fastcall tdragon_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall tdragon_main_read_word(UINT32 address)
+static UINT16 __fastcall tdragon_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -3173,7 +3235,7 @@ UINT16 __fastcall tdragon_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall tdragon_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall tdragon_main_write_word(UINT32 address, UINT16 data)
 {
 	if ((address & 0xffff0000) == 0x0b0000) {
 		*((UINT16*)(Drv68KRAM + (address & 0xfffe))) = BURN_ENDIAN_SWAP_INT16(data);
@@ -3204,7 +3266,7 @@ void __fastcall tdragon_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall tdragon_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall tdragon_main_write_byte(UINT32 address, UINT8 data)
 {
 	if ((address & 0xffff0000) == 0x0b0000) {
 		Drv68KRAM [(address & 0xffff) ^ 1] = data;
@@ -3239,7 +3301,7 @@ void __fastcall tdragon_main_write_byte(UINT32 address, UINT8 data)
 }
 
 
-UINT8 __fastcall macross_main_read_byte(UINT32 address)
+static UINT8 __fastcall macross_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -3267,7 +3329,7 @@ UINT8 __fastcall macross_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall macross_main_read_word(UINT32 address)
+static UINT16 __fastcall macross_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -3290,7 +3352,7 @@ UINT16 __fastcall macross_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall macross_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall macross_main_write_word(UINT32 address, UINT16 data)
 {
 	STRANGE_RAM_WRITE_WORD(0xf0000)
 
@@ -3322,7 +3384,7 @@ void __fastcall macross_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall macross_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall macross_main_write_byte(UINT32 address, UINT8 data)
 {
 	STRANGE_RAM_WRITE_BYTE(0xf0000)
 
@@ -3359,7 +3421,7 @@ void __fastcall macross_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall vandykeb_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall vandykeb_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -3395,7 +3457,7 @@ void __fastcall vandykeb_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall vandykeb_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall vandykeb_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3426,7 +3488,7 @@ void __fastcall vandykeb_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall hachamf_main_read_byte(UINT32 address)
+static UINT8 __fastcall hachamf_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -3454,7 +3516,7 @@ UINT8 __fastcall hachamf_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall hachamf_main_read_word(UINT32 address)
+static UINT16 __fastcall hachamf_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -3477,7 +3539,7 @@ UINT16 __fastcall hachamf_main_read_word(UINT32 address)
 	return 0;
 }
 
-void __fastcall hachamf_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall hachamf_main_write_word(UINT32 address, UINT16 data)
 {
 	if ((address & 0xffff0000) == 0xf0000) {
 		*((UINT16*)(Drv68KRAM + (address & 0xfffe))) = data;
@@ -3508,7 +3570,7 @@ void __fastcall hachamf_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-void __fastcall hachamf_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall hachamf_main_write_byte(UINT32 address, UINT8 data)
 {
 	if ((address & 0xffff0000) == 0xf0000) {
 		Drv68KRAM[(address & 0xffff) ^ 1] = data;
@@ -3553,7 +3615,7 @@ static void tharrier_sound_bankswitch(UINT8 *rom, INT32 bank)
 	}
 }
 
-void __fastcall tharrier_sound_write(UINT16 address, UINT8 data)
+static void __fastcall tharrier_sound_write(UINT16 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3579,7 +3641,7 @@ void __fastcall tharrier_sound_write(UINT16 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall tharrier_sound_read(UINT16 address)
+static UINT8 __fastcall tharrier_sound_read(UINT16 address)
 {
 	switch (address)
 	{
@@ -3596,7 +3658,7 @@ UINT8 __fastcall tharrier_sound_read(UINT16 address)
 	return 0;
 }
 
-void __fastcall tharrier_sound_out(UINT16 port, UINT8 data)
+static void __fastcall tharrier_sound_out(UINT16 port, UINT8 data)
 {
 	switch (port & 0xff)
 	{
@@ -3610,7 +3672,7 @@ void __fastcall tharrier_sound_out(UINT16 port, UINT8 data)
 	}
 }
 
-UINT8 __fastcall tharrier_sound_in(UINT16 port)
+static UINT8 __fastcall tharrier_sound_in(UINT16 port)
 {
 	switch (port & 0xff)
 	{
@@ -3632,7 +3694,7 @@ static void ssmissin_okibank(INT32 bank)
 	}
 }
 
-void __fastcall ssmissin_sound_write(UINT16 address, UINT8 data)
+static void __fastcall ssmissin_sound_write(UINT16 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3646,7 +3708,7 @@ void __fastcall ssmissin_sound_write(UINT16 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall ssmissin_sound_read(UINT16 address)
+static UINT8 __fastcall ssmissin_sound_read(UINT16 address)
 {
 	switch (address)
 	{
@@ -3661,7 +3723,7 @@ UINT8 __fastcall ssmissin_sound_read(UINT16 address)
 	return 0;
 }
 
-void __fastcall afega_sound_write(UINT16 address, UINT8 data)
+static void __fastcall afega_sound_write(UINT16 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3679,7 +3741,7 @@ void __fastcall afega_sound_write(UINT16 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall afega_sound_read(UINT16 address)
+static UINT8 __fastcall afega_sound_read(UINT16 address)
 {
 	switch (address)
 	{
@@ -3698,7 +3760,7 @@ UINT8 __fastcall afega_sound_read(UINT16 address)
 	return 0;
 }
 
-void __fastcall firehawk_sound_write(UINT16 address, UINT8 data)
+static void __fastcall firehawk_sound_write(UINT16 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3720,11 +3782,11 @@ void __fastcall firehawk_sound_write(UINT16 address, UINT8 data)
 
 	if (address >= 0xfe00) {
 		DrvZ80RAM[address & 0xfff] = data;
-		return;	
+		return;
 	}
 }
 
-UINT8 __fastcall firehawk_sound_read(UINT16 address)
+static UINT8 __fastcall firehawk_sound_read(UINT16 address)
 {
 	switch (address)
 	{
@@ -3754,7 +3816,7 @@ static void macross2_sound_bank(INT32 bank)
 	ZetMapArea(0x8000, 0xbfff, 2, DrvZ80ROM + 0x10000 + bank);
 }
 
-void __fastcall macross2_sound_write(UINT16 address, UINT8 data)
+static void __fastcall macross2_sound_write(UINT16 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -3768,14 +3830,14 @@ void __fastcall macross2_sound_write(UINT16 address, UINT8 data)
 	}
 }
 
-UINT8 __fastcall macross2_sound_read(UINT16 address)
+static UINT8 __fastcall macross2_sound_read(UINT16 address)
 {
 	if (address == 0xf000) return *soundlatch;
 
 	return 0;
 }
 
-void __fastcall macross2_sound_out(UINT16 port, UINT8 data)
+static void __fastcall macross2_sound_out(UINT16 port, UINT8 data)
 {
 	switch (port & 0xff)
 	{
@@ -3808,7 +3870,7 @@ void __fastcall macross2_sound_out(UINT16 port, UINT8 data)
 	}
 }
 
-UINT8 __fastcall macross2_sound_in(UINT16 port)
+static UINT8 __fastcall macross2_sound_in(UINT16 port)
 {
 	switch (port & 0xff)
 	{
@@ -3832,22 +3894,14 @@ static void DrvYM2203IrqHandler(INT32, INT32 nStatus)
 {
 	if (ZetGetActive() == -1) return;
 
-	if (nStatus) {
-		ZetSetIRQLine(0xff, CPU_IRQSTATUS_ACK);
-	} else {
-		ZetSetIRQLine(0,    CPU_IRQSTATUS_NONE);
-	}
+	ZetSetIRQLine(0, (nStatus) ? CPU_IRQSTATUS_ACK : CPU_IRQSTATUS_NONE);
 }
 
 static void DrvYM2151IrqHandler(INT32 nStatus)
 {
 	if (ZetGetActive() == -1) return;
 
-	if (nStatus) {
-		ZetSetIRQLine(0xff, CPU_IRQSTATUS_ACK);
-	} else {
-		ZetSetIRQLine(0,    CPU_IRQSTATUS_NONE);
-	}
+	ZetSetIRQLine(0, (nStatus) ? CPU_IRQSTATUS_ACK : CPU_IRQSTATUS_NONE);
 }
 
 static void MSM6295SetInitialBanks(INT32 chips)
@@ -4186,7 +4240,7 @@ static INT32 BjtwinInit(INT32 (*pLoadCallback)())
 		if (pLoadCallback()) return 1;
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x07ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -4371,7 +4425,7 @@ static INT32 SeibuSoundInit(INT32 (*pLoadCallback)(), INT32 type)
 		if (pLoadCallback()) return 1;
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 
@@ -4483,7 +4537,6 @@ static INT32 NMK004Init(INT32 (*pLoadCallback)(), INT32 nCpuSpeed)
 
 	if (BurnLoadRom(NMK004PROGROM + 0x0000, 0x80, 1)) return 1; // load nmk004 rom ^^
 
-	Strahlmode = (strncmp(BurnDrvGetTextA(DRV_NAME), "strahl", 6) == 0);
 	NMK004_init();
 
 	no_z80 = 1;
@@ -4510,50 +4563,39 @@ static INT32 CommonExit()
 	videoshift = 0;
 	screen_flip_y = 0;
 
-	return 0;
-}
-
-static INT32 DrvExit()
-{
-	ZetExit();
-	BurnYM2203Exit();
-	MSM6295Exit();
 	MSM6295ROM = NULL;
+	MSM6295x1_only = 0;
+	MSM6295x2_only = 0;
+	no_z80 = 0;
+	AFEGA_SYS = 0;
+	mustang_bg_xscroll = 0;
+	NMK004_enabled = 0;
 	NMK112_enabled = 0;
 	Tharriermode = 0;
 	Macrossmode = 0;
 	Strahlmode = 0;
 	Tdragon2mode = 0;
 	TharrierShakey = 0;
+	HachamfTdragonMCU = 0;
+	GunnailMode = 0;
 
-	return CommonExit();
+	return 0;
 }
 
-static INT32 MSM6295x1Exit()
+static INT32 DrvExit()
 {
 	ZetExit();
+	if (MSM6295x1_only == 0) BurnYM2203Exit();
 	MSM6295Exit();
-	MSM6295ROM = NULL;
-	MSM6295x1_only = 0;
 
 	return CommonExit();
 }
 
 static INT32 SeibuSoundExit()
 {
-	GenericTilesExit();
-
 	seibu_sound_exit();
-	SekExit();
 
-	BurnFree (AllMem);
-
-	input_high[0] = input_high[1] = 0;
-	is_8bpp = 0;
-	global_y_offset = 16;
-	videoshift = 0;
-
-	return 0;
+	return CommonExit();
 }
 
 static INT32 AfegaExit()
@@ -4561,8 +4603,6 @@ static INT32 AfegaExit()
 	ZetExit();
 	BurnYM2151Exit();
 	MSM6295Exit();
-	MSM6295ROM = NULL;
-	AFEGA_SYS = 0;
 
 	return CommonExit();
 }
@@ -4570,10 +4610,6 @@ static INT32 AfegaExit()
 static INT32 BjtwinExit()
 {
 	MSM6295Exit();
-	MSM6295ROM = NULL;
-	MSM6295x2_only = 0;
-	no_z80 = 0;
-	NMK112_enabled = 0;
 
 	return CommonExit();
 }
@@ -4582,11 +4618,6 @@ static INT32 BjtwinExit()
 static INT32 NMK004Exit()
 {
 	NMK004_exit();
-	MSM6295ROM = NULL;
-	no_z80 = 0;
-	NMK004_enabled = 0;
-	GunnailMode = 0;
-	mustang_bg_xscroll = 0;
 
 	return CommonExit();
 }
@@ -5031,9 +5062,8 @@ static INT32 MacrossDraw()
 
 static INT32 MustangDraw()
 {
-	//UINT16 *scroll = (UINT16*)DrvScrollRAM;
-	INT32 scrollx = mustang_bg_xscroll; //((BURN_ENDIAN_SWAP_INT16(scroll[0]) & 0x0f) << 8) | (BURN_ENDIAN_SWAP_INT16(scroll[1]) & 0xff);
-	INT32 scrolly = 0; //((BURN_ENDIAN_SWAP_INT16(scroll[2]) & 0x01) << 8) | (BURN_ENDIAN_SWAP_INT16(scroll[3]) & 0xff);
+	INT32 scrollx = mustang_bg_xscroll;
+	INT32 scrolly = 0;
 
 	common_draw(-1, scrollx, scrolly, 0, 0, 0x200, 1);
 
@@ -5086,12 +5116,6 @@ static INT32 FirehawkDraw()
 
 static INT32 HachamfDraw()
 {
-	if (nNMK004CpuSpeed == 10000000) {	// hachamf
-		mcu_run(0);
-	} else {				// tdragon
-		mcu_run(1); 
-	}
-
 	UINT16 *scroll = (UINT16*)DrvScrollRAM;
 	INT32 scrollx = ((BURN_ENDIAN_SWAP_INT16(scroll[0]) & 0x0f) << 8) | (BURN_ENDIAN_SWAP_INT16(scroll[1]) & 0xff);
 	INT32 scrolly = ((BURN_ENDIAN_SWAP_INT16(scroll[2]) & 0x01) << 8) | (BURN_ENDIAN_SWAP_INT16(scroll[3]) & 0xff);
@@ -5147,7 +5171,7 @@ static INT32 Macross2Draw()
 		case 0x10: draw_macross_background(DrvBgRAM1, (scrollx - 64) & 0xfff, scrolly, 0, 0); break;
 		case 0x20: draw_macross_background(DrvBgRAM2, (scrollx - 64) & 0xfff, scrolly, 0, 0); break;
 		case 0x30: draw_macross_background(DrvBgRAM3, (scrollx - 64) & 0xfff, scrolly, 0, 0); break;
-	}	
+	}
 
 	if (Tdragon2mode) {
 		draw_sprites_tdragon2(0, 0x100, 0x1f);
@@ -5176,9 +5200,6 @@ static INT32 GunnailDraw()
 	switch ((BURN_ENDIAN_SWAP_INT16(scroll[0]) >> 8) & 0x30)
 	{
 		case 0x00: draw_gunnail_background(DrvBgRAM0); break;
-		//case 0x10: draw_gunnail_background(DrvBgRAM1); break;
-		//case 0x20: draw_gunnail_background(DrvBgRAM2); break;
-		//case 0x30: draw_gunnail_background(DrvBgRAM3); break;
 
 		// GunNail only has a single ram bank. If it tries to
 		// use another, just clear everything.
@@ -5188,7 +5209,7 @@ static INT32 GunnailDraw()
 		case 0x30:
 			BurnTransferClear();
 		break;
-	}	
+	}
 
 	draw_sprites(0, 0x100, 0x0f, 3);
 	draw_sprites(0, 0x100, 0x0f, 2);
@@ -5308,7 +5329,8 @@ static INT32 Bubl2000Draw()
 static void NMK16BufferSpriteRam()
 {
 	if (Strahlmode) {
-		memcpy (DrvSprBuf3, Drv68KRAM + 0xf000, 0x1000);
+		memcpy (DrvSprBuf3, DrvSprBuf2, 0x1000);
+		memcpy (DrvSprBuf2, Drv68KRAM + 0xf000, 0x1000);
 	} else {
 		memcpy (DrvSprBuf3, DrvSprBuf2, 0x1000);
 		memcpy (DrvSprBuf2, Drv68KRAM + 0x8000, 0x1000);
@@ -5396,7 +5418,7 @@ static INT32 DrvFrame() // tharrier, manybloc
 static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 {
 	struct BurnArea ba;
-	
+
 	if (pnMin != NULL) {			// Return minimum compatible version
 		*pnMin = 0x029732;
 	}
@@ -5410,46 +5432,46 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 	}
 
 	if (nAction & ACB_DRIVER_DATA) {
-            if (!no_z80)
-                ZetScan(nAction);
-            SekScan(nAction);
-            if (strcmp(BurnDrvGetTextA(DRV_NAME), "raphero") == 0 || strcmp(BurnDrvGetTextA(DRV_NAME), "arcadian") == 0) {
-                tlcs90Scan(nAction);
-            }
+		if (!no_z80)
+			ZetScan(nAction);
+		SekScan(nAction);
+		if (strcmp(BurnDrvGetTextA(DRV_NAME), "raphero") == 0 || strcmp(BurnDrvGetTextA(DRV_NAME), "arcadian") == 0) {
+			tlcs90Scan(nAction);
+		}
 
-            if (AFEGA_SYS) {
-                if (strstr(BurnDrvGetTextA(DRV_NAME), "ssmiss") ||
-                    strstr(BurnDrvGetTextA(DRV_NAME), "twinact") ||
-                    strstr(BurnDrvGetTextA(DRV_NAME), "dolmen")) {
-                    // Afega with no YM
-                } else {
-                    if (!MSM6295x2_only && !MSM6295x1_only)
-                        BurnYM2151Scan(nAction, pnMin); // twin action,etc dont use this
-                                             // and will crash if called.
-                }
-            } else {
-                // Everything else
-                if (!MSM6295x1_only && !MSM6295x2_only)
-                    BurnYM2203Scan(nAction, pnMin);
-            }
-
-            MSM6295Scan(nAction, pnMin);
-
-            SCAN_VAR(macross2_sound_enable);
-            if (NMK004_enabled) {
-                NMK004Scan(nAction, pnMin);
+		if (AFEGA_SYS) {
+			if (strstr(BurnDrvGetTextA(DRV_NAME), "ssmiss") ||
+				strstr(BurnDrvGetTextA(DRV_NAME), "twinact") ||
+				strstr(BurnDrvGetTextA(DRV_NAME), "dolmen")) {
+				// Afega with no YM
+			} else {
+				if (!MSM6295x2_only && !MSM6295x1_only)
+					BurnYM2151Scan(nAction, pnMin); // twin action,etc dont use this
+				// and will crash if called.
 			}
+		} else {
+			// Everything else
+			if (!MSM6295x1_only && !MSM6295x2_only)
+				BurnYM2203Scan(nAction, pnMin);
+		}
 
-			if (NMK112_enabled) {
-				NMK112_Scan(nAction);
-			}
+		MSM6295Scan(nAction, pnMin);
 
-        }
-	
-        if (nAction & ACB_WRITE) {
-            if (MSM6295x1_only) // S.S. Mission, Dolmen & Twin Action
-                ssmissin_okibank(*okibank);
-        }
+		SCAN_VAR(macross2_sound_enable);
+		if (NMK004_enabled) {
+			NMK004Scan(nAction, pnMin);
+		}
+
+		if (NMK112_enabled) {
+			NMK112_Scan(nAction);
+		}
+
+	}
+
+	if (nAction & ACB_WRITE) {
+		if (MSM6295x1_only) // S.S. Mission, Dolmen & Twin Action
+			ssmissin_okibank(*okibank);
+	}
 
 	return 0;
 }
@@ -5484,16 +5506,6 @@ static INT32 SsmissinFrame()
 		nSegment = nTotalCycles[0] / nInterleave;
 
 		nCyclesDone[0] += SekRun(nSegment);
-
-/*		if (i == (nInterleave-1) || i == ((nInterleave / 2) - 1)) {
-			SekSetIRQLine(1, CPU_IRQSTATUS_AUTO);
-			SekRun(0);
-		}
-		if (i == ((nInterleave/2)-1) && nNMK004EnableIrq2)
-			SekSetIRQLine(2, CPU_IRQSTATUS_AUTO);
-		if (i == (nInterleave-1))
-			SekSetIRQLine(4, CPU_IRQSTATUS_AUTO);
-*/
 
 		if (i == 25 || i == 148) { // 25, 153 in MAME
 			SekSetIRQLine(1, CPU_IRQSTATUS_AUTO);
@@ -5561,8 +5573,7 @@ static INT32 Macross2Frame()
 		}
 
 		if (macross2_sound_enable) {
-			//BurnTimerUpdate((nSegment * 4) / 10);
-			BurnTimerUpdate(i * (nTotalCycles[1] / nInterleave));
+			BurnTimerUpdate((i + 1) * (nTotalCycles[1] / nInterleave));
 		}
 	}
 
@@ -5622,7 +5633,7 @@ static INT32 AfegaFrame()
 
 		nSegment = nCyclesTotal[1] / nInterleave;
 		nCyclesDone[1] += ZetRun(nSegment);
-		
+
 		if (pBurnSoundOut) {
 			INT32 nSegmentLength = nBurnSoundLen / nInterleave;
 			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
@@ -5690,7 +5701,7 @@ static INT32 BjtwinFrame()
 	}
 
 	if (pBurnSoundOut) {
-		memset (pBurnSoundOut, 0, nBurnSoundLen * 2 * sizeof(INT16));
+		BurnSoundClear();
 		MSM6295Render(pBurnSoundOut, nBurnSoundLen);
 	}
 
@@ -5817,6 +5828,10 @@ static INT32 NMK004Frame()
 		}
 		if (i == 254) {
 			SekSetIRQLine(4, CPU_IRQSTATUS_AUTO);
+
+			if (pBurnDraw) {
+				BurnDrvRedraw();
+			}
 		}
 
 		BurnTimerUpdate((i + 1) * (nCyclesTotal[1] / nInterleave));
@@ -5832,8 +5847,8 @@ static INT32 NMK004Frame()
 	tlcs90Close();
 	SekClose();
 
-	if (pBurnDraw) {
-		BurnDrvRedraw();
+	if (HachamfTdragonMCU) {
+		mcu_run(HachamfTdragonMCU >> 1);
 	}
 
 	return 0;
@@ -6249,7 +6264,7 @@ static INT32 SsmissinLoadCallback()
 		DrvGfxDecode(0x20000, 0x100000, 0x100000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(Drv68KRAM,		0x0b0000, 0x0bffff, MAP_RAM);
@@ -6280,7 +6295,7 @@ struct BurnDriver BurnDrvSsmissin = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_POST90S, GBF_VERSHOOT, 0,
 	NULL, ssmissinRomInfo, ssmissinRomName, NULL, NULL, SsmissinInputInfo, SsmissinDIPInfo,
-	SsmissinInit, MSM6295x1Exit, SsmissinFrame, AcrobatmDraw, DrvScan, NULL, 0x400,
+	SsmissinInit, DrvExit, SsmissinFrame, AcrobatmDraw, DrvScan, NULL, 0x400,
 	224, 256, 3, 4
 };
 
@@ -6317,7 +6332,7 @@ struct BurnDriver BurnDrvAirattck = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_POST90S, GBF_VERSHOOT, 0,
 	NULL, airattckRomInfo, airattckRomName, NULL, NULL, SsmissinInputInfo, SsmissinDIPInfo,
-	SsmissinInit, MSM6295x1Exit, SsmissinFrame, AcrobatmDraw, DrvScan, NULL, 0x400,
+	SsmissinInit, DrvExit, SsmissinFrame, AcrobatmDraw, DrvScan, NULL, 0x400,
 	224, 256, 3, 4
 };
 
@@ -6354,7 +6369,7 @@ struct BurnDriver BurnDrvAirattcka = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_POST90S, GBF_VERSHOOT, 0,
 	NULL, airattckaRomInfo, airattckaRomName, NULL, NULL, SsmissinInputInfo, SsmissinDIPInfo,
-	SsmissinInit, MSM6295x1Exit, SsmissinFrame, MacrossDraw, DrvScan, NULL, 0x400,
+	SsmissinInit, DrvExit, SsmissinFrame, MacrossDraw, DrvScan, NULL, 0x400,
 	224, 256, 3, 4
 };
 
@@ -6518,7 +6533,7 @@ static struct BurnRomInfo tdragon2aRomDesc[] = {
 	{ "1.bin",			0x020000, 0xd488aafa, 3 | BRF_GRA },           //  2 Characters
 
 	{ "ww930914.2",		0x200000, 0xf968c65d, 4 | BRF_GRA },           //  3 Tiles
-	
+
 	{ "ww930917.7",		0x200000, 0xb98873cb, 5 | BRF_GRA },           //  4 Sprites
 	{ "ww930918.8",		0x200000, 0xbaee84b2, 5 | BRF_GRA },           //  5
 
@@ -6716,7 +6731,7 @@ static INT32 RedhawkInit()
 
 	if (nRet == 0) {
 		decryptcode(0x40000, 16,15,14,17,13);
-	} 
+	}
 
 	return nRet;
 }
@@ -7144,7 +7159,7 @@ static struct BurnRomInfo grdnstrmgRomDesc[] = {
 	{ "gs4_cr7.uc19",	    0x080000, 0xc3f6c908, 4 | BRF_GRA },           //  5
 	{ "gs8_cr1.uc6",	    0x080000, 0xdc0125f0, 4 | BRF_GRA },           //  6
 	{ "gs9_cr3.uc12",	    0x080000, 0xd8a0636b, 4 | BRF_GRA },           //  7
-	
+
 	{ "gs8_br3.uc10",		0x080000, 0x7b42a57a, 5 | BRF_GRA },           //  8 Sprites
 	{ "gs7_br1.uc3",		0x080000, 0xe6794265, 5 | BRF_GRA },           //  9
 	{ "gs10_br4.uc11",		0x080000, 0x1d3b57e1, 5 | BRF_GRA },           // 10
@@ -7778,7 +7793,7 @@ STD_ROM_FN(twinactn)
 
 static void Twinactn68kInit()
 {
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -7798,13 +7813,13 @@ static INT32 TwinactnLoadCallback()
 	{
 		if (BurnLoadRom(Drv68KROM  + 0x000001,  0, 2)) return 1;
 		if (BurnLoadRom(Drv68KROM  + 0x000000,  1, 2)) return 1;
-	
+
 		if (BurnLoadRom(DrvZ80ROM  + 0x000000,  2, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM0 + 0x000000,  3, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM1 + 0x000000,  4, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM2 + 0x000000,  5, 2)) return 1;
 		if (BurnLoadRom(DrvGfxROM2 + 0x000001,  6, 2)) return 1;
 
@@ -7830,7 +7845,6 @@ static INT32 TwinactnInit()
 {
 	input_high[0] = 0x0000;
 	input_high[1] = 0x8080;
-	nNMK004EnableIrq2 = 1;
 
 	return MSM6295x1Init(TwinactnLoadCallback);
 }
@@ -7841,7 +7855,7 @@ struct BurnDriver BurnDrvTwinactn = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_HORSHOOT, 0,
 	NULL, twinactnRomInfo, twinactnRomName, NULL, NULL, CommonInputInfo, TwinactnDIPInfo,
-	TwinactnInit, MSM6295x1Exit, SsmissinFrame, MustangDraw, DrvScan, NULL, 0x400,
+	TwinactnInit, DrvExit, SsmissinFrame, MustangDraw, DrvScan, NULL, 0x400,
 	256, 224, 4, 3
 };
 
@@ -7874,13 +7888,13 @@ static INT32 DolmenLoadCallback()
 	{
 		if (BurnLoadRom(Drv68KROM  + 0x000001,  0, 2)) return 1;
 		if (BurnLoadRom(Drv68KROM  + 0x000000,  1, 2)) return 1;
-	
+
 		if (BurnLoadRom(DrvZ80ROM  + 0x000000,  2, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM0 + 0x000000,  3, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM1 + 0x000000,  4, 1)) return 1;
-	
+
 		if (BurnLoadRom(DrvGfxROM2 + 0x000000,  5, 2)) return 1;
 		if (BurnLoadRom(DrvGfxROM2 + 0x000001,  6, 2)) return 1;
 
@@ -7904,8 +7918,6 @@ static INT32 DolmenLoadCallback()
 
 static INT32 DolmenInit()
 {
-	nNMK004EnableIrq2 = 1;
-
 	return MSM6295x1Init(DolmenLoadCallback);
 }
 
@@ -7915,7 +7927,7 @@ struct BurnDriver BurnDrvDolmen = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, dolmenRomInfo, dolmenRomName, NULL, NULL, DolmenInputInfo, DolmenDIPInfo,
-	DolmenInit, MSM6295x1Exit, SsmissinFrame, MacrossDraw, DrvScan, NULL, 0x400,
+	DolmenInit, DrvExit, SsmissinFrame, MacrossDraw, DrvScan, NULL, 0x400,
 	256, 224, 4, 3
 };
 
@@ -8277,7 +8289,7 @@ static INT32 MustangLoadCallback()
 		DrvGfxDecode(0x20000, 0x80000, 0x100000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -8354,7 +8366,7 @@ static struct BurnRomInfo mustangbRomDesc[] = {
 	{ "mustang.13",		0x020000, 0xd8ccce31, 1 | BRF_PRG | BRF_ESS }, //  1
 
 	{ "mustang.16",		0x010000, 0x99ee7505, 2 | BRF_PRG | BRF_ESS }, //  2 Z80 Code
-	
+
 	{ "90058-1",		0x020000, 0x81ccfcad, 3 | BRF_GRA },           //  3 Characters
 
 	{ "90058-4",		0x080000, 0xa07a2002, 4 | BRF_GRA },           //  4 Tiles
@@ -8539,7 +8551,7 @@ static INT32 TdragonLoadCallback()
 		*((UINT16*)(Drv68KROM + 0x04aa)) = BURN_ENDIAN_SWAP_INT16(0x4e71);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(Drv68KRAM,		0x0b0000, 0x0bffff, MAP_ROM);
@@ -8558,6 +8570,8 @@ static INT32 TdragonLoadCallback()
 
 static INT32 TdragonInit()
 {
+	HachamfTdragonMCU = 2;
+
 	return NMK004Init(TdragonLoadCallback, 8000000);
 }
 
@@ -8722,7 +8736,7 @@ static INT32 AcrobatmLoadCallback()
 		DrvGfxDecode(0x10000, 0x100000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(Drv68KRAM,		0x080000, 0x08ffff, MAP_RAM);
@@ -8810,7 +8824,7 @@ static INT32 MacrossLoadCallback()
 		DrvGfxDecode(0x20000, 0x200000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x07ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -8895,7 +8909,7 @@ static INT32 GunnailLoadCallback()
 		DrvGfxDecode(0x20000, 0x100000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x07ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -8980,7 +8994,7 @@ static INT32 BlkheartLoadCallback()
 		DrvGfxDecode(0x20000, 0x100000, 0x100000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x07ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9103,7 +9117,7 @@ static INT32 VandykeLoadCallback()
 		DrvGfxDecode(0x10000, 0x80000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9276,7 +9290,7 @@ static INT32 VandykebLoadCallback()
 		DrvGfxDecode(0x10000, 0x80000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9362,7 +9376,7 @@ static INT32 HachamfLoadCallback()
 		*((UINT16*)(Drv68KROM + 0x04aa)) = 0x4e71;
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9381,6 +9395,8 @@ static INT32 HachamfLoadCallback()
 
 static INT32 HachamfInit()
 {
+	HachamfTdragonMCU = 1;
+
 	return NMK004Init(HachamfLoadCallback, 10000000);
 }
 
@@ -9403,7 +9419,7 @@ static struct BurnRomInfo hachamfaRomDesc[] = {
 
 	{ "1.70",			0x010000, 0x9e6f48fc, 2 | BRF_PRG | BRF_ESS }, //  2 NMK004 data
 
-	{ "5.95",			0x020000, 0x29fb04a2, 3 | BRF_GRA },           //  3 Characters
+	{ "5.ic95",			0x020000, 0xa2c1e25d, 3 | BRF_GRA },           //  3 Characters
 
 	{ "91076-4.101",	0x100000, 0xdf9653a4, 4 | BRF_GRA },           //  4 Tiles
 
@@ -9474,7 +9490,7 @@ static INT32 HachamfbLoadCallback()
 		DrvGfxDecode(0x20000, 0x100000, 0x100000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9507,31 +9523,90 @@ struct BurnDriver BurnDrvHachamfb = {
 };
 
 
-// Koutetsu Yousai Strahl (Japan set 1)
+// Hacha Mecha Fighter (Location Test Prototype, 19th Sep. 1991)
 
-static struct BurnRomInfo strahlRomDesc[] = {
-	{ "strahl-2.82",	0x020000, 0xc9d008ae, 1 | BRF_PRG | BRF_ESS }, //  0 68k code
-	{ "strahl-1.83",	0x020000, 0xafc3c4d6, 1 | BRF_PRG | BRF_ESS }, //  1
+static struct BurnRomInfo hachamfpRomDesc[] = {
+	{ "kf-68-pe-b.ic7",	0x20000, 0xb98a525e, 1 | BRF_PRG | BRF_ESS }, //  0 68k code
+	{ "kf-68-po-b.ic6",	0x20000, 0xb62ad179, 1 | BRF_PRG | BRF_ESS }, //  1
 
-	{ "strahl-4.66",	0x010000, 0x60a799c4, 2 | BRF_PRG | BRF_ESS }, //  2 NMK004 data
+	{ "kf-snd.ic4",		0x10000, 0xf7cace47, 2 | BRF_PRG | BRF_ESS }, //  2 NMK004 data
 
-	{ "strahl-3.73",	0x010000, 0x2273b33e, 3 | BRF_GRA },           //  3 Characters
+	{ "kf-vram.ic3",	0x20000, 0xa2c1e25d, 3 | BRF_GRA },           //  3 Characters
 
-	{ "str7b2r0.275",	0x040000, 0x5769e3e1, 4 | BRF_GRA },           //  4 Tiles
+	{ "kf-scl0.ic5",	0x80000, 0x8604adff, 4 | BRF_GRA },           //  4 Tiles
+	{ "kf-scl1.ic12",	0x80000, 0x05a624e3, 4 | BRF_GRA },           //  5
 
-	{ "strl3-01.32",	0x080000, 0xd8337f15, 5 | BRF_GRA },           //  5 Sprites
-	{ "strl4-02.57",	0x080000, 0x2a38552b, 5 | BRF_GRA },           //  6
-	{ "strl5-03.58",	0x080000, 0xa0e7d210, 5 | BRF_GRA },           //  7
+	{ "kf-obj0.ic8",	0x80000, 0xa471bbd8, 5 | BRF_GRA },           //  6 Sprites
+	{ "kf-obj1.ic11",	0x80000, 0x81594aad, 5 | BRF_GRA },           //  7
 
-	{ "str6b1w1.776",	0x080000, 0xbb1bb155, 9 | BRF_GRA },           //  8 Foreground Tiles
+	{ "kf-a0.ic2",		0x80000, 0xe068d2cf, 6 | BRF_SND },           //  8 OKI1 Samples
 
-	{ "str8pmw1.540",	0x080000, 0x01d6bb6a, 6 | BRF_SND },           //  9 OKI1 Samples
+	{ "kf-a1.ic1",		0x80000, 0xd945aabb, 7 | BRF_SND },           //  9 OKI2 Samples
 
-	{ "str9pew1.639",	0x080000, 0x6bb3eb9f, 7 | BRF_SND },           // 10 OKI2 Samples
+	{ "82s135.ic50",	0x00100, 0x633ab1c9, 8 | BRF_OPT },           // 10 proms
+	{ "82s129.ic51",	0x00100, 0xcfdbb86c, 8 | BRF_OPT },           // 11
 };
 
-STDROMPICKEXT(strahl, strahl, nmk004)
-STD_ROM_FN(strahl)
+STDROMPICKEXT(hachamfp, hachamfp, nmk004)
+STD_ROM_FN(hachamfp)
+
+static INT32 HachamfpLoadCallback()
+{
+	{
+		if (BurnLoadRom(Drv68KROM  + 0x000001,  0, 2)) return 1;
+		if (BurnLoadRom(Drv68KROM  + 0x000000,  1, 2)) return 1;
+
+		if (BurnLoadRom(DrvZ80ROM  + 0x000000,  2, 1)) return 1;
+
+		if (BurnLoadRom(DrvGfxROM0 + 0x000000,  3, 1)) return 1;
+
+		if (BurnLoadRom(DrvGfxROM1 + 0x000000,  4, 1)) return 1;
+		if (BurnLoadRom(DrvGfxROM1 + 0x080000,  5, 1)) return 1;
+
+		if (BurnLoadRom(DrvGfxROM2 + 0x000000,  6, 2)) return 1;
+		if (BurnLoadRom(DrvGfxROM2 + 0x000001,  7, 2)) return 1;
+
+		if (BurnLoadRom(DrvSndROM0 + 0x020000,  8, 1)) return 1;
+		memcpy (DrvSndROM0 + 0x000000, DrvSndROM0 + 0x20000, 0x20000);
+
+		if (BurnLoadRom(DrvSndROM1 + 0x020000,  9, 1)) return 1;
+		memcpy (DrvSndROM1 + 0x000000, DrvSndROM1 + 0x20000, 0x20000);
+
+		DrvGfxDecode(0x20000, 0x100000, 0x100000);
+	}
+
+	SekInit(0, 0x68000);
+	SekOpen(0);
+	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
+	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
+	SekMapMemory(DrvScrollRAM,	0x08c000, 0x08c3ff, MAP_WRITE);
+	SekMapMemory(DrvBgRAM0,		0x090000, 0x093fff, MAP_RAM);
+	SekMapMemory(DrvTxRAM,		0x09c000, 0x09c7ff, MAP_RAM);
+	SekMapMemory(Drv68KRAM,		0x0f0000, 0x0fffff, MAP_RAM);
+	SekSetWriteWordHandler(0,	hachamf_main_write_word);
+	SekSetWriteByteHandler(0,	hachamf_main_write_byte);
+	SekSetReadWordHandler(0,	hachamf_main_read_word);
+	SekSetReadByteHandler(0,	hachamf_main_read_byte);
+	SekClose();
+
+	return 0;
+}
+
+static INT32 HachamfpInit()
+{
+	return NMK004Init(HachamfpLoadCallback, 10000000);
+}
+
+struct BurnDriver BurnDrvHachamfp = {
+	"hachamfp", "hachamf", "nmk004", NULL, "1991",
+	"Hacha Mecha Fighter (Location Test Prototype, 19th Sep. 1991)\0", NULL, "NMK", "NMK16",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_HORSHOOT, 0,
+	NULL, hachamfpRomInfo, hachamfpRomName, NULL, NULL, CommonInputInfo, HachamfpDIPInfo,
+	HachamfpInit, NMK004Exit, NMK004Frame, HachamfDraw, DrvScan, NULL, 0x400,
+	256, 224, 4, 3
+};
+
 
 static INT32 StrahlLoadCallback()
 {
@@ -9566,7 +9641,7 @@ static INT32 StrahlLoadCallback()
 		DrvGfxDecode(0x10000, 0x100000, 0x200000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,			0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvScrollRAM,		0x084000, 0x0843ff, MAP_WRITE);
@@ -9587,12 +9662,40 @@ static INT32 StrahlLoadCallback()
 
 static INT32 StrahlInit()
 {
+	Strahlmode = 1;
+
 	return NMK004Init(StrahlLoadCallback, 12000000);
 }
 
+// Koutetsu Yousai Strahl (World)
+
+static struct BurnRomInfo strahlRomDesc[] = {
+	{ "strahl-02.ic82",	0x020000, 0xe6709a0d, 1 | BRF_PRG | BRF_ESS }, //  0 68k code
+	{ "strahl-01.ic83",	0x020000, 0xbfd021cf, 1 | BRF_PRG | BRF_ESS }, //  1
+
+	{ "strahl-4.66",	0x010000, 0x60a799c4, 2 | BRF_PRG | BRF_ESS }, //  2 NMK004 data
+
+	{ "strahl-3.73",	0x010000, 0x2273b33e, 3 | BRF_GRA },           //  3 Characters
+
+	{ "str7b2r0.275",	0x040000, 0x5769e3e1, 4 | BRF_GRA },           //  4 Tiles
+
+	{ "strl3-01.32",	0x080000, 0xd8337f15, 5 | BRF_GRA },           //  5 Sprites
+	{ "strl4-02.57",	0x080000, 0x2a38552b, 5 | BRF_GRA },           //  6
+	{ "strl5-03.58",	0x080000, 0xa0e7d210, 5 | BRF_GRA },           //  7
+
+	{ "str6b1w1.776",	0x080000, 0xbb1bb155, 9 | BRF_GRA },           //  8 Foreground Tiles
+
+	{ "str8pmw1.540",	0x080000, 0x01d6bb6a, 6 | BRF_SND },           //  9 OKI1 Samples
+
+	{ "str9pew1.639",	0x080000, 0x6bb3eb9f, 7 | BRF_SND },           // 10 OKI2 Samples
+};
+
+STDROMPICKEXT(strahl, strahl, nmk004)
+STD_ROM_FN(strahl)
+
 struct BurnDriver BurnDrvStrahl = {
 	"strahl", NULL, "nmk004", NULL, "1992",
-	"Koutetsu Yousai Strahl (Japan set 1)\0", NULL, "UPL", "NMK16",
+	"Koutetsu Yousai Strahl (World)\0", NULL, "UPL", "NMK16",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_HORSHOOT, 0,
 	NULL, strahlRomInfo, strahlRomName, NULL, NULL, CommonInputInfo, StrahlDIPInfo,
@@ -9600,10 +9703,46 @@ struct BurnDriver BurnDrvStrahl = {
 	256, 224, 4, 3
 };
 
+// Koutetsu Yousai Strahl (Japan set 1)
+
+static struct BurnRomInfo strahljRomDesc[] = {
+	{ "strahl-2.82",	0x020000, 0xc9d008ae, 1 | BRF_PRG | BRF_ESS }, //  0 68k code
+	{ "strahl-1.83",	0x020000, 0xafc3c4d6, 1 | BRF_PRG | BRF_ESS }, //  1
+
+	{ "strahl-4.66",	0x010000, 0x60a799c4, 2 | BRF_PRG | BRF_ESS }, //  2 NMK004 data
+
+	{ "strahl-3.73",	0x010000, 0x2273b33e, 3 | BRF_GRA },           //  3 Characters
+
+	{ "str7b2r0.275",	0x040000, 0x5769e3e1, 4 | BRF_GRA },           //  4 Tiles
+
+	{ "strl3-01.32",	0x080000, 0xd8337f15, 5 | BRF_GRA },           //  5 Sprites
+	{ "strl4-02.57",	0x080000, 0x2a38552b, 5 | BRF_GRA },           //  6
+	{ "strl5-03.58",	0x080000, 0xa0e7d210, 5 | BRF_GRA },           //  7
+
+	{ "str6b1w1.776",	0x080000, 0xbb1bb155, 9 | BRF_GRA },           //  8 Foreground Tiles
+
+	{ "str8pmw1.540",	0x080000, 0x01d6bb6a, 6 | BRF_SND },           //  9 OKI1 Samples
+
+	{ "str9pew1.639",	0x080000, 0x6bb3eb9f, 7 | BRF_SND },           // 10 OKI2 Samples
+};
+
+STDROMPICKEXT(strahlj, strahlj, nmk004)
+STD_ROM_FN(strahlj)
+
+struct BurnDriver BurnDrvStrahlj = {
+	"strahlj", "strahl", "nmk004", NULL, "1992",
+	"Koutetsu Yousai Strahl (Japan set 1)\0", NULL, "UPL", "NMK16",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_HORSHOOT, 0,
+	NULL, strahljRomInfo, strahljRomName, NULL, NULL, CommonInputInfo, StrahlDIPInfo,
+	StrahlInit, NMK004Exit, NMK004Frame, StrahlDraw, DrvScan, NULL, 0x400,
+	256, 224, 4, 3
+};
+
 
 // Koutetsu Yousai Strahl (Japan set 2)
 
-static struct BurnRomInfo strahlaRomDesc[] = {
+static struct BurnRomInfo strahljaRomDesc[] = {
 	{ "rom2",			0x020000, 0xf80a22ef, 1 | BRF_PRG | BRF_ESS }, //  0 68k code
 	{ "rom1",			0x020000, 0x802ecbfc, 1 | BRF_PRG | BRF_ESS }, //  1
 
@@ -9624,15 +9763,15 @@ static struct BurnRomInfo strahlaRomDesc[] = {
 	{ "str9pew1.639",	0x080000, 0x6bb3eb9f, 7 | BRF_SND },           // 10 OKI2 Samples
 };
 
-STDROMPICKEXT(strahla, strahla, nmk004)
-STD_ROM_FN(strahla)
+STDROMPICKEXT(strahlja, strahlja, nmk004)
+STD_ROM_FN(strahlja)
 
-struct BurnDriver BurnDrvStrahla = {
-	"strahla", "strahl", "nmk004", NULL, "1992",
+struct BurnDriver BurnDrvStrahlja = {
+	"strahlja", "strahl", "nmk004", NULL, "1992",
 	"Koutetsu Yousai Strahl (Japan set 2)\0", NULL, "UPL", "NMK16",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_HORSHOOT, 0,
-	NULL, strahlaRomInfo, strahlaRomName, NULL, NULL, CommonInputInfo, StrahlDIPInfo,
+	NULL, strahljaRomInfo, strahljaRomName, NULL, NULL, CommonInputInfo, StrahlDIPInfo,
 	StrahlInit, NMK004Exit, NMK004Frame, StrahlDraw, DrvScan, NULL, 0x400,
 	256, 224, 4, 3
 };
@@ -9697,7 +9836,7 @@ static INT32 BioshipLoadCallback()
 		DrvGfxDecode(0x10000, 0x100000, 0x80000);
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x03ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x088000, 0x0887ff, MAP_RAM);
@@ -9801,7 +9940,7 @@ static struct BurnRomInfo rapheroRomDesc[] = {
 STD_ROM_PICK(raphero)
 STD_ROM_FN(raphero)
 
-void __fastcall raphero_main_write_byte(UINT32 address, UINT8 data)
+static void __fastcall raphero_main_write_byte(UINT32 address, UINT8 data)
 {
 	switch (address)
 	{
@@ -9825,7 +9964,7 @@ void __fastcall raphero_main_write_byte(UINT32 address, UINT8 data)
 	}
 }
 
-void __fastcall raphero_main_write_word(UINT32 address, UINT16 data)
+static void __fastcall raphero_main_write_word(UINT32 address, UINT16 data)
 {
 	switch (address)
 	{
@@ -9846,7 +9985,7 @@ void __fastcall raphero_main_write_word(UINT32 address, UINT16 data)
 	}
 }
 
-UINT8 __fastcall raphero_main_read_byte(UINT32 address)
+static UINT8 __fastcall raphero_main_read_byte(UINT32 address)
 {
 	switch (address)
 	{
@@ -9875,7 +10014,7 @@ UINT8 __fastcall raphero_main_read_byte(UINT32 address)
 	return 0;
 }
 
-UINT16 __fastcall raphero_main_read_word(UINT32 address)
+static UINT16 __fastcall raphero_main_read_word(UINT32 address)
 {
 	switch (address)
 	{
@@ -10029,7 +10168,7 @@ static INT32 RapheroInit()
 		nGraphicsMask[2] = 0xffff;
 	}
 
-	SekInit(0, 0x68000);	
+	SekInit(0, 0x68000);
 	SekOpen(0);
 	SekMapMemory(Drv68KROM,		0x000000, 0x07ffff, MAP_ROM);
 	SekMapMemory(DrvPalRAM,		0x120000, 0x1207ff, MAP_RAM);

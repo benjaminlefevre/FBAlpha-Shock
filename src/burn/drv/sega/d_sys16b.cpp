@@ -3490,6 +3490,12 @@ static struct BurnRomInfo DduxblRomDesc[] = {
 	{ "dduxb09.bin",    0x10000, 0x6b64f665, SYS16_ROM_SPRITES | BRF_GRA },
 
 	{ "dduxb01.bin",    0x08000, 0x0dbef0d7, SYS16_ROM_Z80PROG | BRF_ESS | BRF_PRG },
+	
+	{ "dduxb_5_82s129.b1",		0x00100, 0xa7c22d96, BRF_OPT },
+	{ "dduxb_4_18s030.a17",		0x00020, 0x58bcf8bd, BRF_OPT },
+	{ "dduxb_pal16l8.1",		0x00104, 0x3b406587, BRF_OPT },
+	{ "dduxb_p_gal16v8.a18",	0x00117, 0xce1ab1e1, BRF_OPT },
+	{ "dduxb_pal20l8.2",		0x00144, 0x09098fbe, BRF_OPT },
 };
 
 
@@ -9076,7 +9082,7 @@ struct BurnDriver BurnDrvDduxbl = {
 	"dduxbl", "ddux", NULL, NULL, "1989",
 	"Dynamite Dux (bootleg)\0", NULL, "bootleg", "System 16B",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_SEGA_SYSTEM16B | HARDWARE_SEGA_INVERT_TILES | HARDWARE_SEGA_5358, GBF_SCRFIGHT, 0,
+	BDF_GAME_NOT_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_SEGA_SYSTEM16B | HARDWARE_SEGA_INVERT_TILES | HARDWARE_SEGA_5358, GBF_SCRFIGHT, 0,
 	NULL, DduxblRomInfo, DduxblRomName, NULL, NULL, System16bInputInfo, DduxDIPInfo,
 	DduxblInit, System16Exit, System16BFrame, System16BootlegRender, System16Scan,
 	NULL, 0x1800, 320, 224, 4, 3

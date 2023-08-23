@@ -1,7 +1,6 @@
 // Based on MAME driver by Juergen Buchmueller, Mike Balfour, Howie Cohen, Olivier Galibert, Aaron Giles
 
 #include "burnint.h"
-#include "burn_sound.h"
 #include "upd7759.h"
 
 #define FRAC_BITS			20
@@ -545,7 +544,7 @@ void UPD7759Scan(INT32 nAction,INT32 *pnMin)
 		*pnMin = 0x029680;
 	}
 
-	for (INT32 i = 0; i < nNumChips; i++)
+	for (INT32 i = 0; i <= nNumChips; i++) // first chip 0, second chip 1...
 	{
 		Chip = Chips[i];
 

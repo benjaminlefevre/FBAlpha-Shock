@@ -139,7 +139,7 @@ static void __fastcall targeth_main_write_word(UINT32 address, UINT16 data)
 		return;
 
 		case 0x10800c:
-			BurnWatchogWrite();
+			BurnWatchdogWrite();
 		return;
 	}
 }
@@ -548,10 +548,10 @@ static INT32 DrvFrame()
 		BurnGunMakeInputs(0, DrvGun0, DrvGun1);
 		BurnGunMakeInputs(1, DrvGun2, DrvGun3);
 
-		DrvAnalog[0] = scale_gun(BurnGunReturnX(0) * 404 / 255, -0.133) + 0x29;
-		DrvAnalog[1] = scale_gun(BurnGunReturnY(0) + 4, -0.035);
-		DrvAnalog[2] = scale_gun(BurnGunReturnX(1) * 404 / 255, -0.133) + 0x29;
-		DrvAnalog[3] = scale_gun(BurnGunReturnY(1) + 4, -0.035);
+		DrvAnalog[0] = scale_gun(BurnGunReturnX(0) * 404 / 255, -0.146) + 0x29;
+		DrvAnalog[1] = scale_gun(BurnGunReturnY(0), -0.062) + 4 + (log(0x100 - BurnGunReturnY(0)) + 0.7);
+		DrvAnalog[2] = scale_gun(BurnGunReturnX(1) * 404 / 255, -0.146) + 0x29;
+		DrvAnalog[3] = scale_gun(BurnGunReturnY(1), -0.062) + 4 + (log(0x100 - BurnGunReturnY(1)) + 0.7);
 	}
 
 	INT32 nInterleave = 256;
@@ -666,8 +666,8 @@ struct BurnDriver BurnDrvTargeth = {
 // Target Hits (ver 1.1, Checksum 86E1)
 
 static struct BurnRomInfo targethaRomDesc[] = {
-	{ "th2_b_c_23.c23",		0x40000, 0xb99b25dc, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
-	{ "th2_b_c_22.c22",		0x40000, 0x6d34f0cf, 1 | BRF_PRG | BRF_ESS }, //  1
+	{ "th2_n_c_23.c23",		0x40000, 0xb99b25dc, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+	{ "th2_n_c_22.c22",		0x40000, 0x6d34f0cf, 1 | BRF_PRG | BRF_ESS }, //  1
 
 	{ "targeth_ds5002fp.bin",	0x08000, 0xabcdfee4, 2 | BRF_PRG | BRF_ESS }, //  2 DS5002fp SRAM
 

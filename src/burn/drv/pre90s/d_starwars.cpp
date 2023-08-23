@@ -4,7 +4,6 @@
 
 // todink:
 //   add parent tomcat to d_parent, uncomment BurnDriver for tomcatsw
-//   fix intensity vectors when in antialias mode (vector.cpp)
 //
 
 #include "tiles_generic.h"
@@ -474,7 +473,7 @@ static void starwars_main_write(UINT16 address, UINT8 data)
 	}
 
 	if ((address & 0xffe0) == 0x4640) {
-		BurnWatchogWrite();
+		BurnWatchdogWrite();
 		return;
 	}
 
@@ -708,7 +707,6 @@ static INT32 DrvDoReset(INT32 clear_mem)
 
 	BurnRandomSetSeed(0x1321321321ull);
 
-	vector_reset();
 	avgdvg_reset();
 
 	control_num = 0;
@@ -759,7 +757,7 @@ static INT32 MemIndex()
 	DrvAmPROM			= Next; Next += 0x000400;
 
 	DrvPalette			= (UINT32*)Next; Next += 32 * 256 * sizeof(UINT32);
-	
+
 	DrvNVRAM			= Next; Next += 0x000100;
 	DrvNVRAMBuf			= Next; Next += 0x000100;
 
@@ -897,7 +895,7 @@ static INT32 DrvInit(INT32 game_select)
 		is_esb = 1;
 	}
 
-	M6809Init(2);
+	M6809Init(0);
 	M6809Open(0);
 	M6809MapMemory(DrvVectorRAM,			0x0000, 0x2fff, MAP_RAM);
 	M6809MapMemory(DrvVectorROM,			0x3000, 0x3fff, MAP_ROM);
@@ -915,6 +913,7 @@ static INT32 DrvInit(INT32 game_select)
 	M6809SetReadOpArgHandler(starwars_main_read);
 	M6809Close();
 
+	M6809Init(1);
 	M6809Open(1);
 	M6809MapMemory(DrvM6809RAM1B,			0x2000, 0x27ff, MAP_RAM);
 	M6809MapMemory(DrvM6809ROM1 + 0x4000,	0x4000, 0xffff, MAP_ROM);
@@ -927,9 +926,7 @@ static INT32 DrvInit(INT32 game_select)
 	BurnWatchdogInit(DrvDoReset, 180 /*NOT REALLY*/);
 	BurnRandomInit();
 
-	vector_init();
-	vector_set_scale(250, 280);
-	avg_starwars_start(DrvVectorRAM, M6809TotalCycles);
+	avgdvg_init(USE_AVG_SWARS, DrvVectorRAM, 0x4000, M6809TotalCycles, 250, 280);
 
 	PokeyInit(1500000, 4, 0.40, 0);
 	PokeySetTotalCyclesCB(M6809TotalCycles);
@@ -948,7 +945,7 @@ static INT32 DrvInit(INT32 game_select)
 
 static INT32 DrvExit()
 {
-	vector_exit();
+	avgdvg_exit();
 
 	SlapsticExit();
 	tms5220_exit();
@@ -1071,6 +1068,8 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		BurnAcb(&ba);
 
 		M6809Scan(nAction);
+
+		avgdvg_scan(nAction, pnMin);
 		SlapsticScan(nAction);
 		pokey_scan(nAction, pnMin);
 		tms5220_scan(nAction, pnMin);
@@ -1134,22 +1133,22 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 // Star Wars (rev 1)
 
 static struct BurnRomInfo starwarsRomDesc[] = {
-	{ "136021.105",		0x1000, 0x538e7d2f, 1 | BRF_PRG | BRF_ESS }, //  0 M6809 #0 Code
-	{ "136021.214",		0x4000, 0x04f1876e, 1 | BRF_PRG | BRF_ESS }, //  1
-	{ "136021.102",		0x2000, 0xf725e344, 1 | BRF_PRG | BRF_ESS }, //  2
-	{ "136021.203",		0x2000, 0xf6da0a00, 1 | BRF_PRG | BRF_ESS }, //  3
-	{ "136021.104",		0x2000, 0x7e406703, 1 | BRF_PRG | BRF_ESS }, //  4
-	{ "136021.206",		0x2000, 0xc7e51237, 1 | BRF_PRG | BRF_ESS }, //  5
+	{ "136021-105.1l",	0x1000, 0x538e7d2f, 1 | BRF_PRG | BRF_ESS }, //  0 M6809 #0 Code
+	{ "136021.214.1f",	0x4000, 0x04f1876e, 1 | BRF_PRG | BRF_ESS }, //  1
+	{ "136021.102.1hj",	0x2000, 0xf725e344, 1 | BRF_PRG | BRF_ESS }, //  2
+	{ "136021.203.1jk",	0x2000, 0xf6da0a00, 1 | BRF_PRG | BRF_ESS }, //  3
+	{ "136021.104.1kl",	0x2000, 0x7e406703, 1 | BRF_PRG | BRF_ESS }, //  4
+	{ "136021.206.1m",	0x2000, 0xc7e51237, 1 | BRF_PRG | BRF_ESS }, //  5
 
-	{ "136021.107",		0x2000, 0xdbf3aea2, 2 | BRF_PRG | BRF_ESS }, //  6 M6809 #1 Code
-	{ "136021.208",		0x2000, 0xe38070a8, 2 | BRF_PRG | BRF_ESS }, //  7
+	{ "136021-107.1jk",	0x2000, 0xdbf3aea2, 2 | BRF_PRG | BRF_ESS }, //  6 M6809 #1 Code
+	{ "136021-208.1h",	0x2000, 0xe38070a8, 2 | BRF_PRG | BRF_ESS }, //  7
 
-	{ "136021.110",		0x0400, 0x810e040e, 3 | BRF_PRG | BRF_ESS }, //  8 Math PROMs
-	{ "136021.111",		0x0400, 0xae69881c, 3 | BRF_PRG | BRF_ESS }, //  9          //  9
-	{ "136021.112",		0x0400, 0xecf22628, 3 | BRF_PRG | BRF_ESS }, // 10          // 10
-	{ "136021.113",		0x0400, 0x83febfde, 3 | BRF_PRG | BRF_ESS }, // 11          // 11
+	{ "136021-110.7h",	0x0400, 0x810e040e, 3 | BRF_PRG | BRF_ESS }, //  8 Math PROMs
+	{ "136021-111.7j",	0x0400, 0xae69881c, 3 | BRF_PRG | BRF_ESS }, //  9          //  9
+	{ "136021-112.7k",	0x0400, 0xecf22628, 3 | BRF_PRG | BRF_ESS }, // 10          // 10
+	{ "136021-113.7l",	0x0400, 0x83febfde, 3 | BRF_PRG | BRF_ESS }, // 11          // 11
 
-	{ "136021-105.1l",	0x0100, 0x82fc3eb2, 4 | BRF_GRA },           // 12 Video PROM
+	{ "136021-109.4b",	0x0100, 0x82fc3eb2, 4 | BRF_GRA },           // 12 Video PROM
 };
 
 STD_ROM_PICK(starwars)
@@ -1164,7 +1163,7 @@ struct BurnDriver BurnDrvStarwars = {
 	"starwars", NULL, NULL, NULL, "1983",
 	"Star Wars (rev 1)\0", NULL, "Atari", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_MISC_PRE90S, GBF_SHOOT, 0,
 	NULL, starwarsRomInfo, starwarsRomName, NULL, NULL, StarwarsInputInfo, StarwarsDIPInfo,
 	StarwarsInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 32 * 256,
 	500, 400, 4, 3
@@ -1199,7 +1198,7 @@ struct BurnDriver BurnDrvStarwars1 = {
 	"starwars1", "starwars", NULL, NULL, "1983",
 	"Star Wars (set 2)\0", NULL, "Atari", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_PRE90S, GBF_SHOOT, 0,
 	NULL, starwars1RomInfo, starwars1RomName, NULL, NULL, StarwarsInputInfo, StarwarsDIPInfo,
 	StarwarsInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 32 * 256,
 	500, 400, 4, 3
@@ -1234,7 +1233,7 @@ struct BurnDriver BurnDrvStarwarso = {
 	"starwarso", "starwars", NULL, NULL, "1983",
 	"Star Wars (set 3)\0", NULL, "Atari", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_PRE90S, GBF_SHOOT, 0,
 	NULL, starwarsoRomInfo, starwarsoRomName, NULL, NULL, StarwarsInputInfo, StarwarsDIPInfo,
 	StarwarsInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 32 * 256,
 	500, 400, 4, 3
@@ -1274,7 +1273,7 @@ struct BurnDriver BurnDrvTomcatsw = {
 	"tomcatsw", "tomcat", NULL, NULL, "1983",
 	"TomCat (Star Wars hardware, prototype)\0", "No sound!", "Atari", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_PROTOTYPE, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_PROTOTYPE, 2, HARDWARE_MISC_PRE90S, GBF_SHOOT, 0,
 	NULL, tomcatswRomInfo, tomcatswRomName, NULL, NULL, StarwarsInputInfo, StarwarsDIPInfo,
 	TomcatInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 32 * 256,
 	250, 280, 3, 4
@@ -1315,7 +1314,7 @@ struct BurnDriver BurnDrvEsb = {
 	"esb", NULL, NULL, NULL, "1985",
 	"The Empire Strikes Back\0", NULL, "Atari Games", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_MISC_PRE90S, GBF_MISC, 0,
+	BDF_GAME_WORKING, 2, HARDWARE_MISC_PRE90S, GBF_SHOOT, 0,
 	NULL, esbRomInfo, esbRomName, NULL, NULL, StarwarsInputInfo, EsbDIPInfo,
 	EsbInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 32 * 256,
 	500, 400, 4, 3

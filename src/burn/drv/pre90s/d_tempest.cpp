@@ -270,7 +270,6 @@ static INT32 DrvDoReset(INT32 clear_mem)
 	BurnWatchdogReset();
 
 	mathbox_reset();
-	vector_reset();
 	avgdvg_reset();
 
 	earom_reset();
@@ -390,10 +389,7 @@ static INT32 DrvInit()
 	PokeyPotCallback(1, 6, port2_read);
 	PokeyPotCallback(1, 7, port2_read);
 
-	vector_init();
-	vector_set_scale(580, 570);
-
-	avg_tempest_start(DrvVecRAM, M6502TotalCycles);
+	avgdvg_init(USE_AVG_TEMPEST, DrvVecRAM, 0x2000, M6502TotalCycles, 580, 570);
 
 	earom_init();
 
@@ -406,7 +402,7 @@ static INT32 DrvInit()
 
 static INT32 DrvExit()
 {
-	vector_exit();
+	avgdvg_exit();
 
 	PokeyExit();
 	M6502Exit();
@@ -451,7 +447,6 @@ static INT32 DrvDraw()
 {
 	DrvPaletteInit();
 
-	if (avgletsgo) avgdvg_go();
 	draw_vector(DrvPalette);
 
 	return 0;
@@ -461,10 +456,10 @@ static INT32 DIAL_INC[2] = { 0, 0 };
 
 static void update_dial()
 { // half of the dial value added at the beginning of the frame, half in the middle of the frame.
-	if (DrvJoy4f[0]) DrvDial[0] += DIAL_INC[0] / 2;
-	if (DrvJoy4f[1]) DrvDial[0] -= DIAL_INC[0] / 2;
-	if (DrvJoy4f[2]) DrvDial[1] += DIAL_INC[1] / 2;
-	if (DrvJoy4f[3]) DrvDial[1] -= DIAL_INC[1] / 2;
+	if (DrvJoy4f[0]) DrvDial[0] -= DIAL_INC[0] / 2;
+	if (DrvJoy4f[1]) DrvDial[0] += DIAL_INC[0] / 2;
+	if (DrvJoy4f[2]) DrvDial[1] -= DIAL_INC[1] / 2;
+	if (DrvJoy4f[3]) DrvDial[1] += DIAL_INC[1] / 2;
 
 	DrvInputs[1] = (DrvDips[0] & 0x10) | (DrvDial[player] & 0x0f);
 }
@@ -497,12 +492,12 @@ static INT32 DrvFrame()
 		BurnDialINF dial = BurnPaddleReturnA(0);
 		if (dial.Backward) DrvJoy4f[0] = 1;
 		if (dial.Forward)  DrvJoy4f[1] = 1;
-		DIAL_INC[0] += dial.Velocity;
+		DIAL_INC[0] += ((dial.Velocity > 0xa) ? 0xa : dial.Velocity);
 
 		dial = BurnPaddleReturnB(0);
 		if (dial.Backward) DrvJoy4f[2] = 1;
 		if (dial.Forward)  DrvJoy4f[3] = 1;
-		DIAL_INC[1] += dial.Velocity;
+		DIAL_INC[1] += ((dial.Velocity > 0xa) ? 0xa : dial.Velocity);
 
 		update_dial();
 
@@ -573,6 +568,7 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 
 		M6502Scan(nAction);
 
+		avgdvg_scan(nAction, pnMin);
 		BurnWatchdogScan(nAction);
 
 		pokey_scan(nAction, pnMin);

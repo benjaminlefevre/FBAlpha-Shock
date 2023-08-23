@@ -124,6 +124,14 @@ void GenericTilesSetScanline(INT32 nScanline)
 }
 
 // ----------------------------------------------------------------------------
+// Generic Tile Handling
+
+void GenericTilesSetGfx(INT32 nNum, UINT8 *GfxBase, INT32 nDepth, INT32 nTileWidth, INT32 nTileHeight, INT32 nGfxLen, UINT32 nColorOffset, UINT32 nColorMask)
+{
+	GenericTilemapSetGfx(nNum, GfxBase, nDepth, nTileWidth, nTileHeight, nGfxLen, nColorOffset, nColorMask);
+}
+
+// ----------------------------------------------------------------------------
 // Colour-depth independant image transfer
 
 UINT16* pTransDraw = NULL;
@@ -214,8 +222,11 @@ void BurnTransferExit()
 	if (!Debug_BurnTransferInitted) bprintf(PRINT_ERROR, _T("BurnTransferExit called without init\n"));
 #endif
 
-	BurnFree(pTransDraw);
-	BurnFree(pPrioDraw);
+	BurnBitmapExit();
+	pTransDraw = NULL;
+	pPrioDraw = NULL;
+//	BurnFree(pTransDraw);
+//	BurnFree(pPrioDraw);
 
 	Debug_BurnTransferInitted = 0;
 }
@@ -232,15 +243,10 @@ INT32 BurnTransferInit()
 		BurnDrvGetVisibleSize(&nTransWidth, &nTransHeight);
 	}
 
-	pTransDraw = (UINT16*)BurnMalloc(nTransWidth * (nTransHeight + nTransOverflow) * sizeof(UINT16));
-	if (pTransDraw == NULL) {
-		return 1;
-	}
+	BurnBitmapAllocate(0, nTransWidth, nTransHeight + nTransOverflow, true);
 
-	pPrioDraw = (UINT8*)BurnMalloc(nTransWidth * (nTransHeight + nTransOverflow));
-	if (pPrioDraw == NULL) {
-		return 1;
-	}
+	pTransDraw = BurnBitmapGetBitmap(0);
+	pPrioDraw = BurnBitmapGetPriomap(0);
 
 	BurnTransferClear();
 
@@ -333,7 +339,7 @@ void Render8x8Tile(UINT16* pDestDraw, INT32 nTileNumber, INT32 StartX, INT32 Sta
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("Render8x8Tile called without init\n"));
 #endif
 
-	UINT32 nPalette = (nTilePalette << nColourDepth ) | nPaletteOffset;
+	UINT32 nPalette = (nTilePalette << nColourDepth ) + nPaletteOffset;
 	pTileData = pTile + (nTileNumber << 6);
 
 	UINT16* pPixel = pDestDraw + (StartY * nScreenWidth) + StartX;
@@ -2069,7 +2075,7 @@ void RenderCustomTile(UINT16* pDestDraw, INT32 nWidth, INT32 nHeight, INT32 nTil
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderCustomTile called without init\n"));
 #endif
 
-	UINT32 nPalette = (nTilePalette << nColourDepth ) | nPaletteOffset;
+	UINT32 nPalette = (nTilePalette << nColourDepth ) + nPaletteOffset;
 	pTileData = pTile + (nTileNumber * nWidth * nHeight);
 
 	UINT16* pPixel = pDestDraw + (StartY * nScreenWidth) + StartX;
@@ -2395,7 +2401,7 @@ void Render8x8Tile_Prio(UINT16* pDestDraw, INT32 nTileNumber, INT32 StartX, INT3
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("Render8x8Tile called without init\n"));
 #endif
 
-	UINT32 nPalette = (nTilePalette << nColourDepth ) | nPaletteOffset;
+	UINT32 nPalette = (nTilePalette << nColourDepth ) + nPaletteOffset;
 	pTileData = pTile + (nTileNumber << 6);
 
 	UINT16* pPixel = pDestDraw + (StartY * nScreenWidth) + StartX;
@@ -4179,7 +4185,7 @@ void RenderCustomTile_Prio(UINT16* pDestDraw, INT32 nWidth, INT32 nHeight, INT32
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderCustomTile called without init\n"));
 #endif
 
-	UINT32 nPalette = (nTilePalette << nColourDepth ) | nPaletteOffset;
+	UINT32 nPalette = (nTilePalette << nColourDepth ) + nPaletteOffset;
 	pTileData = pTile + (nTileNumber * nWidth * nHeight);
 
 	UINT16* pPixel = pDestDraw + (StartY * nScreenWidth) + StartX;
@@ -5652,6 +5658,114 @@ void DrawCustomPrioMaskTile(UINT16 *pDestDraw, INT32 nWidth, INT32 nHeight, INT3
 				RenderCustomTile_Prio_Mask(pDestDraw, nWidth, nHeight, nTileNumber, StartX, StartY, nTilePalette, nColourDepth, nMaskColour, nPaletteOffset, nPriority, pTile);		
 			}
 		}
+	}
+}
+
+void DrawGfxTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX, INT32 nStartY, INT32 nFlipx, INT32 nFlipy, INT32 nTilePalette)
+{
+	UINT16 *bitmap;
+	if (nBitmap != 0)
+	{
+		bitmap = BurnBitmapGetBitmap(nBitmap);
+		clip_struct *clip = BurnBitmapClipDims(nBitmap);
+		BurnBitmapGetDimensions(nBitmap, &nScreenWidth, &nScreenHeight);
+
+		GenericTilesSetClipRaw(clip->nMinx, clip->nMaxx, clip->nMiny, clip->nMaxy);
+	}
+	else
+	{
+		bitmap = pTransDraw;
+	}
+
+	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
+
+	DrawCustomTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, gfx->gfxbase);
+
+	if (nBitmap != 0)
+	{
+		GenericTilesClearClipRaw();
+	}
+}
+
+void DrawGfxMaskTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX, INT32 nStartY, INT32 nFlipx, INT32 nFlipy, INT32 nTilePalette, INT32 nMaskColor)
+{
+	UINT16 *bitmap;
+	if (nBitmap != 0)
+	{
+		bitmap = BurnBitmapGetBitmap(nBitmap);
+		clip_struct *clip = BurnBitmapClipDims(nBitmap);
+		BurnBitmapGetDimensions(nBitmap, &nScreenWidth, &nScreenHeight);
+
+		GenericTilesSetClipRaw(clip->nMinx, clip->nMaxx, clip->nMiny, clip->nMaxy);
+	}
+	else
+	{
+		bitmap = pTransDraw;
+	}
+
+	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
+
+	DrawCustomMaskTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, gfx->gfxbase);
+
+	if (nBitmap != 0)
+	{
+		GenericTilesClearClipRaw();
+	}
+}
+
+void DrawGfxPrioTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX, INT32 nStartY, INT32 nFlipx, INT32 nFlipy, INT32 nTilePalette, INT32 nPriority)
+{
+	UINT16 *bitmap;
+	if (nBitmap != 0)
+	{
+		bitmap = BurnBitmapGetBitmap(nBitmap);
+		pPrioDraw = BurnBitmapGetPriomap(nBitmap);
+		clip_struct *clip = BurnBitmapClipDims(nBitmap);
+		BurnBitmapGetDimensions(nBitmap, &nScreenWidth, &nScreenHeight);
+
+		GenericTilesSetClipRaw(clip->nMinx, clip->nMaxx, clip->nMiny, clip->nMaxy);
+	}
+	else
+	{
+		bitmap = pTransDraw;
+	}
+
+	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
+
+	DrawCustomPrioTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, nPriority, gfx->gfxbase);
+
+	if (nBitmap != 0)
+	{
+		pPrioDraw = BurnBitmapGetPriomap(0);
+		GenericTilesClearClipRaw();
+	}
+}
+
+void DrawGfxPrioMaskTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX, INT32 nStartY, INT32 nFlipx, INT32 nFlipy, INT32 nTilePalette, INT32 nMaskColor, INT32 nPriority)
+{
+	UINT16 *bitmap;
+	if (nBitmap != 0)
+	{
+		bitmap = BurnBitmapGetBitmap(nBitmap);
+		pPrioDraw = BurnBitmapGetPriomap(nBitmap);
+		clip_struct *clip = BurnBitmapClipDims(nBitmap);
+		BurnBitmapGetDimensions(nBitmap, &nScreenWidth, &nScreenHeight);
+
+		GenericTilesSetClipRaw(clip->nMinx, clip->nMaxx, clip->nMiny, clip->nMaxy);
+	}
+	else
+	{
+		bitmap = pTransDraw;
+	}
+
+	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
+
+	DrawCustomPrioMaskTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, nPriority, gfx->gfxbase);
+
+	if (nBitmap != 0)
+	{
+		pPrioDraw = BurnBitmapGetPriomap(0);
+		GenericTilesClearClipRaw();
 	}
 }
 

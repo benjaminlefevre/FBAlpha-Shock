@@ -3812,6 +3812,16 @@ static INT32 GaryoretDraw()
 	return 0;
 }
 
+static inline void DrvClearOppositesLOW(UINT8* nJoystickInputs)
+{
+	if ((*nJoystickInputs & 0x03) == 0x00) {
+		*nJoystickInputs |= 0x03;
+	}
+	if ((*nJoystickInputs & 0x0c) == 0x00) {
+		*nJoystickInputs |= 0x0c;
+	}
+}
+
 static INT32 GondoFrame()
 {
 	if (DrvReset) {
@@ -3830,6 +3840,9 @@ static INT32 GondoFrame()
 			DrvInputs[3] ^= (DrvJoy4[i] & 1) << i;
 			DrvInputs[4] ^= (DrvJoy5[i] & 1) << i;
 		}
+
+		DrvClearOppositesLOW(&DrvInputs[0]);
+		DrvClearOppositesLOW(&DrvInputs[1]);
 	}
 
 	INT32 nInterleave = 272;
@@ -3970,7 +3983,7 @@ static struct BurnRomInfo makyosenRomDesc[] = {
 	{ "dt-10.512",		0x10000, 0xcfcfc9ed, 5 }, // 20
 	{ "dt-11.256",		0x08000, 0x53e9cf17, 5 }, // 21
 
-	{ "ds-a.b1",     	0x01000, 0xf61b77cf, 6 }, // 22 mcu
+	{ "ds-a.b1",     	0x01000, 0x08f36e35, 6 }, // 22 mcu
 
 	{ "ds-23.b10",		0x00400, 0xdcbfec4e, 7 }, // 23 proms
 

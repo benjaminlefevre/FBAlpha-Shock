@@ -192,7 +192,7 @@ static void fastlane_write(UINT16 address, UINT8 data)
 	switch (address)
 	{
 		case 0x0b00:
-			BurnWatchogWrite();
+			BurnWatchdogWrite();
 		return;
 
 		case 0x0c00:
@@ -537,7 +537,7 @@ static INT32 DrvFrame()
 	}
 
 	if (pBurnSoundOut) {
-		memset (pBurnSoundOut, 0, nBurnSoundLen * sizeof(UINT16) * 2);
+		BurnSoundClear();
 		K007232Update(0, pBurnSoundOut, nBurnSoundLen);
 		K007232Update(1, pBurnSoundOut, nBurnSoundLen);
 	}

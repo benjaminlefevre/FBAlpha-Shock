@@ -1156,14 +1156,16 @@ static struct BurnInputInfo MoonwarInputList[] =
 	{"Coin 2"            , BIT_DIGITAL   , GalInputPort0 + 6, "p2 coin"   },
 	{"Start 2"           , BIT_DIGITAL   , GalInputPort1 + 3, "p2 start"  },
 
-	{"Hyper Flip / Fire 2 (Cocktail)" , BIT_DIGITAL   , GalInputPort1 + 4, "p2 fire 2" },
-	
-	A("Dial"             , BIT_ANALOG_REL, &GalAnalogPort0  , "p1 z-axis" ),
+	{"Hyper Flip (P1) / Fire 2 (Cocktail)" , BIT_DIGITAL   , GalInputPort1 + 4, "p2 fire 2" },
+
+	{"Left"              , BIT_DIGITAL   , GalInputPort4 + 0, "p1 left"   },
+	{"Right"             , BIT_DIGITAL   , GalInputPort4 + 1, "p1 right"  },
 	{"Fire 1"            , BIT_DIGITAL   , GalInputPort1 + 7, "p1 fire 1" },
 	{"Fire 2"            , BIT_DIGITAL   , GalInputPort1 + 6, "p1 fire 2" },
 	{"Fire 3"            , BIT_DIGITAL   , GalInputPort1 + 5, "p1 fire 3" },
 
-	A("Dial (Cocktail)"  , BIT_ANALOG_REL, &GalAnalogPort1  , "p2 z-axis" ),
+	{"Left (Coctail)"    , BIT_DIGITAL   , GalInputPort4 + 2, "p2 left"   },
+	{"Right (Coctail)"   , BIT_DIGITAL   , GalInputPort4 + 3, "p2 right"  },
 	{"Fire 1 (Cocktail)" , BIT_DIGITAL   , GalInputPort2 + 0, "p2 fire 1" },
 	{"Fire 3 (Cocktail)" , BIT_DIGITAL   , GalInputPort0 + 5, "p2 fire 3" },
 
@@ -4682,29 +4684,29 @@ STDDIPINFO(Moonqsr)
 static struct BurnDIPInfo MoonwarDIPList[]=
 {
 	// Default Values
-	{0x0d, 0xff, 0xff, 0x00, NULL                     },
-	{0x0e, 0xff, 0xff, 0x03, NULL                     },
-	{0x0f, 0xff, 0xff, 0x0c, NULL                     },
+	{0x0f, 0xff, 0xff, 0x00, NULL                     },
+	{0x10, 0xff, 0xff, 0x00, NULL                     },
+	{0x11, 0xff, 0xff, 0x02, NULL                     },
 	
 	// Dip 1
 	
 	// Dip 2
 	{0   , 0xfe, 0   , 4   , "Lives"                  },
-	{0x0e, 0x01, 0x03, 0x03, "3"                      },
-	{0x0e, 0x01, 0x03, 0x02, "4"                      },
-	{0x0e, 0x01, 0x03, 0x01, "5"                      },
-	{0x0e, 0x01, 0x03, 0x00, "Free Play"              },
+	{0x10, 0x01, 0x03, 0x00, "3"                      },
+	{0x10, 0x01, 0x03, 0x01, "4"                      },
+	{0x10, 0x01, 0x03, 0x02, "5"                      },
+	{0x10, 0x01, 0x03, 0x03, "Free Play"              },
 	
 	// Dip 3
 	{0   , 0xfe, 0   , 4   , "Coinage"                },
-	{0x0f, 0x01, 0x06, 0x04, "1 Coin 1 Play"          },
-	{0x0f, 0x01, 0x06, 0x06, "1 Coin 2 Plays"         },
-	{0x0f, 0x01, 0x06, 0x02, "1 Coin 3 Plays"         },
-	{0x0f, 0x01, 0x06, 0x00, "1 Coin 4 Plays"         },
+	{0x11, 0x01, 0x06, 0x02, "1 Coin 1 Play"          },
+	{0x11, 0x01, 0x06, 0x00, "1 Coin 2 Plays"         },
+	{0x11, 0x01, 0x06, 0x04, "1 Coin 3 Plays"         },
+	{0x11, 0x01, 0x06, 0x06, "1 Coin 4 Plays"         },
 	
-	{0   , 0xfe, 0   , 2   , "Cabinet"                },
-	{0x0f, 0x01, 0x08, 0x08, "Upright"                },
-	{0x0f, 0x01, 0x08, 0x00, "Cocktail"               },
+	{0   , 0xfe, 0   , 1   , "Cabinet"                }, // Coctail mode in this game has serious issues - disabled.
+	{0x11, 0x01, 0x08, 0x00, "Upright"                },
+	//{0x11, 0x01, 0x08, 0x08, "Cocktail"               },
 };
 
 STDDIPINFO(Moonwar)
@@ -4712,29 +4714,29 @@ STDDIPINFO(Moonwar)
 static struct BurnDIPInfo MoonwaraDIPList[]=
 {
 	// Default Values
-	{0x0d, 0xff, 0xff, 0x00, NULL                     },
-	{0x0e, 0xff, 0xff, 0x03, NULL                     },
-	{0x0f, 0xff, 0xff, 0x0e, NULL                     },
+	{0x0f, 0xff, 0xff, 0x00, NULL                     },
+	{0x10, 0xff, 0xff, 0x00, NULL                     },
+	{0x11, 0xff, 0xff, 0x00, NULL                     },
 	
 	// Dip 1
 	
 	// Dip 2
 	{0   , 0xfe, 0   , 4   , "Lives"                  },
-	{0x0e, 0x01, 0x03, 0x03, "3"                      },
-	{0x0e, 0x01, 0x03, 0x02, "4"                      },
-	{0x0e, 0x01, 0x03, 0x01, "5"                      },
-	{0x0e, 0x01, 0x03, 0x00, "Free Play"              },
+	{0x10, 0x01, 0x03, 0x00, "3"                      },
+	{0x10, 0x01, 0x03, 0x01, "4"                      },
+	{0x10, 0x01, 0x03, 0x02, "5"                      },
+	{0x10, 0x01, 0x03, 0x03, "Free Play"              },
 	
 	// Dip 3
 	{0   , 0xfe, 0   , 4   , "Coinage"                },
-	{0x0f, 0x01, 0x06, 0x06, "1 Coin 1 Play"          },
-	{0x0f, 0x01, 0x06, 0x04, "1 Coin 2 Plays"         },
-	{0x0f, 0x01, 0x06, 0x02, "1 Coin 3 Plays"         },
-	{0x0f, 0x01, 0x06, 0x00, "1 Coin 4 Plays"         },
+	{0x11, 0x01, 0x06, 0x00, "1 Coin 1 Play"          },
+	{0x11, 0x01, 0x06, 0x02, "1 Coin 2 Plays"         },
+	{0x11, 0x01, 0x06, 0x04, "1 Coin 3 Plays"         },
+	{0x11, 0x01, 0x06, 0x06, "1 Coin 4 Plays"         },
 	
-	{0   , 0xfe, 0   , 2   , "Cabinet"                },
-	{0x0f, 0x01, 0x08, 0x08, "Upright"                },
-	{0x0f, 0x01, 0x08, 0x00, "Cocktail"               },
+	{0   , 0xfe, 0   , 1   , "Cabinet"                },
+	{0x11, 0x01, 0x08, 0x00, "Upright"                },
+	//{0x11, 0x01, 0x08, 0x08, "Cocktail"               },
 };
 
 STDDIPINFO(Moonwara)
@@ -16904,31 +16906,6 @@ void __fastcall MimonscrZ80Write(UINT16 a, UINT8 d)
 	}
 }
 
-static INT32 TheendInit()
-{
-	INT32 nRet;
-	
-	GalPostLoadCallbackFunction = MapTheend;
-	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;
-	
-	nRet = GalInit(); if (nRet) return 1;
-	KonamiSoundInit();
-	
-	GalRenderBackgroundFunction = GalaxianDrawBackground;
-	GalDrawBulletsFunction = TheendDrawBullets;
-	
-	KonamiPPIInit();
-	
-	filter_rc_set_src_gain(0, 0.32);
-	filter_rc_set_src_gain(1, 0.32);
-	filter_rc_set_src_gain(2, 0.32);
-	filter_rc_set_src_gain(3, 0.32);
-	filter_rc_set_src_gain(4, 0.32);
-	filter_rc_set_src_gain(5, 0.32);
-	
-	return nRet;
-}
-
 static UINT8 ScramblePPIReadIN2()
 {
 	UINT8 Val = (ScrambleProtectionResult >> 7) & 1;
@@ -16947,18 +16924,67 @@ static UINT8 ScrambleProtectionRead()
 
 static void ScrambleProtectionWrite(UINT8 d)
 {
+	#define min(a,b) (((a)<(b))?(a):(b))
+    #define max(a,b) (((a)>(b))?(a):(b))
+
 	ScrambleProtectionState = (ScrambleProtectionState << 4) | (d & 0x0f);
-	
-	switch (ScrambleProtectionState & 0xfff) {
-		case 0xf09: ScrambleProtectionResult = 0xff; return;
-		case 0xa49: ScrambleProtectionResult = 0xbf; return;
-		case 0x319: ScrambleProtectionResult = 0x4f; return;
-		case 0x5c9: ScrambleProtectionResult = 0x6f; return;
-		
-		// scrambles
-		case 0x246: ScrambleProtectionResult ^= 0x80; return;
-		case 0xb5f: ScrambleProtectionResult = 0x6f; return;
+
+	const UINT8 num1 = (ScrambleProtectionState >> 8) & 0x0f;
+	const UINT8 num2 = (ScrambleProtectionState >> 4) & 0x0f;
+
+	switch (ScrambleProtectionState & 0x0f) {
+		case 0x6:
+		    // scrambles
+			ScrambleProtectionResult ^= 0x80;
+			break;
+		case 0x9:
+			// scramble
+			ScrambleProtectionResult = min(num1 + 1, 0xf) << 4;
+			break;
+		case 0xb:
+			// theend
+			ScrambleProtectionResult = max(num2 - num1, 0) << 4;
+			break;
+		case 0xa:
+			// theend
+			ScrambleProtectionResult = 0x00;
+			break;
+		case 0xf:
+			// scrambles
+			ScrambleProtectionResult = max(num1 - num2, 0) << 4;
+			break;
 	}
+    #undef min
+    #undef max
+}
+
+static INT32 TheendInit()
+{
+	INT32 nRet;
+	
+	GalPostLoadCallbackFunction = MapTheend;
+	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;
+	
+	nRet = GalInit(); if (nRet) return 1;
+	KonamiSoundInit();
+	
+	GalRenderBackgroundFunction = GalaxianDrawBackground;
+	GalDrawBulletsFunction = TheendDrawBullets;
+	
+	KonamiPPIInit();
+
+	ppi8255_set_read_port(0, 0xc, ScramblePPIReadIN2);
+	ppi8255_set_read_port(1, 0xc, ScrambleProtectionRead);
+	ppi8255_set_write_port(1, 0xc, ScrambleProtectionWrite);
+	
+	filter_rc_set_src_gain(0, 0.32);
+	filter_rc_set_src_gain(1, 0.32);
+	filter_rc_set_src_gain(2, 0.32);
+	filter_rc_set_src_gain(3, 0.32);
+	filter_rc_set_src_gain(4, 0.32);
+	filter_rc_set_src_gain(5, 0.32);
+	
+	return nRet;
 }
 
 static INT32 ScrambleInit()
@@ -20724,7 +20750,7 @@ static INT32 SuperbonInit()
 	INT32 nRet;
 	
 	GalPostLoadCallbackFunction = SuperbonPostLoad;
-	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;	
+	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;
 	
 	nRet = GalInit(); if (nRet) return 1;
 	KonamiSoundInit();
@@ -20749,7 +20775,7 @@ static INT32 CalipsoInit()
 	INT32 nRet;
 	
 	GalPostLoadCallbackFunction = MapScobra;
-	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;	
+	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;
 	
 	nRet = GalInit(); if (nRet) return 1;
 	KonamiSoundInit();
@@ -20772,30 +20798,37 @@ static INT32 CalipsoInit()
 
 static UINT8 MoonwarPPIReadIN0()
 {
-	UINT8 Dial1 = (GalAnalogPort0 >> 8) & 0xff;
-	UINT8 Dial2 = (GalAnalogPort1 >> 8) & 0xff;
-	UINT8 Input0 = 0xff - GalInput[0] - GalDip[0];
-	UINT8 Sign;
-	UINT8 Delta;
-	
-	if (Dial1 >= 0xfc || (Dial1 >= 0x01 && Dial1 <= 0x04)) Dial1 = 0;
-	if (Dial1 >= 0xf8) Dial1 = 0xfd;
-	if (Dial1 >= 0x01 && Dial1 <= 0x07) Dial1 = 0x02;
-	
-	if (Dial2 >= 0xfc || (Dial2 >= 0x01 && Dial2 <= 0x04)) Dial2 = 0;
-	if (Dial2 >= 0xf8) Dial2 = 0xfd;
-	if (Dial2 >= 0x01 && Dial2 <= 0x07) Dial2 = 0x02;
-	
-	Delta = (MoonwarPortSelect ? Dial1 : Dial2);
-	Sign = (Delta & 0x80) >> 3;
-	Delta &= 0x0f;
-	
-	return (Input0 & 0xe0) | Delta | Sign;
+	UINT8 Input0 = (GalInput[0] ^ 0xff);
+	UINT8 Direction = 0;
+	UINT8 Delta = 0;
+	if (MoonwarPortSelect == 0) {
+		if (GalInput[4]&1) { MoonwarDialX[0] += 2; Direction = 0x00; }
+		if (GalInput[4]&2) { MoonwarDialX[0] += 2; Direction = 0x10; }
+		GalInput[4] &= ~0x3; // "port_reset" :)
+	} else {
+		if (GalInput[4]&4) { MoonwarDialX[1] += 2; Direction = 0x00; }
+		if (GalInput[4]&8) { MoonwarDialX[1] += 2; Direction = 0x10; }
+		GalInput[4] &= ~0xc;
+	}
+
+	Delta = MoonwarDialX[MoonwarPortSelect] & 0xf;
+	//bprintf(0, _T("port %02x delta %02x   direction %02x.  FRAME %04X\n"), MoonwarPortSelect, Delta, Direction, nCurrentFrame);
+	return (Input0 & 0xe0) | Delta | Direction;
+}
+
+static UINT8 MoonwarPPIReadIN1()
+{
+	return ((GalInput[1] ^ 0xff) & ~3) | (GalDip[1] & 3);
+}
+
+static UINT8 MoonwarPPIReadIN2()
+{
+	return ((GalInput[2] ^ 0xff) & 1) | (GalDip[2] & 0xe) | 0xf0;
 }
 
 static void MoonwarPortSelectWrite(UINT8 d)
 {
-	MoonwarPortSelect = d & 0x10;
+	MoonwarPortSelect = ((d & 0x10) >> 4) ^ 1;
 }
 
 static INT32 MoonwarInit()
@@ -20803,7 +20836,7 @@ static INT32 MoonwarInit()
 	INT32 nRet;
 	
 	GalPostLoadCallbackFunction = MapScobra;
-	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;	
+	GalSoundType = GAL_SOUND_HARDWARE_TYPE_KONAMIAY8910;
 	
 	nRet = GalInit(); if (nRet) return 1;
 	KonamiSoundInit();
@@ -20812,7 +20845,7 @@ static INT32 MoonwarInit()
 	GalDrawBulletsFunction = MoonwarDrawBullets;
 	
 	KonamiPPIInit();
-	ppi8255_set_read_port(0, 0xa, MoonwarPPIReadIN0);
+	ppi8255_set_read_ports(0, MoonwarPPIReadIN0, MoonwarPPIReadIN1, MoonwarPPIReadIN2);
 	ppi8255_set_write_port(0, 0xc, MoonwarPortSelectWrite);
 
 	filter_rc_set_src_gain(0, 0.20);
@@ -20821,7 +20854,9 @@ static INT32 MoonwarInit()
 	filter_rc_set_src_gain(3, 0.20);
 	filter_rc_set_src_gain(4, 0.20);
 	filter_rc_set_src_gain(5, 0.20);
-	
+
+	GameIsMoonwar = 1;
+
 	return nRet;
 }
 

@@ -1,6 +1,9 @@
 // FB Alpha Omega Race driver moulde
 // Based on MAME driver by Bernd Wiebelt
 
+// Todo/tofix:
+// Player 2's spinner input is encrypted. :( (no known decryption table)
+
 #include "tiles_generic.h"
 #include "z80_intf.h"
 #include "ay8910.h"
@@ -234,7 +237,6 @@ static INT32 DrvDoReset(INT32 clear_mem)
 	ZetReset();
 	ZetClose();
 
-	vector_reset();
 	avgdvg_reset();
 
 	BurnWatchdogReset();
@@ -339,12 +341,8 @@ static INT32 DrvInit()
 	AY8910SetAllRoutes(0, 0.25, BURN_SND_ROUTE_BOTH);
 	AY8910SetAllRoutes(1, 0.25, BURN_SND_ROUTE_BOTH);
 
-	GenericTilesInit();
-	vector_init();
-	vector_set_scale(1044, 1044);
+	avgdvg_init(USE_DVG, DrvVectorRAM, 0x2000, ZetTotalCycles, 1044, 1044);
 	vector_set_offsets(11, 0);
-
-	dvg_omegrace_start(DrvVectorRAM, ZetTotalCycles);
 
 	DrvDoReset(1);
 
@@ -353,11 +351,10 @@ static INT32 DrvInit()
 
 static INT32 DrvExit()
 {
-	GenericTilesExit();
 	ZetExit();
 	AY8910Exit(0);
 	AY8910Exit(1);
-	vector_exit();
+	avgdvg_exit();
 
 	BurnFree(AllMem);
 
@@ -470,10 +467,12 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		BurnAcb(&ba);
 
 		ZetScan(nAction);
-		vector_scan(nAction);
+
+		avgdvg_scan(nAction, pnMin);
 		AY8910Scan(nAction, pnMin);
 		BurnWatchdogScan(nAction);
 
+		SCAN_VAR(DrvPaddle);
 		SCAN_VAR(soundlatch);
 		SCAN_VAR(avgletsgo);
 	}

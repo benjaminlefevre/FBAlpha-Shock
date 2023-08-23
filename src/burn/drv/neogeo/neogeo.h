@@ -83,6 +83,7 @@ extern bool bNeoEnableGraphics;
 
 extern bool bDisableNeoWatchdog;
 
+extern INT32 ssideki2mode;
 extern INT32 s1945pmode;
 
 INT32 NeoInit();

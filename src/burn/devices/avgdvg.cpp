@@ -41,20 +41,6 @@
 #include "avgdvg.h"
 #include "vector.h"
 
-#define vector_clear_list vector_reset
-
-#define AVGDVG_MIN          1
-#define USE_DVG             1
-#define USE_AVG_RBARON      2
-#define USE_AVG_BZONE       3
-#define USE_AVG             4
-#define USE_AVG_TEMPEST     5
-#define USE_AVG_MHAVOC      6
-#define USE_AVG_ALPHAONE    7
-#define USE_AVG_SWARS       8
-#define USE_AVG_QUANTUM     9
-#define AVGDVG_MAX          10
-
 //#define VG_DEBUG
 
 #ifdef VG_DEBUG
@@ -95,7 +81,6 @@
 #define DSVEC		0x0f
 
 
-
 /*************************************
  *
  *  Static variables
@@ -128,7 +113,146 @@ static UINT32 sparkle_callback(void)
 	return colorram[16 + ((rand() >> 8) & 15)];
 }
 
+#ifdef INLINE
+#undef INLINE
+#endif
+
 #define INLINE static
+
+#define VGVECTOR 0
+#define VGCLIP 1
+#define MAXVECT 10000
+
+static INT32 nvect = 0;
+static INT32 has_clip = 0;
+
+struct vgvector
+{
+	INT32 x; INT32 y;
+	INT32 color;
+	INT32 intensity;
+	INT32 arg1; INT32 arg2;
+	INT32 status;
+};
+
+static vgvector *vectbuf = NULL;
+
+static void vg_flush()
+{
+	INT32 cx0 = 0, cy0 = 0, cx1 = 0x5000000, cy1 = 0x5000000;
+	INT32 i = 0;
+
+	while (vectbuf[i].status == VGCLIP) {
+		i++;
+	}
+	INT32 xs = vectbuf[i].x;
+	INT32 ys = vectbuf[i].y;
+
+	for (i = 0; i < nvect; i++)
+	{
+		if (vectbuf[i].status == VGVECTOR)
+		{
+			INT32 xe = vectbuf[i].x;
+			INT32 ye = vectbuf[i].y;
+			INT32 x0 = xs, y0 = ys, x1 = xe, y1 = ye;
+
+			if (has_clip) {
+				xs = xe;
+				ys = ye;
+
+				if((x0 < cx0 && x1 < cx0) || (x0 > cx1 && x1 > cx1))
+					continue;
+
+				if(x0 < cx0) {
+					y0 += INT64(cx0-x0)*INT64(y1-y0)/(x1-x0);
+					x0 = cx0;
+				} else if(x0 > cx1) {
+					y0 += INT64(cx1-x0)*INT64(y1-y0)/(x1-x0);
+					x0 = cx1;
+				}
+				if(x1 < cx0) {
+					y1 += INT64(cx0-x1)*INT64(y1-y0)/(x1-x0);
+					x1 = cx0;
+				} else if(x1 > cx1) {
+					y1 += INT64(cx1-x1)*INT64(y1-y0)/(x1-x0);
+					x1 = cx1;
+				}
+
+				if((y0 < cy0 && y1 < cy0) || (y0 > cy1 && y1 > cy1))
+					continue;
+
+				if(y0 < cy0) {
+					x0 += INT64(cy0-y0)*INT64(x1-x0)/(y1-y0);
+					y0 = cy0;
+				} else if(y0 > cy1) {
+					x0 += INT64(cy1-y0)*INT64(x1-x0)/(y1-y0);
+					y0 = cy1;
+				}
+				if(y1 < cy0) {
+					x1 += INT64(cy0-y1)*INT64(x1-x0)/(y1-y0);
+					y1 = cy0;
+				} else if(y1 > cy1) {
+					x1 += INT64(cy1-y1)*INT64(x1-x0)/(y1-y0);
+					y1 = cy1;
+				}
+
+				vector_add_point(x0, y0, vectbuf[i].color, 0);
+				vector_add_point(x1, y1, vectbuf[i].color, vectbuf[i].intensity);
+			} else {
+				vector_add_point(x1, y1, vectbuf[i].color, vectbuf[i].intensity);
+			}
+		}
+
+		if (vectbuf[i].status == VGCLIP) {
+			cx0 = vectbuf[i].x;
+			cy0 = vectbuf[i].y;
+			cx1 = vectbuf[i].arg1;
+			cy1 = vectbuf[i].arg2;
+			if(cx0 > cx1) {
+				INT32 t = cx1;
+				cx1 = cx0;
+				cx0 = t;
+			}
+			if(cy0 > cx1) {
+				INT32 t = cy1;
+				cy1 = cy0;
+				cy0 = t;
+			}
+		}
+	}
+
+	nvect = 0;
+}
+
+void vg_vector_add_point(INT32 x, INT32 y, INT32 color, INT32 intensity)
+{
+	if (nvect < MAXVECT)
+	{
+		vectbuf[nvect].status = VGVECTOR;
+		vectbuf[nvect].x = x;
+		vectbuf[nvect].y = y;
+		vectbuf[nvect].color = color;
+		vectbuf[nvect].intensity = intensity;
+		nvect++;
+	}
+}
+
+void vg_vector_add_clip (INT32 c_xmin, INT32 c_ymin, INT32 c_xmax, INT32 c_ymax)
+{
+	if (nvect < MAXVECT)
+	{
+		has_clip = 1;
+
+		vectbuf[nvect].status = VGCLIP;
+		vectbuf[nvect].x = c_xmin;
+		vectbuf[nvect].y = c_ymin;
+		vectbuf[nvect].arg1 = c_xmax;
+		vectbuf[nvect].arg2 = c_ymax;
+		nvect++;
+	}
+}
+
+
 
 /*************************************
  *
@@ -141,8 +265,6 @@ INLINE INT32 twos_comp_val(INT32 num, INT32 bits)
 	return (INT32)(num << (32 - bits)) >> (32 - bits);
 }
 
-
-
 /*************************************
  *
  *  Vector RAM accesses
@@ -152,10 +274,12 @@ INLINE INT32 twos_comp_val(INT32 num, INT32 bits)
 INLINE UINT16 vector_word(UINT16 offset)
 {
 	UINT8 *base;
-
 	/* convert from word offset to byte */
 	offset *= 2;
-
+	if (offset >= vectorram_size) {
+		bprintf(0, _T("AVG/DVG Overflow at address: %X\n"), offset);
+		return (vector_engine == USE_DVG) ? DHALT << 12 : HALT << 13; // halt!
+	}
 	/* get address of the word */
 	base = &vectorbank[offset / BANK_SIZE][offset % BANK_SIZE];
 
@@ -261,7 +385,7 @@ static INT32 dvg_generate_vector_list(void)
 	INT32 deltax, deltay;
 
 	/* reset the vector list */
-	vector_clear_list();
+	vector_reset();
 
 	/* loop until finished */
 	while (!done)
@@ -336,7 +460,7 @@ static INT32 dvg_generate_vector_list(void)
 				total_length += dvg_vector_timer(temp);
 
 				/* add the new point */
-				vector_add_point(currentx, currenty, colorram[1], z);
+				vg_vector_add_point(currentx, currenty, colorram[1], z);
 				break;
 
 			/* DSVEC: draw a short vector */
@@ -374,7 +498,7 @@ static INT32 dvg_generate_vector_list(void)
 				total_length += dvg_vector_timer(temp);
 
 				/* add the new point */
-				vector_add_point(currentx, currenty, colorram[1], z);
+				vg_vector_add_point(currentx, currenty, colorram[1], z);
 				break;
 
 			/* DLABS: move to an absolute location */
@@ -399,7 +523,7 @@ static INT32 dvg_generate_vector_list(void)
 				/* handle stack underflow */
 				if (sp == 0)
 	    		{
-					bprintf(0, L"\n*** Vector generator stack underflow! ***\n");
+					bprintf(0, _T("\n*** Vector generator stack underflow! ***\n"));
 					done = 1;
 					sp = MAXSTACK - 1;
 				}
@@ -444,7 +568,7 @@ static INT32 dvg_generate_vector_list(void)
 				/* check for stack overflows */
 				if (sp == (MAXSTACK - 1))
 	    		{
-					bprintf(0, L"\n*** Vector generator stack overflow! ***\n");
+					bprintf(0, _T("\n*** Vector generator stack overflow! ***\n"));
 					done = 1;
 					sp = 0;
 				}
@@ -457,7 +581,7 @@ static INT32 dvg_generate_vector_list(void)
 
 			/* anything else gets caught here */
 			default:
-				bprintf(0, L"Unknown DVG opcode found\n");
+				bprintf(0, _T("Unknown DVG opcode found\n"));
 				done = 1;
 		}
    		VGLOG((0, L"\n"));
@@ -495,13 +619,13 @@ void avg_apply_flipping_and_swapping(INT32 *x, INT32 *y)
 void avg_add_point(INT32 x, INT32 y, UINT32 color, INT32 intensity)
 {
 	avg_apply_flipping_and_swapping(&x, &y);
-	vector_add_point(x, y, color, intensity);
+	vg_vector_add_point(x, y, color, intensity);
 }
 
 void avg_add_point_callback(INT32 x, INT32 y, UINT32 (*color_callback)(void), INT32 intensity)
 {
 	avg_apply_flipping_and_swapping(&x, &y);
-	vector_add_point(x, y, color_callback(), intensity);
+	vg_vector_add_point(x, y, color_callback(), intensity);
 }
 
 /*************************************
@@ -607,7 +731,7 @@ static INT32 avg_generate_vector_list(void)
 		return total_length;
 
 	/* reset the vector list */
-	vector_clear_list();
+	vector_reset();
 
 	/* loop until finished... */
 	while (!done)
@@ -736,15 +860,15 @@ static INT32 avg_generate_vector_list(void)
 				{
 					sparkle = firstwd & 0x0800;
 					xflip = firstwd & 0x0400;
-					//vectorbank[1] = &memory_region(REGION_CPU1)[0x18000 + ((firstwd >> 8) & 3) * 0x2000];
+					vectorbank[1] = vectorram + 0x8000 + (((firstwd >> 8) & 3) * 0x2000);
 				}
 
 				/* BattleZone has a clipping circuit */
 				else if (vector_engine == USE_AVG_BZONE)
 				{
-					//INT32 newymin = (color == 0) ? 0x0050 : ymin;
-					//vector_add_clip(xmin << 16, newymin << 16,
-					//				xmax << 16, ymax << 16);
+					INT32 newymin = (color == 0) ? 0x0050 : ymin;
+					vg_vector_add_clip(xmin << 16, newymin << 16,
+									xmax << 16, ymax << 16);
 				}
 
 				/* debugging */
@@ -773,8 +897,8 @@ static INT32 avg_generate_vector_list(void)
 						/* adjust accordingly */
 						if (ywindow)
 							newymin = (vector_engine == USE_AVG_MHAVOC) ? 0x0048 : 0x0083;
-						//vector_add_clip(xmin << 16, newymin << 16,
-						//				xmax << 16, ymax << 16);
+						vg_vector_add_clip(xmin << 16, newymin << 16,
+										xmax << 16, ymax << 16);
 					}
 
 				/* debugging */
@@ -887,10 +1011,12 @@ static INT32 avg_generate_vector_list(void)
  *  AVG execution/busy detection
  *
  ************************************/
+#define AVG_DEFAULT_CPU 1512000
+static INT32 avgdvg_cpu_rate = 0;
 static INT32 avgdvg_halt_next = 0;
 static INT32 last_cyc = 0;
 
-static void avgdvg_clr_busy(INT32 dummy)
+static void avgdvg_clr_busy(INT32 /*dummy*/)
 {
 	busy = 0;
 }
@@ -931,7 +1057,7 @@ void avgdvg_go()
 		total_length = dvg_generate_vector_list();
 
 		avgdvg_halt_next = pCPUTotalCycles();
-		last_cyc = total_length+300;
+		last_cyc = (INT32)((float)(((float)1512000 / 1000000000) * 4500) * total_length);
 	}
 
 	/* AVG case */
@@ -942,46 +1068,33 @@ void avgdvg_go()
 		/* for Major Havoc, we need to look for empty frames */
 		if (total_length > 1) {
 			avgdvg_halt_next = pCPUTotalCycles();
-			last_cyc = total_length;
+			last_cyc = (INT32)((float)(((float)1512000 / 1000000000) * 2000) * total_length);
+			//bprintf(0, _T("last cyc %d    total_length %d\n"), last_cyc, total_length);
 		}
 		else
 		{
 			busy = 0;
 		}
 	}
+	vg_flush();
 }
 
 void avgdvg_reset()
 {
 	avgdvg_halt_next = 0;
 	avgdvg_clr_busy(0);
+	vector_reset();
+
+	nvect = 0;
+	has_clip = 0;
 }
 
-#if 0
-WRITE16_HANDLER( avgdvg_go_word_w )
+void avgdvg_scan(INT32 nAction, INT32 *)
 {
-	avgdvg_go_w(offset, data);
+	SCAN_VAR(avgdvg_halt_next);
+	SCAN_VAR(last_cyc);
+	SCAN_VAR(busy);
 }
-
-
-
-/*************************************
- *
- *  AVG reset
- *
- ************************************/
-
-WRITE8_HANDLER( avgdvg_reset_w )
-{
-	avgdvg_clr_busy(0);
-}
-
-
-WRITE16_HANDLER( avgdvg_reset_word_w )
-{
-	avgdvg_clr_busy(0);
-}
-#endif
 
 
 /*************************************
@@ -999,23 +1112,33 @@ INT32 avgdvg_init(INT32 vector_type, INT32 xsizemin, INT32 xsize, INT32 ysizemin
 	/* 0 vector RAM size is invalid */
 	if (vectorram_size == 0)
 	{
-		bprintf(0, L"Error: vectorram_size not initialized\n");
+		bprintf(0, _T("Error: vectorram_size not initialized\n"));
 		return 1;
 	}
 
 	/* initialize the pages */
 	for (i = 0; i < NUM_BANKS; i++)
-		vectorbank[i] = vectorram + i * BANK_SIZE;
-//	if (vector_type == USE_AVG_MHAVOC || vector_type == USE_AVG_ALPHAONE)
-//		vectorbank[1] = &memory_region(REGION_CPU1)[0x18000];
+		vectorbank[i] = vectorram + (i * BANK_SIZE);
+	if (vector_type == USE_AVG_MHAVOC || vector_type == USE_AVG_ALPHAONE)
+		vectorbank[1] = vectorram + 0x8000; //&memory_region(REGION_CPU1)[0x18000];
 
 	/* set the engine type and validate it */
 	vector_engine = vector_type;
 	if (vector_engine < AVGDVG_MIN || vector_engine > AVGDVG_MAX)
 	{
-		bprintf(0, L"Error: unknown Atari Vector Game Type\n");
+		bprintf(0, _T("Error: unknown Atari Vector Game Type\n"));
 		return 1;
 	}
+
+	vectbuf = (vgvector *)BurnMalloc(sizeof(vgvector) * MAXVECT);
+
+	if (!vectbuf)
+	{
+		bprintf(PRINT_ERROR, _T("Error: Unable to allocate AVG/DVG vector buffer, crashing in 3..2..1...\n"));
+		return 1;
+	}
+
+	memset(vectbuf, 0, sizeof(vgvector) * MAXVECT);
 
 	/* Star Wars is reverse-endian */
 	if (vector_engine == USE_AVG_SWARS)
@@ -1062,42 +1185,28 @@ INT32 avgdvg_init(INT32 vector_type, INT32 xsizemin, INT32 xsize, INT32 ysizemin
 	return 0;
 }
 
-void avg_tempest_start(UINT8 *vectram, INT32 (*pCPUCyclesCB)())
+void avgdvg_init(INT32 type, UINT8 *vectram, INT32 vramromsize, INT32 (*pCPUCyclesCB)(), INT32 w, INT32 h)
 {
 	vectorram = vectram;
-	vectorram_size = 0x1000;
+	vectorram_size = vramromsize; // entire allocated ram+romspace size of game!
 
-	//avgdvg_init(USE_AVG_TEMPEST, 0, 580-68+0x3c, 0, 570-68);
-	avgdvg_init(USE_AVG_TEMPEST, 0, 580, 0, 570);
+	vector_init();
+	vector_set_scale(w, h);
+
+	avgdvg_init(type, 0, w, 0, h);
 	pCPUTotalCycles = pCPUCyclesCB;
+	avgdvg_cpu_rate = AVG_DEFAULT_CPU;
 }
 
-void avg_starwars_start(UINT8 *vectram, INT32 (*pCPUCyclesCB)())
+void avgdvg_set_cycles(INT32 cycles)
 {
-	vectorram = vectram;
-	vectorram_size = 0x1000;
-
-	//avgdvg_init(USE_AVG_TEMPEST, 0, 580-68+0x3c, 0, 570-68);
-	avgdvg_init(USE_AVG_SWARS, 0, 250, 0, 280);
-	pCPUTotalCycles = pCPUCyclesCB;
+	avgdvg_cpu_rate = cycles;
 }
 
-void dvg_asteroids_start(UINT8 *vectram, INT32 (*pCPUCyclesCB)())
+void avgdvg_exit()
 {
-	vectorram = vectram;
-	vectorram_size = 0x1000;
-
-	avgdvg_init(USE_DVG, 0, 1044, 0, 788);
-	pCPUTotalCycles = pCPUCyclesCB;
-}
-
-void dvg_omegrace_start(UINT8 *vectram, INT32 (*pCPUCyclesCB)())
-{
-	vectorram = vectram;
-	vectorram_size = 0x1000;
-
-	avgdvg_init(USE_DVG, 0, 1044, 0, 1044);
-	pCPUTotalCycles = pCPUCyclesCB;
+	vector_exit();
+	BurnFree(vectbuf);
 }
 
 // save for later stuff:

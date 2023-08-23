@@ -44,6 +44,8 @@ static UINT8 DrvDips[3];
 static UINT8 DrvReset;
 static UINT8 DrvInputs[8];
 
+static INT32 drgnbstr = 0;
+
 static INT32 nCyclesDone[2];
 
 static struct BurnInputInfo SkykidInputList[] = {
@@ -643,15 +645,19 @@ static INT32 DrvExit()
 
 	BurnFree (AllMem);
 
+	drgnbstr = 0;
+
 	return 0;
 }
 
-static void draw_fg_layer()
+static void draw_fg_layer(INT32 drgnbstr_hud)
 {
 	INT32 bank = *flipscreen ? 0x100 : 0;
 
 	for (INT32 y = 0; y < 28; y++)
 	{
+		if (drgnbstr && drgnbstr_hud && y > 1) break; // re-draw hud to cover sprites
+
 		for (INT32 x = 0; x < 36; x++)
 		{
 			INT32 col = x - 2;
@@ -759,13 +765,19 @@ static INT32 DrvDraw()
 		DrvRecalc = 0;
 	}
 
-	draw_bg_layer();
+	BurnTransferClear();
 
-	if (*priority == 0) draw_sprites();
+	if (nBurnLayer & 1) draw_bg_layer();
 
-	draw_fg_layer();
+	if (nSpriteEnable & 1 && *priority == 0) draw_sprites();
 
-	if (*priority == 1) draw_sprites();
+	if (nBurnLayer & 2) draw_fg_layer(0);
+
+	if (nSpriteEnable & 2 && *priority == 1) {
+		draw_sprites();
+		// redraw the hud - dragon buster needs to keep sprites out of this area
+		if (drgnbstr && nBurnLayer & 4) draw_fg_layer(1);
+	}
 
 	BurnTransferCopy(DrvPalette);
 
@@ -1043,6 +1055,12 @@ struct BurnDriver BurnDrvSkykids = {
 	288, 224, 4, 3
 };
 
+static INT32 DrgnbstrInit()
+{
+	drgnbstr = 1;
+
+	return DrvInit();
+}
 
 // Dragon Buster
 
@@ -1077,6 +1095,6 @@ struct BurnDriver BurnDrvDrgnbstr = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_SCRFIGHT, 0,
 	NULL, drgnbstrRomInfo, drgnbstrRomName, NULL, NULL, SkykidInputInfo, DrgnbstrDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x500,
+	DrgnbstrInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x500,
 	288, 224, 4, 3
 };

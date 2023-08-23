@@ -297,7 +297,7 @@ static INT32 MemIndex()
 	DrvGfxROM1		= Next; Next += 0x020000;
 
 	DrvColPROM		= Next; Next += 0x000520;
-	
+
 	DrvPalette		= (UINT32*)Next; Next += 0x0300 * sizeof(UINT32);
 
 	AllRam			= Next;
@@ -394,7 +394,7 @@ static INT32 DrvInit()
 	GenericTilesInit();
 	GenericTilemapInit(0, bg_map_scan, bg_map_callback, 8, 8, 64, 32);
 	GenericTilemapSetGfx(0, DrvGfxROM0, 3, 8, 8, 0x10000, 0, 0x1f);
-//	GenericTilemapSetOffsets(0, 0, -42);
+	GenericTilemapSetOffsets(0, 0, -8);
 
 	DrvDoReset();
 
@@ -454,19 +454,19 @@ static void DrvPaletteInit()
 
 static void draw_scroll_panel()
 {
-	for (INT32 offset = 0; offset < (nScreenHeight * 16); offset++)
+	for (INT32 offset = 0; offset < ((nScreenHeight + 16) * 16); offset++)
 	{
 		INT32 sx = (offset & 0xf);
 		INT32 sy = (offset >> 4);
 
-		if (sx < 1 || sx > 14)
+		if (sx < (1 + 2) || sx > 14 || (sy - 16) < 0) // + 2 on sx check is to take care of the 16px offset
 			continue;
 
 		sx = 4 * (sx - 1);
 
 		INT32 data = DrvScrollPanel[offset];
 		INT32 color = (sy & 0xfc) + 0x100;
-		UINT16 *dst = pTransDraw + sy * nScreenWidth + sx + (nScreenWidth - 56);
+		UINT16 *dst = pTransDraw + (sy - 16) * nScreenWidth + sx + (nScreenWidth - 56);
 
 		for (INT32 i = 0; i < 4; i++)
 		{
@@ -515,8 +515,8 @@ static void draw_sprites()
 			sy2 = sy1 + 0x10;
 		}
 
-		Draw16x16MaskTile(pTransDraw, code1 + (bank * 256), sx, sy1, flipx, flipy, color, 3, 0, 0x200, DrvGfxROM1);
-		Draw16x16MaskTile(pTransDraw, code2 + (bank * 256), sx, sy2, flipx, flipy, color, 3, 0, 0x200, DrvGfxROM1);
+		if (nSpriteEnable & 1) RenderTileTranstabOffset(pTransDraw, DrvGfxROM1, code1 + (bank * 256), color << 3, 0x00, sx, sy1, flipx, flipy, 16, 16, DrvColPROM + 0x420, 0x200);
+		if (nSpriteEnable & 2) RenderTileTranstabOffset(pTransDraw, DrvGfxROM1, code2 + (bank * 256), color << 3, 0x00, sx, sy2, flipx, flipy, 16, 16, DrvColPROM + 0x420, 0x200);
 	}
 }
 
@@ -527,8 +527,8 @@ static INT32 DrvDraw()
 		DrvRecalc = 0;
 	}
 
-	if ((nBurnLayer & 1) == 0) BurnTransferClear();
-	
+	BurnTransferClear();
+
 	GenericTilemapSetScrollX(0, scrollx);
 	GenericTilemapSetScrollY(0, scrolly);
 	if ((nBurnLayer & 1) == 1) GenericTilemapDraw(0, pTransDraw, 0);
@@ -581,11 +581,13 @@ static INT32 DrvFrame()
 		nCyclesDone[1] += M6803Run(nCyclesTotal[1] / nInterleave);
 		
 		MSM5205Update();
+		IremSoundClockSlave();
 	}
 
 	if (pBurnSoundOut) {
 		AY8910Render(pBurnSoundOut, nBurnSoundLen);
 		MSM5205Render(0, pBurnSoundOut, nBurnSoundLen);
+		MSM5205Render(1, pBurnSoundOut, nBurnSoundLen);
 	}
 
 	M6803Close();

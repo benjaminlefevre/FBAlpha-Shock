@@ -57,7 +57,6 @@
  * I use 15/11 = 1.3636, so this is a little lower.
  */
 #define POKEY_DEFAULT_GAIN (32767/11/4)
-static double pokey_mastervol = 1.0;
 static INT32 nLeftSample = 0, nRightSample = 0;
 
 #define VERBOSE 		0
@@ -162,7 +161,6 @@ struct POKEYregisters {
 	UINT32 volume[4];		/* channel volume - derived */
 	UINT8 output[4];		/* channel output signal (1 active, 0 inactive) */
 	UINT8 audible[4];		/* channel plays an audible tone/effect */
-	UINT32 samplerate_24_8; /* sample rate in 24.8 format */
 	UINT32 samplepos_fract; /* sample position fractional part */
 	UINT32 samplepos_whole; /* sample position whole part */
 	UINT32 polyadjust;		/* polynome adjustment */
@@ -191,6 +189,7 @@ struct POKEYregisters {
     INT64 rtimer;           /* timer for calculating the random offset */
 	INT32 pokey_end_vars;   // dummy entry for calculating states
 
+	// set by init
 	void (*interrupt_cb)(INT32 mask);
 	void *timer[3]; 		/* timers for channel 1,2 and 4 events */
 	void *ptimer[8];		/* pot timers */
@@ -198,6 +197,9 @@ struct POKEYregisters {
 	INT32 (*allpot_r)(INT32 offs);
 	INT32 (*serin_r)(INT32 offs);
 	void (*serout_w)(INT32 offs, INT32 data);
+	INT32  OutputDir;       // routing of chip
+	double ChipVol;         // volume of chip
+	UINT32 samplerate_24_8; /* sample rate in 24.8 format */
 };
 
 static struct POKEYinterface intf;
@@ -357,10 +359,10 @@ static UINT8 *rand17;
 		pokey[chip].samplepos_fract &= 0x000000ff;						\
 	}																	\
 	/* store sum of output signals into the buffer */					\
-	nLeftSample  = buffer[0] + (INT32)(sum * pokey_mastervol);          \
-	nRightSample = buffer[1] + (INT32)(sum * pokey_mastervol);          \
-	buffer[0] = BURN_SND_CLIP(nLeftSample);                             \
-	buffer[1] = BURN_SND_CLIP(nRightSample);                            \
+	nLeftSample  = ((pokey[chip].OutputDir & BURN_SND_ROUTE_LEFT ) == BURN_SND_ROUTE_LEFT ) ? BURN_SND_CLIP((INT32)(sum * pokey[chip].ChipVol)) : 0; \
+	nRightSample = ((pokey[chip].OutputDir & BURN_SND_ROUTE_RIGHT) == BURN_SND_ROUTE_RIGHT) ? BURN_SND_CLIP((INT32)(sum * pokey[chip].ChipVol)) : 0; \
+	buffer[0] = BURN_SND_CLIP(buffer[0] + nLeftSample);                 \
+	buffer[1] = BURN_SND_CLIP(buffer[1] + nRightSample);                \
 	buffer++; buffer++;                                                 \
 	length--;
 
@@ -619,6 +621,14 @@ void PokeyAllPotCallback(INT32 chip, INT32 (*pot_cb)(INT32 offs))
 	p->allpot_r = pot_cb;
 }
 
+void PokeySetRoute(INT32 chip, double chipvol, INT32 nRouteDir)
+{
+	struct POKEYregisters *p = &pokey[chip];
+
+	p->OutputDir = nRouteDir;
+	p->ChipVol = chipvol;
+}
+
 void PokeyPotCallback(INT32 chip, INT32 potnum, INT32 (*pot_cb)(INT32 offs))
 {
 	struct POKEYregisters *p = &pokey[chip];
@@ -654,7 +664,7 @@ INT32 PokeyInit(INT32 clock, INT32 num, double vol, INT32 addtostream)
 	sample_rate = nBurnSoundRate;
 	intf.num = num;
 	//intf.mixing_level[0] = vol;
-	pokey_mastervol = vol;
+    //pokey_mastervol = vol;
 	intf.baseclock = (clock) ? clock : FREQ_17_EXACT;
 	intf.addtostream = addtostream;
 
@@ -694,6 +704,10 @@ INT32 PokeyInit(INT32 clock, INT32 num, double vol, INT32 addtostream)
 		p->KBCODE = 0x09;		 /* Atari 800 'no key' */
 		p->SKCTL = SK_RESET;	 /* let the RNG run after reset */
 		p->rtimer = 0; //timer_set(TIME_NEVER, chip, NULL);
+
+		p->OutputDir = BURN_SND_ROUTE_BOTH; // default routing
+		p->ChipVol = vol;
+
 #if 0
 		memset(p->potgo_timer, 0, sizeof(p->potgo_timer));
 
@@ -915,7 +929,7 @@ static void pokey_potgo(INT32 chip)
 INT32 pokey_register_r(INT32 chip, INT32 offs)
 {
 	struct POKEYregisters *p = &pokey[chip];
-    INT32 data = 0, pot;
+    UINT8 data = 0, pot;
 	UINT32 adjust = 0;
 
 #ifdef MAME_DEBUG
@@ -928,14 +942,10 @@ INT32 pokey_register_r(INT32 chip, INT32 offs)
 
 	{
 		for (pot = 0; pot < 8; pot++) { // simple hacky timer impl. -dink
-			if (pCPUTotalCycles() - p->potgo_timer[pot] >= 192) {
+			if (pCPUTotalCycles() - p->potgo_timer[pot] >= 192) { // allow pot to be read after 2 scanlines
 				p->ALLPOT &= ~(1 << pot);
 			}
 		}
-
-		// (p->rtimer != -1) {
-		//  p->rtimer++;
-		//}
 	}
 
     switch (offs & 15)
@@ -954,8 +964,7 @@ INT32 pokey_register_r(INT32 chip, INT32 offs)
 
 			if( p->ALLPOT & (1 << pot) )
 			{
-				data = 0xff;
-				data = (UINT8)(/*timer_timeelapsed(p->ptimer[pot])*/1234 / AD_TIME);
+				data = (UINT8)((pCPUTotalCycles() - p->potgo_timer[pot]) / AD_TIME);
 				//bprintf(0, L"POKEY #%d read POT%d (interpolated) $%02x\n", chip, pot, data);
             }
 			else
@@ -972,12 +981,13 @@ INT32 pokey_register_r(INT32 chip, INT32 offs)
          * If the 2 least significant bits of SKCTL are 0, the ALLPOTs
          * are disabled (SKRESET). Thanks to MikeJ for pointing this out.
          ****************************************************************/
-    	if( (p->SKCTL & SK_RESET) == 0)
-    	{
+    	/*if( (p->SKCTL & SK_RESET) == 0)
+    	{ // this breaks Atari's Red Baron
     		data = 0;
-			//bprintf(0, L"POKEY #%d ALLPOT internal $%02x (reset)\n", chip, data);
+			bprintf(0, L"POKEY #%d ALLPOT internal $%02x skpaddle %X(reset)\n", chip, data, (p->SKCTL & SK_PADDLE));
 		}
-		else if( p->allpot_r )
+		else*/
+		if( p->allpot_r )
 		{
 			data = (*p->allpot_r)(offs);
 			//bprintf(0, L"POKEY #%d ALLPOT callback $%02x\n", chip, data);
@@ -1613,3 +1623,30 @@ void pokey4_kbcode_w(INT32 kbcode, INT32 make)
 	pokey_kbcode_w(3, kbcode, make);
 }
 
+
+//-------------------------------------------------------------------
+// standardized chip support
+
+void pokey_write(INT32 chip, INT32 offset, UINT8 data)
+{
+	pokey_register_w(chip,offset,data);
+}
+
+UINT8 pokey_read(INT32 chip, INT32 offset)
+{
+	return pokey_register_r(chip, offset);
+}
+
+void pokey_serin_ready(INT32 /*after*/)
+{
+	//timer_set(1.0 * after / intf.baseclock, 0, pokey_serin_ready);
+}
+void pokey_break_write(INT32 chip, INT32 shift)
+{
+	pokey_break_w(chip, shift);
+}
+
+void pokey_kbcode_write(INT32 chip, INT32 kbcode, INT32 make)
+{
+	pokey_kbcode_w(chip, kbcode, make);
+}
