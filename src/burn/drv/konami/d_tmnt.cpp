@@ -5622,7 +5622,7 @@ static void PaletteDim(INT32 dimslayer)
 	}
 }
 
-static INT32 TmntDraw()
+static void TmntDraw()
 {
 	DrvCalcPalette();
 	K052109UpdateScroll();
@@ -5634,11 +5634,9 @@ static INT32 TmntDraw()
 	K052109RenderLayer(0, 0, 0);
 
 	KonamiBlendCopy(DrvPalette);
-
-	return 0;
 }
 
-static INT32 BlswhstlDraw()
+static void BlswhstlDraw()
 {
 	INT32 Layer[3];
 	
@@ -5670,8 +5668,6 @@ static INT32 BlswhstlDraw()
 	if (nSpriteEnable & 1) K053245SpritesRender(0);
 
 	KonamiBlendCopy(DrvPalette);
-
-	return 0;
 }
 
 static INT32 Thndrx2Draw()
@@ -6465,7 +6461,7 @@ struct BurnDriver BurnDrvTmnt = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntRomInfo, TmntRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6475,7 +6471,7 @@ struct BurnDriver BurnDrvTmntu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntuRomInfo, TmntuRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6485,7 +6481,7 @@ struct BurnDriver BurnDrvTmntua = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntuaRomInfo, TmntuaRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6495,7 +6491,7 @@ struct BurnDriver BurnDrvTmntub = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntubRomInfo, TmntubRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6505,7 +6501,7 @@ struct BurnDriver BurnDrvTmht = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmhtRomInfo, TmhtRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6515,7 +6511,7 @@ struct BurnDriver BurnDrvTmhta = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmhtaRomInfo, TmhtaRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6525,7 +6521,7 @@ struct BurnDriver BurnDrvTmhtb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmhtbRomInfo, TmhtbRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6535,7 +6531,7 @@ struct BurnDriver BurnDrvTmntj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntjRomInfo, TmntjRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6545,7 +6541,7 @@ struct BurnDriver BurnDrvTmnta = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, TmntaRomInfo, TmntaRomName, NULL, NULL, TmntInputInfo, TmntDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6555,7 +6551,7 @@ struct BurnDriver BurnDrvTmht2p = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, Tmht2pRomInfo, Tmht2pRomName, NULL, NULL, Tmnt2pInputInfo, Tmnt2pDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6565,7 +6561,7 @@ struct BurnDriver BurnDrvTmht2pa = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, Tmht2paRomInfo, Tmht2paRomName, NULL, NULL, Tmnt2pInputInfo, Tmnt2pDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6575,7 +6571,7 @@ struct BurnDriver BurnDrvTmht2pj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, Tmnt2pjRomInfo, Tmnt2pjRomName, NULL, NULL, Tmnt2pInputInfo, Tmnt2pDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6585,7 +6581,7 @@ struct BurnDriver BurnDrvTmht2po = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, Tmnt2poRomInfo, Tmnt2poRomName, NULL, NULL, Tmnt2pInputInfo, Tmnt2pDIPInfo,
-	TmntInit, TmntExit, TmntFrame, TmntDraw, TmntScan,
+	TmntInit, TmntExit, TmntFrame, NULL, TmntScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6595,7 +6591,7 @@ struct BurnDriver BurnDrvMia = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, MiaRomInfo, MiaRomName, NULL, NULL, MiaInputInfo, MiaDIPInfo,
-	MiaInit, MiaExit, MiaFrame, TmntDraw, MiaScan,
+	MiaInit, MiaExit, MiaFrame, NULL, MiaScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6605,7 +6601,7 @@ struct BurnDriver BurnDrvMia2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, Mia2RomInfo, Mia2RomName, NULL, NULL, MiaInputInfo, MiaDIPInfo,
-	MiaInit, MiaExit, MiaFrame, TmntDraw, MiaScan,
+	MiaInit, MiaExit, MiaFrame, NULL, MiaScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6615,7 +6611,7 @@ struct BurnDriver BurnDrvCuebrick = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_KONAMI_68K_Z80, GBF_PUZZLE, 0,
 	NULL, CuebrickRomInfo, CuebrickRomName, NULL, NULL, MiaInputInfo, MiaDIPInfo,
-	CuebrickInit, CommonExit, CuebrickFrame, TmntDraw, CuebrickScan,
+	CuebrickInit, CommonExit, CuebrickFrame, NULL, CuebrickScan,
 	NULL, 0x400, 304, 224, 4, 3
 };
 
@@ -6625,7 +6621,7 @@ struct BurnDriver BurnDrvBlswhstl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, BlswhstlRomInfo, BlswhstlRomName, NULL, NULL, BlswhstlInputInfo, NULL,
-	BlswhstlInit, BlswhstlExit, BlswhstlFrame, BlswhstlDraw, BlswhstlScan,
+	BlswhstlInit, BlswhstlExit, BlswhstlFrame, NULL, BlswhstlScan,
 	NULL, 0x810, 224, 280, 3, 4
 };
 
@@ -6635,7 +6631,7 @@ struct BurnDriver BurnDrvBlswhstla = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, BlswhstlaRomInfo, BlswhstlaRomName, NULL, NULL, BlswhstlInputInfo, NULL,
-	BlswhstlInit, BlswhstlExit, BlswhstlFrame, BlswhstlDraw, BlswhstlScan,
+	BlswhstlInit, BlswhstlExit, BlswhstlFrame, NULL, BlswhstlScan,
 	NULL, 0x810, 224, 280, 3, 4
 };
 
@@ -6645,7 +6641,7 @@ struct BurnDriver BurnDrvDetatwin = {
 	L"\u51FA\u305F\u306A!! Twin Bee \u30C4\u30A4\u30F3\u30D3\u30FC (Japan, version J)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, DetatwinRomInfo, DetatwinRomName, NULL, NULL, BlswhstlInputInfo, NULL,
-	BlswhstlInit, BlswhstlExit, BlswhstlFrame, BlswhstlDraw, BlswhstlScan,
+	BlswhstlInit, BlswhstlExit, BlswhstlFrame, NULL, BlswhstlScan,
 	NULL, 0x810, 224, 280, 3, 4
 };
 
@@ -6655,7 +6651,7 @@ struct BurnDriver BurnDrvSsriders = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersRomInfo, SsridersRomName, NULL, NULL, Ssriders4pInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6665,7 +6661,7 @@ struct BurnDriver BurnDrvSsridersebd = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersebdRomInfo, SsridersebdRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6675,7 +6671,7 @@ struct BurnDriver BurnDrvSsridersebc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersebcRomInfo, SsridersebcRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6685,7 +6681,7 @@ struct BurnDriver BurnDrvSsridersuda = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersudaRomInfo, SsridersudaRomName, NULL, NULL, Ssriders4psInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6695,7 +6691,7 @@ struct BurnDriver BurnDrvSsriderseaa = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsriderseaaRomInfo, SsriderseaaRomName, NULL, NULL, Ssriders4psInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6705,7 +6701,7 @@ struct BurnDriver BurnDrvSsridersuab = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersuabRomInfo, SsridersuabRomName, NULL, NULL, Ssriders4pInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6715,7 +6711,7 @@ struct BurnDriver BurnDrvSsridersuac = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersuacRomInfo, SsridersuacRomName, NULL, NULL, Ssriders4pInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6725,7 +6721,7 @@ struct BurnDriver BurnDrvSsridersubc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersubcRomInfo, SsridersubcRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6735,7 +6731,7 @@ struct BurnDriver BurnDrvSsridersabd = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersabdRomInfo, SsridersabdRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6745,7 +6741,7 @@ struct BurnDriver BurnDrvSsridersadd = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersaddRomInfo, SsridersaddRomName, NULL, NULL, Ssriders4psInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6755,7 +6751,7 @@ struct BurnDriver BurnDrvSsridersjac = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersjacRomInfo, SsridersjacRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6765,7 +6761,7 @@ struct BurnDriver BurnDrvSsridersjad = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersjadRomInfo, SsridersjadRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6775,7 +6771,7 @@ struct BurnDriver BurnDrvSsridersjbd = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, SsridersjbdRomInfo, SsridersjbdRomName, NULL, NULL, SsridersInputInfo, NULL,
-	SsridersInit, BlswhstlExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersInit, BlswhstlExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6790,7 +6786,7 @@ struct BurnDriverD BurnDrvSsridersb = {
 	NULL, NULL, NULL, NULL,
 	BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_KONAMI_68K_Z80, GBF_RUNGUN, 0,
 	NULL, ssridersbRomInfo, ssridersbRomName, NULL, NULL, Ssriders4psInputInfo, NULL,
-	SsridersbInit, CommonExit, SsridersFrame, BlswhstlDraw, SsridersScan,
+	SsridersbInit, CommonExit, SsridersFrame, NULL, SsridersScan,
 	NULL, 0x810, 288, 224, 4, 3
 };
 
@@ -6800,7 +6796,7 @@ struct BurnDriver BurnDrvThndrx2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_KONAMI_68K_Z80, GBF_HORSHOOT, 0,
 	NULL, thndrx2RomInfo, thndrx2RomName, NULL, NULL, Thndrx2InputInfo, NULL,
-	Thndrx2Init, BlswhstlExit, Thndrx2Frame, Thndrx2Draw, Thndrx2aScan,
+	Thndrx2Init, BlswhstlExit, Thndrx2Frame, NULL, Thndrx2aScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6810,7 +6806,7 @@ struct BurnDriver BurnDrvThndrx2a = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_HORSHOOT, 0,
 	NULL, thndrx2aRomInfo, thndrx2aRomName, NULL, NULL, Thndrx2InputInfo, NULL,
-	Thndrx2Init, BlswhstlExit, Thndrx2Frame, Thndrx2Draw, Thndrx2aScan,
+	Thndrx2Init, BlswhstlExit, Thndrx2Frame, NULL, Thndrx2aScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6820,7 +6816,7 @@ struct BurnDriver BurnDrvThndrx2j = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_HORSHOOT, 0,
 	NULL, thndrx2jRomInfo, thndrx2jRomName, NULL, NULL, Thndrx2InputInfo, NULL,
-	Thndrx2Init, BlswhstlExit, Thndrx2Frame, Thndrx2Draw, Thndrx2aScan,
+	Thndrx2Init, BlswhstlExit, Thndrx2Frame, NULL, Thndrx2aScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6830,7 +6826,7 @@ struct BurnDriver BurnDrvLgtnfght = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, lgtnfghtRomInfo, lgtnfghtRomName, NULL, NULL, LgtnfghtInputInfo, LgtnfghtDIPInfo,
-	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, BlswhstlDraw, Thndrx2aScan, 
+	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 224, 288, 3, 4
 };
 
@@ -6840,7 +6836,7 @@ struct BurnDriver BurnDrvLgtnfghtu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, lgtnfghtuRomInfo, lgtnfghtuRomName, NULL, NULL, LgtnfghtInputInfo, LgtnfghtDIPInfo,
-	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, BlswhstlDraw, Thndrx2aScan, 
+	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 224, 288, 3, 4
 };
 
@@ -6850,7 +6846,7 @@ struct BurnDriver BurnDrvLgtnfghta = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, lgtnfghtaRomInfo, lgtnfghtaRomName, NULL, NULL, LgtnfghtInputInfo, LgtnfghtDIPInfo,
-	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, BlswhstlDraw, Thndrx2aScan, 
+	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 224, 288, 3, 4
 };
 
@@ -6860,7 +6856,7 @@ struct BurnDriver BurnDrvTrigon = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_KONAMI_68K_Z80, GBF_VERSHOOT, 0,
 	NULL, trigonRomInfo, trigonRomName, NULL, NULL, LgtnfghtInputInfo, LgtnfghtDIPInfo,
-	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, BlswhstlDraw, Thndrx2aScan, 
+	LgtnfghtInit, BlswhstlExit, LgtnfghtFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 224, 288, 3, 4
 };
 
@@ -6870,7 +6866,7 @@ struct BurnDriver BurnDrvTmnt2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, tmnt2RomInfo, tmnt2RomName, NULL, NULL, Ssriders4pInputInfo, NULL,
-	Tmnt2Init, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan,
+	Tmnt2Init, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6880,7 +6876,7 @@ struct BurnDriver BurnDrvTmnt22pu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, tmnt22puRomInfo, tmnt22puRomName, NULL, NULL, SsridersInputInfo, NULL,
-	Tmnt2Init, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan,
+	Tmnt2Init, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6890,7 +6886,7 @@ struct BurnDriver BurnDrvTmht22pe = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, tmht22peRomInfo, tmht22peRomName, NULL, NULL, SsridersInputInfo, NULL,
-	Tmnt2Init, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan,
+	Tmnt2Init, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6900,7 +6896,7 @@ struct BurnDriver BurnDrvTmht24pe = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, tmht24peRomInfo, tmht24peRomName, NULL, NULL, SsridersInputInfo, NULL,
-	Tmnt2Init, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan,
+	Tmnt2Init, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6910,7 +6906,7 @@ struct BurnDriver BurnDrvTmnt2a = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_KONAMI_68K_Z80, GBF_SCRFIGHT, 0,
 	NULL, tmnt2aRomInfo, tmnt2aRomName, NULL, NULL, Ssriders4psInputInfo, NULL,
-	Tmnt2Init, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan,
+	Tmnt2Init, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan,
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6920,7 +6916,7 @@ struct BurnDriver BurnDrvQgakumon = {
 	L"\u30AF\u30A4\u30BA \u5B66\u554F\u30CE\u30B9\u30B9\u30E1 Gakumon no Susume (Japan ver. JA2 Type L)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_KONAMI_68K_Z80, GBF_QUIZ, 0,
 	NULL, qgakumonRomInfo, qgakumonRomName, NULL, NULL, QgakumonInputInfo, NULL,
-	QgakumonInit, BlswhstlExit, Tmnt2Frame, BlswhstlDraw, SsridersScan, 
+	QgakumonInit, BlswhstlExit, Tmnt2Frame, NULL, SsridersScan, 
 	NULL, 0x800, 304, 224, 4, 3
 };
 
@@ -6930,7 +6926,7 @@ struct BurnDriver BurnDrvPunkshot = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_KONAMI_68K_Z80, GBF_SPORTSMISC, 0,
 	NULL, punkshotRomInfo, punkshotRomName, NULL, NULL, PunkshotInputInfo, PunkshotDIPInfo,
-	PunkshotInit, PunkshotExit, PunkshotFrame, PunkshotDraw, Thndrx2aScan, 
+	PunkshotInit, PunkshotExit, PunkshotFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6940,7 +6936,7 @@ struct BurnDriver BurnDrvPunkshot2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SPORTSMISC, 0,
 	NULL, punkshot2RomInfo, punkshot2RomName, NULL, NULL, Punkshot2InputInfo, Punkshot2DIPInfo,
-	PunkshotInit, PunkshotExit, PunkshotFrame, PunkshotDraw, Thndrx2aScan, 
+	PunkshotInit, PunkshotExit, PunkshotFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 288, 224, 4, 3
 };
 
@@ -6950,6 +6946,6 @@ struct BurnDriver BurnDrvPunkshotj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_KONAMI_68K_Z80, GBF_SPORTSMISC, 0,
 	NULL, punkshotjRomInfo, punkshotjRomName, NULL, NULL, Punkshot2InputInfo, PunkshotjDIPInfo,
-	PunkshotInit, PunkshotExit, PunkshotFrame, PunkshotDraw, Thndrx2aScan, 
+	PunkshotInit, PunkshotExit, PunkshotFrame, NULL, Thndrx2aScan, 
 	NULL, 0x800, 288, 224, 4, 3
 };

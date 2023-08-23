@@ -986,7 +986,7 @@ static void DrawSprites()
 	}
 }
 
-static INT32 DrvDraw()
+static void DrvDraw()
 {
 	if (bRecalcPalette) {
 		for (INT32 i=0; i<0x800; i++) CalcCol(i);
@@ -1000,8 +1000,6 @@ static INT32 DrvDraw()
 	TileForeground();
 
 	BurnTransferCopy(RamCurPal);
-
-	return 0;
 }
 
 static INT32 powerinsFrame()
@@ -1131,6 +1129,7 @@ static INT32 powerinsScan(INT32 nAction,INT32 *pnMin)
 		if ( game_drv == GAME_POWERINS ) BurnYM2203Scan(nAction, pnMin);
 
 		MSM6295Scan(nAction, pnMin);
+		if ( game_drv != GAME_POWERINA ) //MSM6295Scan(1, nAction);
 
 		SCAN_VAR(soundlatch);
 		if ( game_drv == GAME_POWERINA ) SCAN_VAR(oki_bank);
@@ -1152,7 +1151,7 @@ struct BurnDriver BurnDrvPowerins = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_VSFIGHT, FBF_PWRINST,
 	NULL, powerinsRomInfo, powerinsRomName, NULL, NULL, powerinsInputInfo, powerinsDIPInfo,
-	powerinsInit, powerinsExit, powerinsFrame, DrvDraw, powerinsScan, &bRecalcPalette, 0x800,
+	powerinsInit, powerinsExit, powerinsFrame, NULL, powerinsScan, &bRecalcPalette, 0x800,
 	320, 224, 4, 3
 };
 
@@ -1162,7 +1161,7 @@ struct BurnDriver BurnDrvPowerinj = {
 	L"\u8C6A\u8840\u5BFA\u4E00\u65CF (Japan)\0Gouketsuji Ichizoku\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_VSFIGHT, FBF_PWRINST,
 	NULL, powerinjRomInfo, powerinjRomName, NULL, NULL, powerinsInputInfo, powerinjDIPInfo,
-	powerinsInit, powerinsExit, powerinsFrame, DrvDraw, powerinsScan, &bRecalcPalette, 0x800,
+	powerinsInit, powerinsExit, powerinsFrame, NULL, powerinsScan, &bRecalcPalette, 0x800,
 	320, 224, 4, 3
 };
 
@@ -1172,7 +1171,7 @@ struct BurnDriver BurnDrvPowerina = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_MISC_POST90S, GBF_VSFIGHT, FBF_PWRINST,
 	NULL, powerinaRomInfo, powerinaRomName, NULL, NULL, powerinsInputInfo, powerinsDIPInfo,
-	powerinsInit, powerinsExit, powerinsFrame, DrvDraw, powerinsScan, &bRecalcPalette, 0x800,
+	powerinsInit, powerinsExit, powerinsFrame, NULL, powerinsScan, &bRecalcPalette, 0x800,
 	320, 224, 4, 3
 };
 
@@ -1182,6 +1181,6 @@ struct BurnDriver BurnDrvPowerinb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_MISC_POST90S, GBF_VSFIGHT, FBF_PWRINST,
 	NULL, powerinbRomInfo, powerinbRomName, NULL, NULL, powerinsInputInfo, powerinsDIPInfo,
-	powerinsInit, powerinsExit, powerinsFrame, DrvDraw, powerinsScan, &bRecalcPalette, 0x800,
+	powerinsInit, powerinsExit, powerinsFrame, NULL, powerinsScan, &bRecalcPalette, 0x800,
 	320, 224, 4, 3
 };

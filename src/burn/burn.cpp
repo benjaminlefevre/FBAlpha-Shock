@@ -877,11 +877,6 @@ void BurnRandomScan(INT32 nAction)
 	}
 }
 
-void BurnRandomSetSeed(UINT64 nSeed)
-{
-	nBurnRandSeed = nSeed;
-}
-
 void BurnRandomInit()
 { // for states & input recordings - init before emulation starts
 	nBurnRandSeed = time(NULL);

@@ -953,7 +953,7 @@ static INT32 DrvDoReset()
 	return 0;
 }
 
-static UINT8 __fastcall VigilanteZ80Read1(UINT16 a)
+UINT8 __fastcall VigilanteZ80Read1(UINT16 a)
 {
 	switch (a) {
 		default: {
@@ -964,7 +964,7 @@ static UINT8 __fastcall VigilanteZ80Read1(UINT16 a)
 	return 0;
 }
 
-static void __fastcall VigilanteZ80Write1(UINT16 a, UINT8 d)
+void __fastcall VigilanteZ80Write1(UINT16 a, UINT8 d)
 {
 	if (a >= 0xc020 && a <= 0xc0df) {
 		DrvSpriteRam[a - 0xc020] = d;
@@ -994,7 +994,7 @@ static void __fastcall VigilanteZ80Write1(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall VigilanteZ80PortRead1(UINT16 a)
+UINT8 __fastcall VigilanteZ80PortRead1(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1027,7 +1027,7 @@ static UINT8 __fastcall VigilanteZ80PortRead1(UINT16 a)
 	return 0;
 }
 
-static UINT8 __fastcall BuccanrsZ80PortRead1(UINT16 a)
+UINT8 __fastcall BuccanrsZ80PortRead1(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1060,7 +1060,7 @@ static UINT8 __fastcall BuccanrsZ80PortRead1(UINT16 a)
 	return 0;
 }
 
-static UINT8 __fastcall BuccanrsaZ80PortRead1(UINT16 a)
+UINT8 __fastcall BuccanrsaZ80PortRead1(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1093,7 +1093,7 @@ static UINT8 __fastcall BuccanrsaZ80PortRead1(UINT16 a)
 	return 0;
 }
 
-static void __fastcall VigilanteZ80PortWrite1(UINT16 a, UINT8 d)
+void __fastcall VigilanteZ80PortWrite1(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -1152,7 +1152,7 @@ static void __fastcall VigilanteZ80PortWrite1(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall KikcubicZ80Read1(UINT16 a)
+UINT8 __fastcall KikcubicZ80Read1(UINT16 a)
 {
 	switch (a) {
 		default: {
@@ -1163,7 +1163,7 @@ static UINT8 __fastcall KikcubicZ80Read1(UINT16 a)
 	return 0;
 }
 
-static void __fastcall KikcubicZ80Write1(UINT16 a, UINT8 d)
+void __fastcall KikcubicZ80Write1(UINT16 a, UINT8 d)
 {
 	if (a >= 0xc800 && a <= 0xcaff) {
 		INT32 Offset = a & 0x3ff;
@@ -1188,7 +1188,7 @@ static void __fastcall KikcubicZ80Write1(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall KikcubicZ80PortRead1(UINT16 a)
+UINT8 __fastcall KikcubicZ80PortRead1(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1221,7 +1221,7 @@ static UINT8 __fastcall KikcubicZ80PortRead1(UINT16 a)
 	return 0;
 }
 
-static void __fastcall KikcubicZ80PortWrite1(UINT16 a, UINT8 d)
+void __fastcall KikcubicZ80PortWrite1(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -1260,7 +1260,7 @@ static void __fastcall KikcubicZ80PortWrite1(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall VigilanteZ80Read2(UINT16 a)
+UINT8 __fastcall VigilanteZ80Read2(UINT16 a)
 {
 	switch (a) {
 		default: {
@@ -1271,7 +1271,7 @@ static UINT8 __fastcall VigilanteZ80Read2(UINT16 a)
 	return 0;
 }
 
-static void __fastcall VigilanteZ80Write2(UINT16 a, UINT8 /*d*/)
+void __fastcall VigilanteZ80Write2(UINT16 a, UINT8 /*d*/)
 {
 	switch (a) {
 		default: {
@@ -1280,7 +1280,7 @@ static void __fastcall VigilanteZ80Write2(UINT16 a, UINT8 /*d*/)
 	}
 }
 
-static UINT8 __fastcall VigilanteZ80PortRead2(UINT16 a)
+UINT8 __fastcall VigilanteZ80PortRead2(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1305,7 +1305,7 @@ static UINT8 __fastcall VigilanteZ80PortRead2(UINT16 a)
 	return 0;
 }
 
-static void __fastcall VigilanteZ80PortWrite2(UINT16 a, UINT8 d)
+void __fastcall VigilanteZ80PortWrite2(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -1347,7 +1347,7 @@ static void __fastcall VigilanteZ80PortWrite2(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall BuccanrsZ80PortRead2(UINT16 a)
+UINT8 __fastcall BuccanrsZ80PortRead2(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1376,7 +1376,7 @@ static UINT8 __fastcall BuccanrsZ80PortRead2(UINT16 a)
 	return 0;
 }
 
-static void __fastcall BuccanrsZ80PortWrite2(UINT16 a, UINT8 d)
+void __fastcall BuccanrsZ80PortWrite2(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -2219,10 +2219,10 @@ static void DrvDrawSprites()
 	}
 }
 
-static INT32 DrvDraw()
+static void DrvDraw()
 {
-	BurnTransferClear();
-
+	BurnTransferClear();	
+		
 	if (DrvRearDisable) {
 		DrvDrawForeground(0, 1);
 		DrvDrawSprites();
@@ -2233,35 +2233,31 @@ static INT32 DrvDraw()
 		DrvDrawSprites();
 		DrvDrawForeground(1, 0);
 	}
-
+	
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
-static INT32 KikcubicDraw()
+static void KikcubicDraw()
 {
 	BurnTransferClear();
-
+	
 	for (INT32 Offset = 0; Offset < 0x1000; Offset += 2) {
 		INT32 sy = 8 * ((Offset / 2) / 64);
 		INT32 sx = 8 * ((Offset / 2) % 64);
 		INT32 Attr = DrvVideoRam[Offset + 1];
 		INT32 Colour = (Attr & 0xf0) >> 4;
 		INT32 Code = DrvVideoRam[Offset] | ((Attr & 0x0f) << 8);
-
+		
 		sx -= 64;
 		if (sx >= 0 && sx < (nScreenWidth - 8) && sy >= 0 && sy < (nScreenHeight - 8)) {
 			Render8x8Tile(pTransDraw, Code, sx, sy, Colour, 4, 0, DrvChars);
 		} else {
 			Render8x8Tile_Clip(pTransDraw, Code, sx, sy, Colour, 4, 0, DrvChars);
 		}
-	}
-
-	DrvDrawSprites();
+	}	
+		
+	DrvDrawSprites();	
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
 static INT32 DrvFrame()
@@ -2412,7 +2408,7 @@ struct BurnDriver BurnDrvVigilant = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, DrvRomInfo, DrvRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2422,7 +2418,7 @@ struct BurnDriver BurnDrvVigilanta = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, VigilantaRomInfo, VigilantaRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvcInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvcInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2432,7 +2428,7 @@ struct BurnDriver BurnDrvVigilantb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, VigilantbRomInfo, VigilantbRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvcInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvcInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2442,7 +2438,7 @@ struct BurnDriver BurnDrvVigilantc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, Drv1RomInfo, Drv1RomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvcInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvcInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2452,7 +2448,7 @@ struct BurnDriver BurnDrvVigilanto = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, DrvuRomInfo, DrvuRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvcInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvcInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2462,7 +2458,7 @@ struct BurnDriver BurnDrvVigilantg = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, Drvu2RomInfo, Drvu2RomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2472,7 +2468,7 @@ struct BurnDriver BurnDrvVigilantd = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, DrvjRomInfo, DrvjRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvcInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvcInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2482,7 +2478,7 @@ struct BurnDriver BurnDrvVigilantbl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, DrvbRomInfo, DrvbRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	DrvbInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DrvbInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2492,7 +2488,7 @@ struct BurnDriver BurnDrvKikcubic = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_MISC, GBF_MAZE, 0,
 	NULL, KikcubicRomInfo, KikcubicRomName, NULL, NULL, KikcubicInputInfo, KikcubicDIPInfo,
-	KikcubicInit, DrvExit, DrvFrame, KikcubicDraw, DrvScan,
+	KikcubicInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 384, 256, 4, 3
 };
 
@@ -2502,7 +2498,7 @@ struct BurnDriver BurnDrvKikcubicb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_IREM_MISC, GBF_MAZE, 0,
 	NULL, KikcubicbRomInfo, KikcubicbRomName, NULL, NULL, KikcubicInputInfo, KikcubicDIPInfo,
-	KikcubicInit, DrvExit, DrvFrame, KikcubicDraw, DrvScan,
+	KikcubicInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 384, 256, 4, 3
 };
 
@@ -2512,7 +2508,7 @@ struct BurnDriver BurnDrvBuccanrs = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, BuccanrsRomInfo, BuccanrsRomName, NULL, NULL, BuccanrsInputInfo, BuccanrsDIPInfo,
-	BuccanrsInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BuccanrsInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2522,7 +2518,7 @@ struct BurnDriver BurnDrvBuccanrsa = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, BuccanrsaRomInfo, BuccanrsaRomName, NULL, NULL, BuccanrsaInputInfo, BuccanrsaDIPInfo,
-	BuccanrsInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BuccanrsInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };
 
@@ -2532,6 +2528,6 @@ struct BurnDriver BurnDrvBuccanrsb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_MISC, GBF_SCRFIGHT, 0,
 	NULL, BuccanrsbRomInfo, BuccanrsbRomName, NULL, NULL, BuccanrsInputInfo, BuccanrsDIPInfo,
-	BuccanrsInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BuccanrsInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 544, 256, 256, 4, 3
 };

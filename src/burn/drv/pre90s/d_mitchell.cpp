@@ -1272,7 +1272,7 @@ static UINT8 BlockDialRead(INT32 Offset)
 	}
 }
 
-static UINT8 __fastcall MitchellZ80Read(UINT16 a)
+UINT8 __fastcall MitchellZ80Read(UINT16 a)
 {
 	if (a >= 0xc000 && a <= 0xc7ff) {
 		return DrvPaletteRam[(a - 0xc000) + (DrvPaletteRamBank ? 0x800 : 0x000)];
@@ -1296,7 +1296,7 @@ static UINT8 __fastcall MitchellZ80Read(UINT16 a)
 	return 0;
 }
 
-static void __fastcall MitchellZ80Write(UINT16 a, UINT8 d)
+void __fastcall MitchellZ80Write(UINT16 a, UINT8 d)
 {
 	if (a >= 0xc000 && a <= 0xc7ff) {
 		DrvPaletteRam[(a - 0xc000) + (DrvPaletteRamBank ? 0x800 : 0x000)] = d;
@@ -1320,7 +1320,7 @@ static void __fastcall MitchellZ80Write(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall MitchellZ80PortRead(UINT16 a)
+UINT8 __fastcall MitchellZ80PortRead(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1397,7 +1397,7 @@ static UINT8 __fastcall MitchellZ80PortRead(UINT16 a)
 	return 0xff;
 }
 
-static void __fastcall MitchellZ80PortWrite(UINT16 a, UINT8 d)
+void __fastcall MitchellZ80PortWrite(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -1495,7 +1495,7 @@ static void __fastcall MitchellZ80PortWrite(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall MstworldZ80PortRead(UINT16 a)
+UINT8 __fastcall MstworldZ80PortRead(UINT16 a)
 {
 	a &= 0xff;
 	
@@ -1532,7 +1532,7 @@ static UINT8 __fastcall MstworldZ80PortRead(UINT16 a)
 	return 0xff;
 }
 
-static void __fastcall MstworldZ80PortWrite(UINT16 a, UINT8 d)
+void __fastcall MstworldZ80PortWrite(UINT16 a, UINT8 d)
 {
 	a &= 0xff;
 	
@@ -1583,7 +1583,7 @@ static void __fastcall MstworldZ80PortWrite(UINT16 a, UINT8 d)
 	}
 }
 
-static UINT8 __fastcall MstworldSoundZ80Read(UINT16 a)
+UINT8 __fastcall MstworldSoundZ80Read(UINT16 a)
 {
 	switch (a) {
 		case 0x9800: {
@@ -1603,7 +1603,7 @@ static UINT8 __fastcall MstworldSoundZ80Read(UINT16 a)
 	return 0;
 }
 
-static void __fastcall MstworldSoundZ80Write(UINT16 a, UINT8 d)
+void __fastcall MstworldSoundZ80Write(UINT16 a, UINT8 d)
 {
 	switch (a) {
 		case 0x9000: {
@@ -2907,15 +2907,13 @@ static void DrvRenderSpriteLayer()
 	}
 }
 
-static INT32 DrvDraw()
+static void DrvDraw()
 {
 	BurnTransferClear();
 	DrvCalcPalette();
 	DrvRenderBgLayer();
-	DrvRenderSpriteLayer();
+	DrvRenderSpriteLayer();	 
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
 static INT32 DrvFrame()
@@ -3140,7 +3138,7 @@ struct BurnDriver BurnDrvMgakuen = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, MgakuenRomInfo, MgakuenRomName, NULL, NULL, MgakuenInputInfo, MgakuenDIPInfo,
-	MgakuenInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	MgakuenInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 384, 240, 4, 3
 };
 
@@ -3150,7 +3148,7 @@ struct BurnDriver BurnDrvSeventoitsu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, SeventoitsuRomInfo, SeventoitsuRomName, NULL, NULL, MgakuenInputInfo, MgakuenDIPInfo,
-	MgakuenInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	MgakuenInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 384, 240, 4, 3
 };
 
@@ -3160,7 +3158,7 @@ struct BurnDriver BurnDrvMgakuen2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, Mgakuen2RomInfo, Mgakuen2RomName, NULL, NULL, MarukinInputInfo, NULL,
-	Mgakuen2Init, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	Mgakuen2Init, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3170,7 +3168,7 @@ struct BurnDriver BurnDrvPkladies = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, PkladiesRomInfo, PkladiesRomName, NULL, NULL, PkladiesInputInfo, NULL,
-	PkladiesInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PkladiesInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3180,7 +3178,7 @@ struct BurnDriver BurnDrvPkladiesl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, PkladieslRomInfo, PkladieslRomName, NULL, NULL, PkladiesInputInfo, NULL,
-	PkladiesInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PkladiesInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3190,7 +3188,7 @@ struct BurnDriver BurnDrvPkladiesla = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAHJONG, 0,
 	NULL, PkladieslaRomInfo, PkladieslaRomName, NULL, NULL, PkladiesInputInfo, NULL,
-	PkladiesInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PkladiesInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3200,7 +3198,7 @@ struct BurnDriver BurnDrvDokaben = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_SPORTSMISC, 0,
 	NULL, DokabenRomInfo, DokabenRomName, NULL, NULL, PangInputInfo, NULL,
-	DokabenInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	DokabenInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3210,7 +3208,7 @@ struct BurnDriver BurnDrvPang = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, PangRomInfo, PangRomName, NULL, NULL, PangInputInfo, NULL,
-	PangInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3220,7 +3218,7 @@ struct BurnDriver BurnDrvBbros = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, BbrosRomInfo, BbrosRomName, NULL, NULL, PangInputInfo, NULL,
-	PangInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3230,7 +3228,7 @@ struct BurnDriver BurnDrvPompingw = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, PompingwRomInfo, PompingwRomName, NULL, NULL, PangInputInfo, NULL,
-	PangInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3240,7 +3238,7 @@ struct BurnDriver BurnDrvPangb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, PangbRomInfo, PangbRomName, NULL, NULL, PangInputInfo, NULL,
-	PangbInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangbInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3250,7 +3248,7 @@ struct BurnDriver BurnDrvPangbold = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, PangboldRomInfo, PangboldRomName, NULL, NULL, PangInputInfo, NULL,
-	PangboldInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangboldInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3260,7 +3258,7 @@ struct BurnDriver BurnDrvPangbold2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, Pangbold2RomInfo, Pangbold2RomName, NULL, NULL, PangInputInfo, NULL,
-	PangboldInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangboldInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3270,7 +3268,7 @@ struct BurnDriver BurnDrvPangbold3 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, Pangbold3RomInfo, Pangbold3RomName, NULL, NULL, PangInputInfo, NULL,
-	PangboldInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	PangboldInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3280,7 +3278,7 @@ struct BurnDriver BurnDrvPangb2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PUZZLE, 0,
 	NULL, Pangb2RomInfo, Pangb2RomName, NULL, NULL, PangInputInfo, NULL,
-	Pangb2Init, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	Pangb2Init, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3290,7 +3288,7 @@ struct BurnDriver BurnDrvCworld = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_QUIZ, 0,
 	NULL, CworldRomInfo, CworldRomName, NULL, NULL, Qtono1InputInfo, NULL,
-	CworldInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	CworldInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3300,7 +3298,7 @@ struct BurnDriver BurnDrvHatena = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_QUIZ, 0,
 	NULL, HatenaRomInfo, HatenaRomName, NULL, NULL, Qtono1InputInfo, NULL,
-	HatenaInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	HatenaInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3310,7 +3308,7 @@ struct BurnDriver BurnDrvSpang = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, SpangRomInfo, SpangRomName, NULL, NULL, PangInputInfo, NULL,
-	SpangInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	SpangInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3320,7 +3318,7 @@ struct BurnDriver BurnDrvSpangj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, SpangjRomInfo, SpangjRomName, NULL, NULL, PangInputInfo, NULL,
-	SpangjInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	SpangjInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3330,7 +3328,7 @@ struct BurnDriver BurnDrvSbbros = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, SbbrosRomInfo, SbbrosRomName, NULL, NULL, PangInputInfo, NULL,
-	SbbrosInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	SbbrosInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3340,7 +3338,7 @@ struct BurnDriver BurnDrvMstworld = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, MstworldRomInfo, MstworldRomName, NULL, NULL, MstworldInputInfo, MstworldDIPInfo,
-	MstworldInit, CommonExit, MstworldFrame, DrvDraw, MstworldScan,
+	MstworldInit, CommonExit, MstworldFrame, NULL, MstworldScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3350,7 +3348,7 @@ struct BurnDriver BurnDrvMarukin = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_MAHJONG, 0,
 	NULL, MarukinRomInfo, MarukinRomName, NULL, NULL, MarukinInputInfo, NULL,
-	MarukinInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	MarukinInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3360,7 +3358,7 @@ struct BurnDriver BurnDrvQtono1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_QUIZ, 0,
 	NULL, Qtono1RomInfo, Qtono1RomName, NULL, NULL, Qtono1InputInfo, NULL,
-	Qtono1Init, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	Qtono1Init, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3370,7 +3368,7 @@ struct BurnDriver BurnDrvQsangoku = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_QUIZ, 0,
 	NULL, QsangokuRomInfo, QsangokuRomName, NULL, NULL, Qtono1InputInfo, NULL,
-	QsangokuInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	QsangokuInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 384, 240, 4, 3
 };
 
@@ -3380,7 +3378,7 @@ struct BurnDriver BurnDrvBlock = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_BREAKOUT, 0,
 	NULL, BlockRomInfo, BlockRomName, NULL, NULL, BlockjoyInputInfo, NULL,
-	BlockjoyInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BlockjoyInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 240, 384, 3, 4
 };
 
@@ -3390,7 +3388,7 @@ struct BurnDriver BurnDrvBlockr1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_BREAKOUT, 0,
 	NULL, Blockr1RomInfo, Blockr1RomName, NULL, NULL, BlockjoyInputInfo, NULL,
-	BlockjoyInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BlockjoyInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 240, 384, 3, 4
 };
 
@@ -3400,7 +3398,7 @@ struct BurnDriver BurnDrvBlockr2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_BREAKOUT, 0,
 	NULL, Blockr2RomInfo, Blockr2RomName, NULL, NULL, BlockInputInfo, NULL,
-	BlockInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BlockInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 240, 384, 3, 4
 };
 
@@ -3410,7 +3408,7 @@ struct BurnDriver BurnDrvBlockj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_BREAKOUT, 0,
 	NULL, BlockjRomInfo, BlockjRomName, NULL, NULL, BlockInputInfo, NULL,
-	BlockInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BlockInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 240, 384, 3, 4
 };
 
@@ -3420,6 +3418,6 @@ struct BurnDriver BurnDrvBlockbl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_BREAKOUT, 0,
 	NULL, BlockblRomInfo, BlockblRomName, NULL, NULL, BlockInputInfo, NULL,
-	BlockblInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	BlockblInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x800, 240, 384, 3, 4
 };

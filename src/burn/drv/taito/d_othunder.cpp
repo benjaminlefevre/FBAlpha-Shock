@@ -9,6 +9,8 @@
 #include "eeprom.h"
 #include "burn_gun.h"
 
+static void OthunderDraw();
+
 static double OthunderYM2610AY8910RouteMasterVol;
 static double OthunderYM2610Route1MasterVol;
 static double OthunderYM2610Route2MasterVol;
@@ -906,6 +908,7 @@ static INT32 OthunderInit()
 	if (!EEPROMAvailable()) EEPROMFill(TaitoDefaultEEProm, 0, 128);
 	
 	TaitoMakeInputsFunction = OthunderMakeInputs;
+	TaitoDrawFunction = OthunderDraw;
 	TaitoIrqLine = 5;
 	TaitoFrameInterleave = 100;
 	TaitoFlipScreenX = 1;
@@ -1097,7 +1100,7 @@ static void OthunderRenderSprites(INT32 PriorityDraw)
 	}
 }
 
-static INT32 OthunderDraw()
+static void OthunderDraw()
 {
 	INT32 Disable = TC0100SCNCtrl[0][6] & 0xf7;
 	
@@ -1121,8 +1124,6 @@ static INT32 OthunderDraw()
 	for (INT32 i = 0; i < nBurnGunNumPlayers; i++) {
 		BurnGunDrawTarget(i, BurnGunX[i] >> 8, BurnGunY[i] >> 8);
 	}
-
-	return 0;
 }
 
 static INT32 OthunderFrame()
@@ -1162,7 +1163,7 @@ static INT32 OthunderFrame()
 	}
 	ZetClose();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 
 	return 0;
 }
@@ -1217,7 +1218,7 @@ struct BurnDriver BurnDrvOthunder = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderRomInfo, OthunderRomName, NULL, NULL, OthunderInputInfo, OthunderDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };
 
@@ -1227,7 +1228,7 @@ struct BurnDriver BurnDrvOthundero = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderoRomInfo, OthunderoRomName, NULL, NULL, OthunderInputInfo, OthunderuDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };
 
@@ -1237,7 +1238,7 @@ struct BurnDriver BurnDrvOthunderu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderuRomInfo, OthunderuRomName, NULL, NULL, OthunderInputInfo, OthunderuDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };
 
@@ -1247,7 +1248,7 @@ struct BurnDriver BurnDrvOthunderuo = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderuoRomInfo, OthunderuoRomName, NULL, NULL, OthunderInputInfo, OthunderuDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };
 
@@ -1257,7 +1258,7 @@ struct BurnDriver BurnDrvOthunderj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderjRomInfo, OthunderjRomName, NULL, NULL, OthunderInputInfo, OthunderjDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };
 
@@ -1267,6 +1268,6 @@ struct BurnDriver BurnDrvOthunderjsc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OthunderjscRomInfo, OthunderjscRomName, NULL, NULL, OthunderInputInfo, OthunderjDIPInfo,
-	OthunderInit, OthunderExit, OthunderFrame, OthunderDraw, OthunderScan,
+	OthunderInit, OthunderExit, OthunderFrame, NULL, OthunderScan,
 	NULL, 0x1000, 320, 240, 4, 3
 };

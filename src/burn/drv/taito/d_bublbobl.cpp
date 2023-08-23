@@ -2808,7 +2808,7 @@ static void DrvVideoUpdate()
 	}
 }
 
-static INT32 DrvDraw()
+static void DrvDraw()
 {
 	for (INT32 i = 0; i < nScreenHeight * nScreenWidth; i++) {
 		pTransDraw[i] = 0x00ff;
@@ -2817,8 +2817,6 @@ static INT32 DrvDraw()
 	DrvCalcPalette();
 	DrvVideoUpdate();
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
 static INT32 DrvFrame()
@@ -3069,7 +3067,7 @@ struct BurnDriver BurnDrvBublbobl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublboblRomInfo, BublboblRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3079,7 +3077,7 @@ struct BurnDriver BurnDrvBublboblu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublbobluRomInfo, BublbobluRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3089,7 +3087,7 @@ struct BurnDriver BurnDrvBublbob1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bublbob1RomInfo, Bublbob1RomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3099,7 +3097,7 @@ struct BurnDriver BurnDrvBublbobr = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublbobrRomInfo, BublbobrRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3109,7 +3107,7 @@ struct BurnDriver BurnDrvBubbobr1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bubbobr1RomInfo, Bubbobr1RomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3119,7 +3117,7 @@ struct BurnDriver BurnDrvBoblbobl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BoblboblRomInfo, BoblboblRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3129,7 +3127,7 @@ struct BurnDriver BurnDrvBbredux = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BbreduxRomInfo, BbreduxRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3139,7 +3137,7 @@ struct BurnDriver BurnDrvBublboblb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublboblbRomInfo, BublboblbRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3149,7 +3147,7 @@ struct BurnDriver BurnDrvSboblbobl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, SboblboblRomInfo, SboblboblRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	SboblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	SboblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3159,7 +3157,7 @@ struct BurnDriver BurnDrvSboblbobla = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, SboblboblaRomInfo, SboblboblaRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3169,7 +3167,7 @@ struct BurnDriver BurnDrvSboblboblb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, SboblboblbRomInfo, SboblboblbRomName, NULL, NULL, BoblboblInputInfo, SboblbobDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3179,7 +3177,7 @@ struct BurnDriver BurnDrvSboblboblc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, SboblboblcRomInfo, SboblboblcRomName, NULL, NULL, BoblboblInputInfo, SboblbobDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3189,7 +3187,7 @@ struct BurnDriver BurnDrvSboblbobld = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, SboblbobldRomInfo, SboblbobldRomName, NULL, NULL, BoblboblInputInfo, SboblbobDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3199,7 +3197,7 @@ struct BurnDriver BurnDrvBub68705 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bub68705RomInfo, Bub68705RomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	Bub68705Init, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	Bub68705Init, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3209,7 +3207,7 @@ struct BurnDriver BurnDrvBub68705a = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bub68705aRomInfo, Bub68705aRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	Bub68705Init, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	Bub68705Init, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3219,7 +3217,7 @@ struct BurnDriver BurnDrvDland = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, DlandRomInfo, DlandRomName, NULL, NULL, BoblboblInputInfo, DlandDIPInfo,
-	DlandInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	DlandInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3229,7 +3227,7 @@ struct BurnDriver BurnDrvBublcave = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HOMEBREW | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublcaveRomInfo, BublcaveRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3239,7 +3237,7 @@ struct BurnDriver BurnDrvBoblcave = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BoblcaveRomInfo, BoblcaveRomName, NULL, NULL, BoblboblInputInfo, BoblboblDIPInfo,
-	BoblboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BoblboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3249,7 +3247,7 @@ struct BurnDriver BurnDrvBublcave11 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HOMEBREW | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bublcave11RomInfo, Bublcave11RomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3259,7 +3257,7 @@ struct BurnDriver BurnDrvBublcave10 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HOMEBREW | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Bublcave10RomInfo, Bublcave10RomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblInit, BublboblExit, DrvFrame, DrvDraw, DrvScan,
+	BublboblInit, BublboblExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3269,7 +3267,7 @@ struct BurnDriver BurnDrvBublboblp = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_PROTOTYPE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, BublboblpRomInfo, BublboblpRomName, NULL, NULL, BublboblInputInfo, BublboblDIPInfo,
-	BublboblpInit, DrvExit, TokioFrame, DrvDraw, DrvScan,
+	BublboblpInit, DrvExit, TokioFrame, NULL, DrvScan,
 	NULL, 0x100, 256, 224, 4, 3
 };
 
@@ -3279,7 +3277,7 @@ struct BurnDriver BurnDrvTokio = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_VERSHOOT, 0,
 	NULL, tokioRomInfo, tokioRomName, NULL, NULL, TokioInputInfo, TokioDIPInfo,
-	TokioInit, DrvExit, TokioFrame, DrvDraw, DrvScan,
+	TokioInit, DrvExit, TokioFrame, NULL, DrvScan,
 	NULL, 0x100, 224, 256, 3, 4
 };
 
@@ -3289,7 +3287,7 @@ struct BurnDriver BurnDrvTokioo = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_VERSHOOT, 0,
 	NULL, tokiooRomInfo, tokiooRomName, NULL, NULL, TokioInputInfo, TokioDIPInfo,
-	TokioInit, DrvExit, TokioFrame, DrvDraw, DrvScan,
+	TokioInit, DrvExit, TokioFrame, NULL, DrvScan,
 	NULL, 0x100, 224, 256, 3, 4
 };
 
@@ -3299,7 +3297,7 @@ struct BurnDriver BurnDrvTokiou = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_VERSHOOT, 0,
 	NULL, tokiouRomInfo, tokiouRomName, NULL, NULL, TokioInputInfo, TokioDIPInfo,
-	TokioInit, DrvExit, TokioFrame, DrvDraw, DrvScan,
+	TokioInit, DrvExit, TokioFrame, NULL, DrvScan,
 	NULL, 0x100, 224, 256, 3, 4
 };
 
@@ -3309,6 +3307,6 @@ struct BurnDriver BurnDrvTokiob = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_TAITO_MISC, GBF_VERSHOOT, 0,
 	NULL, tokiobRomInfo, tokiobRomName, NULL, NULL, TokioInputInfo, TokioDIPInfo,
-	TokiobInit, DrvExit, TokioFrame, DrvDraw, DrvScan,
+	TokiobInit, DrvExit, TokioFrame, NULL, DrvScan,
 	NULL, 0x100, 224, 256, 3, 4
 };

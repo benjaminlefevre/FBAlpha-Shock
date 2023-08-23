@@ -22182,27 +22182,6 @@ struct BurnDriver BurnDrvgg_royalstn = {
 };
 
 
-// Royal Stone - Hirakareshi Toki no Tobira (Hack, English)
-// Source : http://www.romhacking.net/translations/2076/
-
-static struct BurnRomInfo gg_royalstneRomDesc[] = {
-	{ "royal stone - hirakareshi toki no tobira (english translation).gg",	0x80000, 0xe4677b07, BRF_PRG | BRF_ESS },
-};
-
-STD_ROM_PICK(gg_royalstne)
-STD_ROM_FN(gg_royalstne)
-
-struct BurnDriver BurnDrvgg_royalstne = {
-	"gg_royalstne", "gg_royalstn", NULL, NULL, "2013",
-	"Royal Stone - Hirakareshi Toki no Tobira (Hack, English)\0", NULL, "Sega", "Sega Game Gear",
-	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_SEGA_GAME_GEAR, GBF_MISC, 0,
-	GGGetZipName, gg_royalstneRomInfo, gg_royalstneRomName, NULL, NULL, SMSInputInfo, GGDIPInfo,
-	SMSInit, SMSExit, SMSFrame, SMSDraw, SMSScan, &SMSPaletteRecalc, 0x1000,
-	256, 192, 4, 3
-};
-
-
 // Ryuukyuu (Jpn)
 
 static struct BurnRomInfo gg_ryukyuRomDesc[] = {
@@ -27570,44 +27549,3 @@ struct BurnDriver BurnDrvsms_silvervalley = {
 	SMSInit, SMSExit, SMSFrame, SMSDraw, SMSScan, &SMSPaletteRecalc, 0x1000,
 	256, 192, 4, 3
 };
-
-// ZXALL
-
-static struct BurnRomInfo sms_zexallRomDesc[] = {
-	{ "zexall.sms",	0x8000, 0x7CE4CEDA, BRF_PRG | BRF_ESS },
-};
-
-STD_ROM_PICK(sms_zexall)
-STD_ROM_FN(sms_zexall)
-
-struct BurnDriverD BurnDrvsms_zexall = {
-	"sms_zexall", NULL, NULL, NULL, "2018",
-	"ZEXALL\0", NULL, "Homebrew", "Sega Master System",
-	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MASTER_SYSTEM, GBF_MISC, 0,
-	SMSGetZipName, sms_zexallRomInfo, sms_zexallRomName, NULL, NULL, SMSInputInfo, SMSDIPInfo,
-	SMSInit, SMSExit, SMSFrame, SMSDraw, SMSScan, &SMSPaletteRecalc, 0x1000,
-	256, 192, 4, 3
-};
-
-
-// VDP TEST
-
-
-static struct BurnRomInfo sms_vdptestRomDesc[] = {
-	{ "vdptest.sms",	0x8000, 0x2f7d2cea, BRF_PRG | BRF_ESS },
-};
-
-STD_ROM_PICK(sms_vdptest)
-STD_ROM_FN(sms_vdptest)
-
-struct BurnDriverD BurnDrvsms_vdptest = {
-	"sms_vdptest", NULL, NULL, NULL, "20??",
-	"SMS VDP Test\0", NULL, "Homebrew", "Sega Master System",
-	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_SEGA_MASTER_SYSTEM, GBF_MISC, 0,
-	SMSGetZipName, sms_vdptestRomInfo, sms_vdptestRomName, NULL, NULL, SMSInputInfo, SMSDIPInfo,
-	SMSInit, SMSExit, SMSFrame, SMSDraw, SMSScan, &SMSPaletteRecalc, 0x1000,
-	256, 192, 4, 3
-};
-

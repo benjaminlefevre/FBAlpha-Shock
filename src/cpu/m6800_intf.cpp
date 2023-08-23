@@ -263,10 +263,6 @@ void M6800SetIRQLine(INT32 vector, INT32 status)
 	if (status == CPU_IRQSTATUS_ACK) {
 		m6800_set_irq_line(vector, 1);
 	}
-
-	if (status == CPU_IRQSTATUS_HOLD) {
-		m6800_set_irq_line(vector, 2);
-	}
 	
 	if (status == CPU_IRQSTATUS_AUTO) {
 		m6800_set_irq_line(vector, 1);
@@ -289,10 +285,6 @@ void HD63701SetIRQLine(INT32 vector, INT32 status)
 	
 	if (status == CPU_IRQSTATUS_ACK) {
 		m6800_set_irq_line(vector, 1);
-	}
-
-	if (status == CPU_IRQSTATUS_HOLD) {
-		m6800_set_irq_line(vector, 2);
 	}
 	
 	if (status == CPU_IRQSTATUS_AUTO) {
@@ -317,10 +309,6 @@ void M6803SetIRQLine(INT32 vector, INT32 status)
 	if (status == CPU_IRQSTATUS_ACK) {
 		m6800_set_irq_line(vector, 1);
 	}
-
-	if (status == CPU_IRQSTATUS_HOLD) {
-		m6800_set_irq_line(vector, 2);
-	}
 	
 	if (status == CPU_IRQSTATUS_AUTO) {
 		m6800_set_irq_line(vector, 1);
@@ -344,10 +332,6 @@ void M6801SetIRQLine(INT32 vector, INT32 status)
 	if (status == CPU_IRQSTATUS_ACK) {
 		m6800_set_irq_line(vector, 1);
 	}
-
-	if (status == CPU_IRQSTATUS_HOLD) {
-		m6800_set_irq_line(vector, 2);
-	}
 	
 	if (status == CPU_IRQSTATUS_AUTO) {
 		m6800_set_irq_line(vector, 1);
@@ -370,10 +354,6 @@ void NSC8105SetIRQLine(INT32 vector, INT32 status)
 	
 	if (status == CPU_IRQSTATUS_ACK) {
 		m6800_set_irq_line(vector, 1);
-	}
-
-	if (status == CPU_IRQSTATUS_HOLD) {
-		m6800_set_irq_line(vector, 2);
 	}
 	
 	if (status == CPU_IRQSTATUS_AUTO) {

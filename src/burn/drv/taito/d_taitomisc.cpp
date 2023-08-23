@@ -48,6 +48,14 @@ static INT32 z80ctc_ctr;
 static UINT16 *pTopspeedTempDraw = NULL;
 static UINT16 *DrvPriBmp	= NULL;
 
+static void DariusDraw();
+static void OpwolfDraw();
+static void RbislandDraw();
+static void JumpingDraw();
+static void RastanDraw();
+static void TopspeedDraw();
+static void VolfiedDraw();
+
 #define A(a, b, c, d) {a, b, (UINT8*)(c), d}
 
 static struct BurnInputInfo DariusInputList[] =
@@ -4551,6 +4559,7 @@ static INT32 DariusInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = DariusDraw;
 	TaitoMakeInputsFunction = DariusMakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -4654,6 +4663,7 @@ static INT32 OpwolfInit()
 	BurnGunInit(1, true);
 	bUseGuns = 1;
 
+	TaitoDrawFunction = OpwolfDraw;
 	TaitoMakeInputsFunction = OpwolfMakeInputs;
 	TaitoIrqLine = 5;
 	
@@ -4772,6 +4782,7 @@ static INT32 OpwolfbInit()
 	BurnGunInit(1, true);
 	bUseGuns = 1;
 	
+	TaitoDrawFunction = OpwolfDraw;
 	TaitoMakeInputsFunction = OpwolfbMakeInputs;
 	TaitoIrqLine = 5;
 	
@@ -4867,6 +4878,7 @@ static INT32 RbislandInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = RbislandDraw;
 	TaitoMakeInputsFunction = RbislandMakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -4960,6 +4972,7 @@ static INT32 JumpingInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = JumpingDraw;
 	TaitoMakeInputsFunction = JumpingMakeInputs;
 	TaitoIrqLine = 4;
 	PC080SNSetFgTransparentPen(0, 0x0f);
@@ -5054,6 +5067,7 @@ static INT32 RastanInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = RastanDraw;
 	TaitoMakeInputsFunction = RastanMakeInputs;
 	TaitoIrqLine = 5;
 	
@@ -5166,6 +5180,7 @@ static INT32 TopspeedInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = TopspeedDraw;
 	TaitoMakeInputsFunction = TopspeedMakeInputs;
 	TaitoIrqLine = 5;
 	
@@ -5256,6 +5271,7 @@ static INT32 VolfiedInit()
 	
 	GenericTilesInit();
 	
+	TaitoDrawFunction = VolfiedDraw;
 	TaitoMakeInputsFunction = VolfiedMakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -5706,7 +5722,7 @@ static void TopspeedDrawSprites(INT32 /*PriorityDraw*/)
 	}
 }
 
-static INT32 DariusDraw()
+static void DariusDraw()
 {
 	BurnTransferClear();
 	TaitoMiscCalcPalette();
@@ -5716,11 +5732,9 @@ static INT32 DariusDraw()
 	DariusDrawSprites(1);
 	DariusDrawCharLayer();
 	BurnTransferCopy(TaitoPalette);
-
-	return 0;
 }
 
-static INT32 OpwolfDraw()
+static void OpwolfDraw()
 {
 	BurnTransferClear();
 	OpwolfCalcPalette();
@@ -5732,11 +5746,9 @@ static INT32 OpwolfDraw()
 	for (INT32 i = 0; i < nBurnGunNumPlayers; i++) {
 		BurnGunDrawTarget(i, BurnGunX[i] >> 8, BurnGunY[i] >> 8);
 	}
-
-	return 0;
 }
 
-static INT32 RbislandDraw()
+static void RbislandDraw()
 {
 	BurnTransferClear();
 	TaitoMiscCalcPalette();
@@ -5744,11 +5756,9 @@ static INT32 RbislandDraw()
 	PC090OJDrawSprites(TaitoSpritesA);
 	PC080SNDrawFgLayer(0, 0, TaitoChars, pTransDraw);
 	BurnTransferCopy(TaitoPalette);
-
-	return 0;
 }
 
-static INT32 JumpingDraw()
+static void JumpingDraw()
 {
 	BurnTransferClear();
 	JumpingCalcPalette();
@@ -5757,11 +5767,9 @@ static INT32 JumpingDraw()
 	JumpingDrawSprites();	
 	PC080SNDrawFgLayer(0, 0, TaitoChars, pTransDraw);
 	BurnTransferCopy(TaitoPalette);
-
-	return 0;
 }
 
-static INT32 RastanDraw()
+static void RastanDraw()
 {
 	BurnTransferClear();
 	TaitoMiscCalcPalette();
@@ -5769,11 +5777,9 @@ static INT32 RastanDraw()
 	PC080SNDrawFgLayer(0, 0, TaitoChars, pTransDraw);
 	PC090OJDrawSprites(TaitoSpritesA);
 	BurnTransferCopy(TaitoPalette);
-
-	return 0;
 }
 
-static INT32 TopspeedDraw()
+static void TopspeedDraw()
 {
 	BurnTransferClear();
 	TaitoMiscCalcPalette();
@@ -5788,11 +5794,9 @@ static INT32 TopspeedDraw()
 	BurnTransferCopy(TaitoPalette);
 
 	BurnShiftRender();
-
-	return 0;
 }
 
-static INT32 VolfiedDraw()
+static void VolfiedDraw()
 {
 	BurnTransferClear();
 	TaitoMiscCalcPalette();
@@ -5821,8 +5825,6 @@ static INT32 VolfiedDraw()
 		
 	PC090OJDrawSprites(TaitoSpritesA);
 	BurnTransferCopy(TaitoPalette);
-
-	return 0;
 }
 
 static INT32 TaitoMiscFrame()
@@ -5909,7 +5911,7 @@ static INT32 TaitoMiscFrame()
 		if (TaitoNumZ80s >= 1) ZetClose();
 	}
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -5974,7 +5976,7 @@ static INT32 DariusFrame()
 	if (pBurnSoundOut) MSM5205Render(0, pBurnSoundOut, nBurnSoundLen);
 	ZetClose();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -6020,7 +6022,7 @@ static INT32 JumpingFrame()
 	if (pBurnSoundOut) BurnYM2203Update(pBurnSoundOut, nBurnSoundLen);
 	ZetClose();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -6109,7 +6111,7 @@ static INT32 TopspeedFrame()
 		if (TaitoNumZ80s >= 1) ZetClose();
 	}
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -6184,7 +6186,7 @@ struct BurnDriver BurnDrvDarius = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, DariusRomInfo, DariusRomName, NULL, NULL, DariusInputInfo, DariusDIPInfo,
-	DariusInit, TaitoMiscExit, DariusFrame, DariusDraw, TaitoMiscScan,
+	DariusInit, TaitoMiscExit, DariusFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 864, 224, 12, 3
 };
 
@@ -6194,7 +6196,7 @@ struct BurnDriver BurnDrvDariusu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, DariusuRomInfo, DariusuRomName, NULL, NULL, DariusInputInfo, DariusuDIPInfo,
-	DariusInit, TaitoMiscExit, DariusFrame, DariusDraw, TaitoMiscScan,
+	DariusInit, TaitoMiscExit, DariusFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 864, 224, 12, 3
 };
 
@@ -6204,7 +6206,7 @@ struct BurnDriver BurnDrvDariusj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, DariusjRomInfo, DariusjRomName, NULL, NULL, DariusInputInfo, DariusjDIPInfo,
-	DariusInit, TaitoMiscExit, DariusFrame, DariusDraw, TaitoMiscScan,
+	DariusInit, TaitoMiscExit, DariusFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 864, 224, 12, 3
 };
 
@@ -6214,7 +6216,7 @@ struct BurnDriver BurnDrvDariuso = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, DariusoRomInfo, DariusoRomName, NULL, NULL, DariusInputInfo, DariusjDIPInfo,
-	DariusInit, TaitoMiscExit, DariusFrame, DariusDraw, TaitoMiscScan,
+	DariusInit, TaitoMiscExit, DariusFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 864, 224, 12, 3
 };
 
@@ -6224,7 +6226,7 @@ struct BurnDriver BurnDrvDariuse = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, DariuseRomInfo, DariuseRomName, NULL, NULL, DariusInputInfo, DariusuDIPInfo,
-	DariusInit, TaitoMiscExit, DariusFrame, DariusDraw, TaitoMiscScan,
+	DariusInit, TaitoMiscExit, DariusFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 864, 224, 12, 3
 };
 
@@ -6234,7 +6236,7 @@ struct BurnDriver BurnDrvOpwolf = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfRomInfo, OpwolfRomName, NULL, NULL, OpwolfInputInfo, OpwolfDIPInfo,
-	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6244,7 +6246,7 @@ struct BurnDriver BurnDrvOpwolfa = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfaRomInfo, OpwolfaRomName, NULL, NULL, OpwolfInputInfo, OpwolfDIPInfo,
-	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6254,7 +6256,7 @@ struct BurnDriver BurnDrvOpwolfj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfjRomInfo, OpwolfjRomName, NULL, NULL, OpwolfInputInfo, OpwolfDIPInfo,
-	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6264,7 +6266,7 @@ struct BurnDriver BurnDrvOpwolfjsc = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfjscRomInfo, OpwolfjscRomName, NULL, NULL, OpwolfInputInfo, OpwolfDIPInfo,
-	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6274,7 +6276,7 @@ struct BurnDriver BurnDrvOpwolfu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfuRomInfo, OpwolfuRomName, NULL, NULL, OpwolfInputInfo, OpwolfuDIPInfo,
-	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6284,7 +6286,7 @@ struct BurnDriver BurnDrvOpwolfb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, OpwolfbRomInfo, OpwolfbRomName, NULL, NULL, OpwolfInputInfo, OpwolfbDIPInfo,
-	OpwolfbInit, TaitoMiscExit, TaitoMiscFrame, OpwolfDraw, TaitoMiscScan,
+	OpwolfbInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6294,7 +6296,7 @@ struct BurnDriver BurnDrvRbisland = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RbislandRomInfo, RbislandRomName, NULL, NULL, RbislandInputInfo, RbislandDIPInfo,
-	RbislandInit, TaitoMiscExit, TaitoMiscFrame, RbislandDraw, TaitoMiscScan,
+	RbislandInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6304,7 +6306,7 @@ struct BurnDriver BurnDrvRbislando = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RbislandoRomInfo, RbislandoRomName, NULL, NULL, RbislandInputInfo, RbislandDIPInfo,
-	RbislandInit, TaitoMiscExit, TaitoMiscFrame, RbislandDraw, TaitoMiscScan,
+	RbislandInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6314,7 +6316,7 @@ struct BurnDriver BurnDrvRbislande = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RbislandeRomInfo, RbislandeRomName, NULL, NULL, RbislandInputInfo, RbislandDIPInfo,
-	RbislandInit, TaitoMiscExit, TaitoMiscFrame, RbislandDraw, TaitoMiscScan,
+	RbislandInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6324,7 +6326,7 @@ struct BurnDriver BurnDrvJumping = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, JumpingRomInfo, JumpingRomName, NULL, NULL, JumpingInputInfo, JumpingDIPInfo,
-	JumpingInit, TaitoMiscExit, JumpingFrame, JumpingDraw, TaitoMiscScan,
+	JumpingInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6334,7 +6336,7 @@ struct BurnDriver BurnDrvJumpinga = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, JumpingaRomInfo, JumpingaRomName, NULL, NULL, JumpingInputInfo, JumpingDIPInfo,
-	JumpingInit, TaitoMiscExit, JumpingFrame, JumpingDraw, TaitoMiscScan,
+	JumpingInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6344,7 +6346,7 @@ struct BurnDriver BurnDrvJumpingi = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, JumpingiRomInfo, JumpingiRomName, NULL, NULL, JumpingInputInfo, JumpingDIPInfo,
-	JumpingInit, TaitoMiscExit, JumpingFrame, JumpingDraw, TaitoMiscScan,
+	JumpingInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -6354,7 +6356,7 @@ struct BurnDriver BurnDrvRastan = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanRomInfo, RastanRomName, NULL, NULL, RastanInputInfo, RastanDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6364,7 +6366,7 @@ struct BurnDriver BurnDrvRastana = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanaRomInfo, RastanaRomName, NULL, NULL, RastanInputInfo, RastanDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6374,7 +6376,7 @@ struct BurnDriver BurnDrvRastanb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanbRomInfo, RastanbRomName, NULL, NULL, RastanInputInfo, RastanDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6384,7 +6386,7 @@ struct BurnDriver BurnDrvRastanu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanuRomInfo, RastanuRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6394,7 +6396,7 @@ struct BurnDriver BurnDrvRastanua = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanuaRomInfo, RastanuaRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6404,7 +6406,7 @@ struct BurnDriver BurnDrvRastanub = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastanubRomInfo, RastanubRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6414,7 +6416,7 @@ struct BurnDriver BurnDrvRastsaga = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastsagaRomInfo, RastsagaRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6424,7 +6426,7 @@ struct BurnDriver BurnDrvRastsagaa = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastsagaaRomInfo, RastsagaaRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6434,7 +6436,7 @@ struct BurnDriver BurnDrvRastsagab = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, RastsagabRomInfo, RastsagabRomName, NULL, NULL, RastanInputInfo, RastsagaDIPInfo,
-	RastanInit, TaitoMiscExit, TaitoMiscFrame, RastanDraw, TaitoMiscScan,
+	RastanInit, TaitoMiscExit, TaitoMiscFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6444,7 +6446,7 @@ struct BurnDriver BurnDrvTopspeed = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_RACING, 0,
 	NULL, TopspeedRomInfo, TopspeedRomName, NULL, NULL, TopspeedInputInfo, TopspeedDIPInfo,
-	TopspeedInit, TaitoMiscExit, TopspeedFrame, TopspeedDraw, TaitoMiscScan,
+	TopspeedInit, TaitoMiscExit, TopspeedFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6454,7 +6456,7 @@ struct BurnDriver BurnDrvTopspeedu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_RACING, 0,
 	NULL, TopspeeduRomInfo, TopspeeduRomName, NULL, NULL, TopspeedInputInfo, FullthrlDIPInfo,
-	TopspeedInit, TaitoMiscExit, TopspeedFrame, TopspeedDraw, TaitoMiscScan,
+	TopspeedInit, TaitoMiscExit, TopspeedFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6464,7 +6466,7 @@ struct BurnDriver BurnDrvFullthrl = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_RACING, 0,
 	NULL, FullthrlRomInfo, FullthrlRomName, NULL, NULL, TopspeedInputInfo, FullthrlDIPInfo,
-	TopspeedInit, TaitoMiscExit, TopspeedFrame, TopspeedDraw, TaitoMiscScan,
+	TopspeedInit, TaitoMiscExit, TopspeedFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 320, 240, 4, 3
 };
 
@@ -6474,7 +6476,7 @@ struct BurnDriver BurnDrvVolfied = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_TAITO_MISC, GBF_PUZZLE, 0,
 	NULL, VolfiedRomInfo, VolfiedRomName, NULL, NULL, VolfiedInputInfo, VolfiedDIPInfo,
-	VolfiedInit, TaitoMiscExit, JumpingFrame, VolfiedDraw, TaitoMiscScan,
+	VolfiedInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 240, 320, 3, 4
 };
 
@@ -6484,7 +6486,7 @@ struct BurnDriver BurnDrvVolfiedj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_TAITO_MISC, GBF_PUZZLE, 0,
 	NULL, VolfiedjRomInfo, VolfiedjRomName, NULL, NULL, VolfiedInputInfo, VolfiedjDIPInfo,
-	VolfiedInit, TaitoMiscExit, JumpingFrame, VolfiedDraw, TaitoMiscScan,
+	VolfiedInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 240, 320, 3, 4
 };
 
@@ -6494,7 +6496,7 @@ struct BurnDriver BurnDrvVolfiedjo = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_TAITO_MISC, GBF_PUZZLE, 0,
 	NULL, VolfiedjoRomInfo, VolfiedjoRomName, NULL, NULL, VolfiedInputInfo, VolfiedjDIPInfo,
-	VolfiedInit, TaitoMiscExit, JumpingFrame, VolfiedDraw, TaitoMiscScan,
+	VolfiedInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 240, 320, 3, 4
 };
 
@@ -6504,6 +6506,6 @@ struct BurnDriver BurnDrvVolfiedu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_TAITO_MISC, GBF_PUZZLE, 0,
 	NULL, VolfieduRomInfo, VolfieduRomName, NULL, NULL, VolfiedInputInfo, VolfieduDIPInfo,
-	VolfiedInit, TaitoMiscExit, JumpingFrame, VolfiedDraw, TaitoMiscScan,
+	VolfiedInit, TaitoMiscExit, JumpingFrame, NULL, TaitoMiscScan,
 	NULL, 0x2000, 240, 320, 3, 4
 };

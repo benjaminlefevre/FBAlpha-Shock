@@ -10,6 +10,8 @@
 #include "burn_gun.h"
 #include "timekpr.h"
 
+static void SlapshotDraw();
+static void Opwolf3Draw();
 static TaitoF2SpriteBufferUpdate TaitoF2SpriteBufferFunction;
 
 static INT32 CheckTimeKeeper = 0; // for gun auto-calibration
@@ -557,6 +559,7 @@ static INT32 MachineInit()
 	BurnYM2610SetRoute(BURN_SND_YM2610_AY8910_ROUTE, 0.25, BURN_SND_ROUTE_BOTH);
 	
 	TaitoMakeInputsFunction = TC0640FIOMakeInputs;
+	TaitoDrawFunction = SlapshotDraw;
 
 	nTaitoCyclesTotal[0] = 14364000 / 60;
 	nTaitoCyclesTotal[1] = 4000000 / 60;
@@ -688,6 +691,7 @@ static INT32 Opwolf3Init()
 	SekClose();
 	
 	TaitoMakeInputsFunction = Opwolf3MakeInputs;
+	TaitoDrawFunction = Opwolf3Draw;
 	Opwolf3mode = 1;
 
 	BurnGunInit(2, true);
@@ -741,7 +745,7 @@ static void SlapshotCalcPalette()
 	}
 }
 
-static INT32 SlapshotDraw()
+static void SlapshotDraw()
 {
 	UINT8 Layer[4];
 	UINT16 Priority = TC0480SCPGetBgPriority();
@@ -760,6 +764,14 @@ static INT32 SlapshotDraw()
 	TaitoF2SpritePriority[1] = TC0360PRIRegs[6] >> 4;
 	TaitoF2SpritePriority[2] = TC0360PRIRegs[7] & 0x0f;
 	TaitoF2SpritePriority[3] = TC0360PRIRegs[7] >> 4;
+
+#if 0
+	// ** save this! **  for later impl. in d_taitof2 -dink
+	bprintf(0, _T("sprite   %X %X %X %X\n"), TaitoF2SpritePriority[0], TaitoF2SpritePriority[1], TaitoF2SpritePriority[2], TaitoF2SpritePriority[3]);
+	bprintf(0, _T("tile     %X %X %X %X\n"), TaitoF2TilePriority[0], TaitoF2TilePriority[1], TaitoF2TilePriority[2], TaitoF2TilePriority[3]);
+	bprintf(0, _T("layer    %X %X %X %X\n"), Layer[0], Layer[1], Layer[2], Layer[3]);
+	bprintf(0, _T("pri %X %X %X %X %X %X %X %X %X %X.\n"), TC0360PRIRegs[0], TC0360PRIRegs[1], TC0360PRIRegs[2], TC0360PRIRegs[3], TC0360PRIRegs[4], TC0360PRIRegs[5], TC0360PRIRegs[6], TC0360PRIRegs[7], TC0360PRIRegs[8], TC0360PRIRegs[9], TC0360PRIRegs[10]);
+#endif
 
 	SlapshotCalcPalette();
 	BurnTransferClear();
@@ -788,8 +800,15 @@ static INT32 SlapshotDraw()
 	TC0480SCPRenderCharLayer();
 
 	BurnTransferCopy(TaitoPalette);
+}
 
-	return 0;
+static void Opwolf3Draw()
+{
+	SlapshotDraw();
+	
+	/*for (INT32 i = 0; i < nBurnGunNumPlayers; i++) { // game draws it's own targets.  saving just incase.
+		BurnGunDrawTarget(i, BurnGunX[i] >> 8, BurnGunY[i] >> 8);
+	}*/
 }
 
 static void Opwolf3Defaults()
@@ -864,7 +883,7 @@ static INT32 SlapshotFrame()
 	
 	TaitoF2HandleSpriteBuffering();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	TaitoF2SpriteBufferFunction();
 
@@ -932,7 +951,7 @@ struct BurnDriver BurnDrvSlapshot = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_SPORTSMISC, 0,
 	NULL, SlapshotRomInfo, SlapshotRomName, NULL, NULL, SlapshotInputInfo, SlapshotDIPInfo,
-	SlapshotInit, SlapshotExit, SlapshotFrame, SlapshotDraw, SlapshotScan,
+	SlapshotInit, SlapshotExit, SlapshotFrame, NULL, SlapshotScan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -942,7 +961,7 @@ struct BurnDriver BurnDrvOpwolf3 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, Opwolf3RomInfo, Opwolf3RomName, NULL, NULL, Opwolf3InputInfo, Opwolf3DIPInfo,
-	Opwolf3Init, SlapshotExit, SlapshotFrame, SlapshotDraw, Opwolf3Scan,
+	Opwolf3Init, SlapshotExit, SlapshotFrame, NULL, Opwolf3Scan,
 	NULL, 0x2000, 320, 224, 4, 3
 };
 
@@ -952,6 +971,6 @@ struct BurnDriver BurnDrvOpwolf3u = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_SHOOT, 0,
 	NULL, Opwolf3uRomInfo, Opwolf3uRomName, NULL, NULL, Opwolf3InputInfo, Opwolf3DIPInfo,
-	Opwolf3Init, SlapshotExit, SlapshotFrame, SlapshotDraw, Opwolf3Scan,
+	Opwolf3Init, SlapshotExit, SlapshotFrame, NULL, Opwolf3Scan,
 	NULL, 0x2000, 320, 224, 4, 3
 };

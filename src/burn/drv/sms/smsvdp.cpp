@@ -277,7 +277,6 @@ void vdp_write(INT32 offset, UINT8 data)
                         vdp.vram[index] = data;
                         MARK_BG_DIRTY(vdp.addr);
                     }
-					vdp.buffer = data;
                     break;
         
                 case 3: /* CRAM write */
@@ -287,7 +286,6 @@ void vdp_write(INT32 offset, UINT8 data)
                         vdp.cram[index] = data;
                         palette_sync(index, 0);
                     }
-					vdp.buffer = data;
                     break;
             }
             vdp.addr = (vdp.addr + 1) & 0x3FFF;
@@ -393,7 +391,6 @@ void gg_vdp_write(INT32 offset, UINT8 data)
                         vdp.vram[index] = data;
                         MARK_BG_DIRTY(vdp.addr);
                     }
-					vdp.buffer = data;
                     break;
         
                 case 3: /* CRAM write */
@@ -408,7 +405,6 @@ void gg_vdp_write(INT32 offset, UINT8 data)
                     {
                         vdp.cram_latch = (vdp.cram_latch & 0xFF00) | ((data & 0xFF) << 0);
                     }
-					vdp.buffer = data;
                     break;
             }
             vdp.addr = (vdp.addr + 1) & 0x3FFF;
@@ -468,7 +464,6 @@ void md_vdp_write(INT32 offset, UINT8 data)
                         vdp.vram[index] = data;
                         MARK_BG_DIRTY(vdp.addr);
                     }
-					vdp.buffer = data;
                     break;
         
                 case 2: /* CRAM write */
@@ -479,7 +474,6 @@ void md_vdp_write(INT32 offset, UINT8 data)
                         vdp.cram[index] = data;
                         palette_sync(index, 0);
                     }
-					vdp.buffer = data;
                     break;
             }
             vdp.addr = (vdp.addr + 1) & 0x3FFF;

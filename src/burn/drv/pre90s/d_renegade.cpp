@@ -45,9 +45,17 @@ static UINT8 DrvADPCMPlaying = 0;
 static UINT32 DrvADPCMPos = 0;
 static UINT32 DrvADPCMEnd = 0;
 
+static INT32 nCyclesTotal[3];
+
 // MCU Simulation Variables
 #define MCU_TYPE_NONE		0
 #define MCU_TYPE_MCU		1
+
+#define MCU_BUFFER_MAX 6
+static UINT8 mcu_buffer[MCU_BUFFER_MAX];
+static UINT8 mcu_input_size;
+static UINT8 mcu_output_byte;
+static INT8 mcu_key;
 
 static INT32 DisableMCUEmulation = 0;
 
@@ -68,8 +76,11 @@ static UINT8 MCUPortCIn;
 
 static struct BurnInputInfo DrvInputList[] =
 {
-	{"P1 Coin"           , BIT_DIGITAL  , DrvInputPort1 + 6, "p1 coin"   },
-	{"P1 Start"          , BIT_DIGITAL  , DrvInputPort0 + 6, "p1 start"  },
+	{"Coin 1"            , BIT_DIGITAL  , DrvInputPort1 + 6, "p1 coin"   },
+	{"Start 1"           , BIT_DIGITAL  , DrvInputPort0 + 6, "p1 start"  },
+	{"Coin 2"            , BIT_DIGITAL  , DrvInputPort1 + 7, "p2 coin"   },
+	{"Start 2"           , BIT_DIGITAL  , DrvInputPort0 + 7, "p2 start"  },
+
 	{"P1 Up"             , BIT_DIGITAL  , DrvInputPort0 + 2, "p1 up"     },
 	{"P1 Down"           , BIT_DIGITAL  , DrvInputPort0 + 3, "p1 down"   },
 	{"P1 Left"           , BIT_DIGITAL  , DrvInputPort0 + 1, "p1 left"   },
@@ -78,8 +89,6 @@ static struct BurnInputInfo DrvInputList[] =
 	{"P1 Fire 2"         , BIT_DIGITAL  , DrvInputPort0 + 5, "p1 fire 2" },
 	{"P1 Fire 3"         , BIT_DIGITAL  , DrvInputPort2 + 2, "p1 fire 3" },
 	
-	{"P2 Coin"           , BIT_DIGITAL  , DrvInputPort1 + 7, "p2 coin"   },
-	{"P2 Start"          , BIT_DIGITAL  , DrvInputPort0 + 7, "p2 start"  },
 	{"P2 Up"             , BIT_DIGITAL  , DrvInputPort1 + 2, "p2 up"     },
 	{"P2 Down"           , BIT_DIGITAL  , DrvInputPort1 + 3, "p2 down"   },
 	{"P2 Left"           , BIT_DIGITAL  , DrvInputPort1 + 1, "p2 left"   },
@@ -305,7 +314,7 @@ static UINT8 mcu_reset_r()
 	m6805Open(0);
 	m68705Reset();
 	m6805Close();
-
+	
 	return 0;
 }
 
@@ -339,6 +348,12 @@ static UINT8 mcu_status_r()
 	
 	return Res;
 }
+
+struct adpcm_state
+{
+	INT32	signal;
+	INT32	step;
+};
 
 static INT32 DrvDoReset()
 {
@@ -384,7 +399,7 @@ static INT32 DrvDoReset()
 	return 0;
 }
 
-static UINT8 RenegadeReadByte(UINT16 Address)
+UINT8 RenegadeReadByte(UINT16 Address)
 {
 	switch (Address) {
 		case 0x3800: {
@@ -426,13 +441,7 @@ static UINT8 RenegadeReadByte(UINT16 Address)
 	return 0;
 }
 
-static void bankswitch(UINT8 Data)
-{
-	DrvRomBank = Data & 1;
-	M6502MapMemory(DrvM6502Rom + 0x8000 + (DrvRomBank * 0x4000), 0x4000, 0x7fff, MAP_ROM);
-}
-
-static void RenegadeWriteByte(UINT16 Address, UINT8 Data)
+void RenegadeWriteByte(UINT16 Address, UINT8 Data)
 {
 	switch (Address) {
 		case 0x3800: {
@@ -464,7 +473,8 @@ static void RenegadeWriteByte(UINT16 Address, UINT8 Data)
 		}
 		
 		case 0x3805: {
-			bankswitch(Data);
+			DrvRomBank = Data & 1;
+			M6502MapMemory(DrvM6502Rom + 0x8000 + (DrvRomBank * 0x4000), 0x4000, 0x7fff, MAP_ROM);
 			return;
 		}
 		
@@ -484,7 +494,7 @@ static void RenegadeWriteByte(UINT16 Address, UINT8 Data)
 	}
 }
 
-static UINT8 RenegadeM6809ReadByte(UINT16 Address)
+UINT8 RenegadeM6809ReadByte(UINT16 Address)
 {
 	switch (Address) {
 		case 0x1000: {
@@ -499,7 +509,7 @@ static UINT8 RenegadeM6809ReadByte(UINT16 Address)
 	return 0;
 }
 
-static void RenegadeM6809WriteByte(UINT16 Address, UINT8 Data)
+void RenegadeM6809WriteByte(UINT16 Address, UINT8 Data)
 {
 	switch (Address) {
 		case 0x1800: {
@@ -542,7 +552,7 @@ static void RenegadeM6809WriteByte(UINT16 Address, UINT8 Data)
 	}
 }
 
-static UINT8 MCUReadByte(UINT16 address)
+UINT8 MCUReadByte(UINT16 address)
 {
 	switch (address & 0x7ff) {
 		case 0x000: {
@@ -569,7 +579,7 @@ static UINT8 MCUReadByte(UINT16 address)
 	return 0;
 }
 
-static void MCUWriteByte(UINT16 address, UINT8 data)
+void MCUWriteByte(UINT16 address, UINT8 data)
 {
 	switch (address & 0x7ff) {
 		case 0x000: {
@@ -634,7 +644,11 @@ static INT32 TileYOffsets[16]      = { 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80,
 
 static void DrvFMIRQHandler(INT32, INT32 nStatus)
 {
-	M6809SetIRQLine(M6809_FIRQ_LINE, (nStatus) ? CPU_IRQSTATUS_ACK : CPU_IRQSTATUS_NONE);
+	if (nStatus) {
+		M6809SetIRQLine(M6809_FIRQ_LINE, CPU_IRQSTATUS_ACK);
+	} else {
+		M6809SetIRQLine(M6809_FIRQ_LINE, CPU_IRQSTATUS_NONE);
+	}
 }
 
 static INT32 DrvSynchroniseStream(INT32 nSoundRate)
@@ -808,6 +822,11 @@ static INT32 DrvExit()
 	
 	BurnFree(Mem);
 	
+	memset(mcu_buffer, 0, MCU_BUFFER_MAX);
+	mcu_input_size = 0;
+	mcu_output_byte = 0;
+	mcu_key = 0;
+	
 	DisableMCUEmulation = 0;
 	
 	MCUFromMain = 0;
@@ -826,7 +845,7 @@ static INT32 DrvExit()
 	
 	DrvRomBank = 0;
 	DrvVBlank = 0;
-	memset(DrvScrollX, 0, sizeof(DrvScrollX));
+	memset(DrvScrollX, 0, 2);
 	DrvSoundLatch = 0;
 	DrvADPCMPlaying = 0;
 	DrvADPCMPos = 0;
@@ -977,16 +996,25 @@ static void DrvRenderCharLayer()
 	}
 }
 
-static INT32 DrvDraw()
+static void DrvDraw()
 {
 	BurnTransferClear();
 	DrvCalcPalette();
 	DrvRenderBgLayer();
 	DrvRenderSprites();
-	DrvRenderCharLayer();
+	DrvRenderCharLayer();	
 	BurnTransferCopy(DrvPalette);
+}
 
-	return 0;
+static void DrvInterrupt()
+{
+	static INT32 Count;
+	Count = !Count;
+	if (Count) {
+		M6502SetIRQLine(M6502_INPUT_LINE_NMI, CPU_IRQSTATUS_AUTO);
+	} else {
+		M6502SetIRQLine(M6502_IRQ_LINE, CPU_IRQSTATUS_AUTO);
+	}
 }
 
 static INT32 DrvFrame()
@@ -997,7 +1025,10 @@ static INT32 DrvFrame()
 
 	DrvMakeInputs();
 
-	INT32 nCyclesTotal[3] = { (12000000 / 8) / 60, (12000000 / 8) / 60, (12000000 / 4) / 60 };
+	nCyclesTotal[0] = (12000000 / 8) / 60;
+	nCyclesTotal[1] = (12000000 / 8) / 60;
+	nCyclesTotal[2] = (12000000 / 4) / 60;
+	
 	INT32 nCyclesDone[3] = { 0, 0, 0 };
 	INT32 nCyclesSegment;
 	
@@ -1015,8 +1046,7 @@ static INT32 DrvFrame()
 		nCyclesSegment = nNext - nCyclesDone[nCurrentCPU];
 		nCyclesDone[nCurrentCPU] += M6502Run(nCyclesSegment);
 		if (i == ((nInterleave / 10) * 7)) DrvVBlank = 1;
-		if (i ==  (nInterleave / 2)) M6502SetIRQLine(M6502_INPUT_LINE_NMI, CPU_IRQSTATUS_AUTO);
-		if (i == ((nInterleave / 10) * 9)) M6502SetIRQLine(M6502_IRQ_LINE, CPU_IRQSTATUS_HOLD);
+		if (i == (nInterleave / 2) || i == ((nInterleave / 10) * 9)) DrvInterrupt();
 		M6502Close();
 		
 		if (!DisableMCUEmulation) {
@@ -1045,6 +1075,7 @@ static INT32 DrvFrame()
 	return 0;
 }
 
+
 static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 {
 	struct BurnArea ba;
@@ -1061,41 +1092,6 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		BurnAcb(&ba);
 	}
 
-	if (nAction & ACB_DRIVER_DATA) {
-		M6502Scan(nAction);
-		m6805Scan(nAction);
-		M6809Scan(nAction);
-
-		BurnYM3526Scan(nAction, pnMin);
-		MSM5205Scan(nAction, pnMin);
-
-		SCAN_VAR(DrvRomBank);
-		SCAN_VAR(DrvScrollX);
-		SCAN_VAR(DrvSoundLatch);
-		SCAN_VAR(DrvADPCMPlaying);
-		SCAN_VAR(DrvADPCMPos);
-		SCAN_VAR(DrvADPCMEnd);
-		SCAN_VAR(MCUFromMain);
-		SCAN_VAR(MCUFromMcu);
-		SCAN_VAR(MCUMainSent);
-		SCAN_VAR(MCUMcuSent);
-		SCAN_VAR(MCUDdrA);
-		SCAN_VAR(MCUDdrB);
-		SCAN_VAR(MCUDdrC);
-		SCAN_VAR(MCUPortAOut);
-		SCAN_VAR(MCUPortBOut);
-		SCAN_VAR(MCUPortCOut);
-		SCAN_VAR(MCUPortAIn);
-		SCAN_VAR(MCUPortBIn);
-		SCAN_VAR(MCUPortCIn);
-	}
-
-	if (nAction & ACB_WRITE) {
-		M6502Open(0);
-		bankswitch(DrvRomBank);
-		M6502Close();
-	}
-
 	return 0;
 }
 
@@ -1105,7 +1101,7 @@ struct BurnDriver BurnDrvRenegade = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TECHNOS, GBF_SCRFIGHT, 0,
 	NULL, DrvRomInfo, DrvRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	RenegadeInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	RenegadeInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 240, 240, 4, 3
 };
 
@@ -1115,7 +1111,7 @@ struct BurnDriver BurnDrvKuniokun = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TECHNOS, GBF_SCRFIGHT, 0,
 	NULL, DrvjRomInfo, DrvjRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	RenegadeInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	RenegadeInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 240, 240, 4, 3
 };
 
@@ -1125,6 +1121,6 @@ struct BurnDriver BurnDrvKuniokunb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_TECHNOS, GBF_SCRFIGHT, 0,
 	NULL, DrvbRomInfo, DrvbRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
-	KuniokunbInit, DrvExit, DrvFrame, DrvDraw, DrvScan,
+	KuniokunbInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x100, 240, 240, 4, 3
 };

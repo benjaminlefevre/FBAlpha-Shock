@@ -1084,7 +1084,7 @@ static void GalDrawBullets(const UINT8 *Base)
 }
 
 // Render a frame
-INT32 GalDraw()
+void GalDraw()
 {
 	if (GalRenderFrameFunction) {
 		GalRenderFrameFunction();
@@ -1097,8 +1097,6 @@ INT32 GalDraw()
 		if (GalDrawBulletsFunction) GalDrawBullets(&GalSpriteRam[0x60]);
 		BurnTransferCopy(GalPalette);
 	}
-
-	return 0;
 }
 
 void ZigZagRenderFrame()

@@ -288,7 +288,6 @@ void BurnLocalisationSetName(char *szName, TCHAR *szLongName);
 UINT16 BurnRandom();                                // State-able Random Number Generator (0-32767)
 void BurnRandomScan(INT32 nAction);                 // Must be called in driver's DrvScan() if BurnRandom() is used
 void BurnRandomInit();                              // Called automatically in BurnDrvInit() / Internal use only
-void BurnRandomSetSeed(UINT64 nSeed);               // Set the seed - useful for netgames / input recordings
 
 // Handy FM default callbacks
 INT32 BurnSynchroniseStream(INT32 nSoundRate);
@@ -395,7 +394,6 @@ void IpsApplyPatches(UINT8* base, char* rom_name);
 #define HARDWARE_PREFIX_MIDWAY							(0x1B000000)
 #define HARDWARE_PREFIX_SEGA_GAME_GEAR					(0x12000000)
 #define HARDWARE_PREFIX_MSX                             (0x1C000000)
-#define HARDWARE_PREFIX_SPECTRUM                        (0x1D000000)
 
 #define HARDWARE_MISC_PRE90S							(HARDWARE_PREFIX_MISC_PRE90S)
 #define HARDWARE_MISC_POST90S							(HARDWARE_PREFIX_MISC_POST90S)
@@ -610,8 +608,6 @@ void IpsApplyPatches(UINT8* base, char* rom_name);
 #define HARDWARE_PCENGINE_PCENGINE						(HARDWARE_PREFIX_PCENGINE | 0x00010000)
 #define HARDWARE_PCENGINE_TG16							(HARDWARE_PREFIX_PCENGINE | 0x00020000)
 #define HARDWARE_PCENGINE_SGX							(HARDWARE_PREFIX_PCENGINE | 0x00030000)
-
-#define HARDWARE_SPECTRUM								(HARDWARE_PREFIX_SPECTRUM)
 
 // flags for the genre member
 #define GBF_HORSHOOT									(1 << 0)

@@ -65,11 +65,11 @@ static INT32 nCyclesDone[2], nCyclesTotal[2];
 static INT32 nCyclesSegment;
 static INT32 nIRQLine = 2;
 
-typedef INT32 (*Render)();
+typedef void (*Render)();
 static Render DrawFunction;
-static INT32 DrvRender();
-static INT32 ExcelsrRender();
-static INT32 HotmindRender();
+static void DrvRender();
+static void ExcelsrRender();
+static void HotmindRender();
 
 static struct BurnInputInfo BigtwinInputList[] = {
 	{"Coin 1"            , BIT_DIGITAL  , DrvInputPort0 + 4, "p1 coin"   },
@@ -1583,7 +1583,7 @@ static void DrvRenderBitmap()
 	}
 }
 
-static INT32 DrvRender()
+static void DrvRender()
 {
 	BurnTransferClear();
 	DrvRenderFgLayer();
@@ -1591,11 +1591,9 @@ static INT32 DrvRender()
 	DrvRenderSprites(4, 0x400, 32, -1, 0, 0);
 	DrvRenderCharLayer(64, 8);
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
-static INT32 ExcelsrRender()
+static void ExcelsrRender()
 {
 	BurnTransferClear();
 	DrvRenderFgLayer();
@@ -1605,11 +1603,9 @@ static INT32 ExcelsrRender()
 	DrvRenderCharLayer(32, 16);
 	DrvRenderSprites(2, 0xd00, 16, 0, 0, 0);
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
-static INT32 HotmindRender()
+static void HotmindRender()
 {
 	BurnTransferClear();
 	if (DrvScreenEnable) {
@@ -1621,8 +1617,6 @@ static INT32 HotmindRender()
 		HotmindRenderCharLayer();
 	}
 	BurnTransferCopy(DrvPalette);
-
-	return 0;
 }
 
 static INT32 DrvFrame()
@@ -1707,7 +1701,7 @@ struct BurnDriver BurnDrvBigtwin = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, BigtwinRomInfo, BigtwinRomName, NULL, NULL, BigtwinInputInfo, BigtwinDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrawFunction, DrvScan,
+	DrvInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 320, 240, 4, 3
 };
 
@@ -1717,7 +1711,7 @@ struct BurnDriver BurnDrvExcelsr = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, ExcelsrRomInfo, ExcelsrRomName, NULL, NULL, ExcelsrInputInfo, ExcelsrDIPInfo,
-	ExcelsrInit, DrvExit, DrvFrame, DrawFunction, DrvScan,
+	ExcelsrInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 320, 240, 4, 3
 };
 
@@ -1727,7 +1721,7 @@ struct BurnDriver BurnDrvExcelsra = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, ExcelsraRomInfo, ExcelsraRomName, NULL, NULL, ExcelsrInputInfo, ExcelsrDIPInfo,
-	ExcelsrInit, DrvExit, DrvFrame, DrawFunction, DrvScan,
+	ExcelsrInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 320, 240, 4, 3
 };
 
@@ -1737,6 +1731,6 @@ struct BurnDriver BurnDrvHotmind = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MISC_POST90S, GBF_PUZZLE, 0,
 	NULL, HotmindRomInfo, HotmindRomName, NULL, NULL, HotmindInputInfo, HotmindDIPInfo,
-	HotmindInit, DrvExit, DrvFrame, DrawFunction, DrvScan,
+	HotmindInit, DrvExit, DrvFrame, NULL, DrvScan,
 	NULL, 0x400, 320, 224, 4, 3
 };

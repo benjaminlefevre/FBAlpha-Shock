@@ -14,6 +14,10 @@ static INT32 Ninjaw = 0, Warriorb = 0;
 static double Darius2YM2610Route1MasterVol;
 static double Darius2YM2610Route2MasterVol;
 
+static void Darius2Draw();
+static void Darius2dDraw();
+static void WarriorbDraw();
+
 static struct BurnInputInfo Darius2InputList[] =
 {
 	{"P1 Coin"           , BIT_DIGITAL   , TC0220IOCInputPort0 + 2, "p1 coin"   },
@@ -1457,6 +1461,7 @@ static INT32 Darius2Init()
 	Darius2YM2610Route2MasterVol = 1.00;
 	bYM2610UseSeperateVolumes = 1;
 	
+	TaitoDrawFunction = Darius2Draw;
 	TaitoMakeInputsFunction = Darius2MakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -1553,6 +1558,7 @@ static INT32 Darius2dInit()
 	Darius2YM2610Route2MasterVol = 12.00;
 	bYM2610UseSeperateVolumes = 1;
 	
+	TaitoDrawFunction = Darius2dDraw;
 	TaitoMakeInputsFunction = Darius2dMakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -1664,6 +1670,7 @@ static INT32 WarriorbInit()
 	Darius2YM2610Route2MasterVol = 12.00;
 	bYM2610UseSeperateVolumes = 1;
 	
+	TaitoDrawFunction = WarriorbDraw;
 	TaitoMakeInputsFunction = WarriorbMakeInputs;
 	TaitoIrqLine = 4;
 	
@@ -1811,7 +1818,7 @@ static void Darius2dRenderSprites(INT32 PriorityDraw)
 	}
 }
 
-static INT32 Darius2Draw()
+static void Darius2Draw()
 {
 	INT32 Disable = TC0100SCNCtrl[0][6] & 0xf7;
 	INT32 Disable2 = TC0100SCNCtrl[1][6] & 0xf7;
@@ -1843,11 +1850,9 @@ static INT32 Darius2Draw()
 	if (!(Disable2 & 0x04)) TC0100SCNRenderCharLayer(1);
 	if (!(Disable3 & 0x04)) TC0100SCNRenderCharLayer(2);
 	BurnTransferCopy(TC0110PCRPalette);
-
-	return 0;
 }
 
-static INT32 Darius2dDraw()
+static void Darius2dDraw()
 {
 	INT32 Disable = TC0100SCNCtrl[0][6] & 0xf7;
 	INT32 Disable2 = TC0100SCNCtrl[1][6] & 0xf7;
@@ -1873,11 +1878,9 @@ static INT32 Darius2dDraw()
 	if (nBurnLayer & 4) if (!(Disable & 0x04)) TC0100SCNRenderCharLayer(0);
 	if (nBurnLayer & 8) if (!(Disable2 & 0x04)) TC0100SCNRenderCharLayer(1);
 	BurnTransferCopy(TC0110PCRPalette);
-
-	return 0;
 }
 
-static INT32 WarriorbDraw()
+static void WarriorbDraw()
 {
 	INT32 Disable = TC0100SCNCtrl[0][6] & 0xf7;
 	INT32 Disable2 = TC0100SCNCtrl[1][6] & 0xf7;
@@ -1903,8 +1906,6 @@ static INT32 WarriorbDraw()
 	if (nBurnLayer & 4) if (!(Disable & 0x04)) TC0100SCNRenderCharLayer(0);
 	if (nBurnLayer & 8) if (!(Disable2 & 0x04)) TC0100SCNRenderCharLayer(1);
 	BurnTransferCopy(TC0110PCRPalette);
-
-	return 0;
 }
 
 static INT32 Darius2Frame()
@@ -1955,7 +1956,7 @@ static INT32 Darius2Frame()
 	}
 	ZetClose();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -1997,7 +1998,7 @@ static INT32 Darius2dFrame()
 	}
 	ZetClose();
 	
-	if (pBurnDraw) BurnDrvRedraw();
+	if (pBurnDraw) TaitoDrawFunction();
 	
 	return 0;
 }
@@ -2048,7 +2049,7 @@ struct BurnDriver BurnDrvDarius2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, Darius2RomInfo, Darius2RomName, NULL, NULL, Darius2InputInfo, Darius2DIPInfo,
-	Darius2Init, Darius2Exit, Darius2Frame, Darius2Draw, Darius2Scan,
+	Darius2Init, Darius2Exit, Darius2Frame, NULL, Darius2Scan,
 	NULL, 0x3000, 864, 224, 12, 3
 };
 
@@ -2058,7 +2059,7 @@ struct BurnDriver BurnDrvDarius2d = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, Darius2dRomInfo, Darius2dRomName, NULL, NULL, Darius2dInputInfo, Darius2dDIPInfo,
-	Darius2dInit, Darius2Exit, Darius2dFrame, Darius2dDraw, Darius2Scan,
+	Darius2dInit, Darius2Exit, Darius2dFrame, NULL, Darius2Scan,
 	NULL, 0x2000, 640, 224, 8, 3
 };
 
@@ -2068,7 +2069,7 @@ struct BurnDriver BurnDrvDarius2do = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, Darius2doRomInfo, Darius2doRomName, NULL, NULL, Darius2dInputInfo, Darius2dDIPInfo,
-	Darius2dInit, Darius2Exit, Darius2dFrame, Darius2dDraw, Darius2Scan,
+	Darius2dInit, Darius2Exit, Darius2dFrame, NULL, Darius2Scan,
 	NULL, 0x2000, 640, 224, 8, 3
 };
 
@@ -2078,7 +2079,7 @@ struct BurnDriver BurnDrvNinjaw = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, NinjawRomInfo, NinjawRomName, NULL, NULL, Darius2InputInfo, NinjawDIPInfo,
-	NinjawInit, Darius2Exit, Darius2Frame, Darius2Draw, Darius2Scan,
+	NinjawInit, Darius2Exit, Darius2Frame, NULL, Darius2Scan,
 	NULL, 0x3000, 864, 224, 12, 3
 };
 
@@ -2088,7 +2089,7 @@ struct BurnDriver BurnDrvNinjaw1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, Ninjaw1RomInfo, Ninjaw1RomName, NULL, NULL, Darius2InputInfo, NinjawDIPInfo,
-	NinjawInit, Darius2Exit, Darius2Frame, Darius2Draw, Darius2Scan,
+	NinjawInit, Darius2Exit, Darius2Frame, NULL, Darius2Scan,
 	NULL, 0x3000, 864, 224, 12, 3
 };
 
@@ -2098,7 +2099,7 @@ struct BurnDriver BurnDrvNinjawj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, NinjawjRomInfo, NinjawjRomName, NULL, NULL, Darius2InputInfo, NinjawjDIPInfo,
-	NinjawInit, Darius2Exit, Darius2Frame, Darius2Draw, Darius2Scan,
+	NinjawInit, Darius2Exit, Darius2Frame, NULL, Darius2Scan,
 	NULL, 0x3000, 864, 224, 12, 3
 };
 
@@ -2108,7 +2109,7 @@ struct BurnDriver BurnDrvNinjawu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_PLATFORM, 0,
 	NULL, NinjawuRomInfo, NinjawuRomName, NULL, NULL, Darius2InputInfo, NinjawjDIPInfo,
-	NinjawInit, Darius2Exit, Darius2Frame, Darius2Draw, Darius2Scan,
+	NinjawInit, Darius2Exit, Darius2Frame, NULL, Darius2Scan,
 	NULL, 0x3000, 864, 224, 12, 3
 };
 
@@ -2118,6 +2119,6 @@ struct BurnDriver BurnDrvWarriorb = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_TAITO_MISC, GBF_HORSHOOT, 0,
 	NULL, WarriorbRomInfo, WarriorbRomName, NULL, NULL, WarriorbInputInfo, WarriorbDIPInfo,
-	WarriorbInit, Darius2Exit, Darius2dFrame, WarriorbDraw, Darius2Scan,
+	WarriorbInit, Darius2Exit, Darius2dFrame, NULL, Darius2Scan,
 	NULL, 0x2000, 640, 240, 8, 3
 };

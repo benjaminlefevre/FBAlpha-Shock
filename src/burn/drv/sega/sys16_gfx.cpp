@@ -3092,11 +3092,11 @@ inline static void System16AUpdateTileValues()
 	}
 }
 
-INT32 System16ARender()
+void System16ARender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 	
 	System16AUpdateTileValues();
@@ -3115,15 +3115,13 @@ INT32 System16ARender()
 	System16ARenderSpriteLayer(8);
 	System16ARenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 System16BootlegRender()
+void System16BootlegRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 
 	System16CalcPalette();
@@ -3140,8 +3138,6 @@ INT32 System16BootlegRender()
 	System16BRenderSpriteLayer(8);
 	System16BRenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
 inline static void System16BUpdateTileValues()
@@ -3172,12 +3168,12 @@ inline static void System16BUpdateTileValues()
 	}
 }
 
-INT32 System16BRender()
+void System16BRender()
 {
 	if (!System16IgnoreVideoEnable) {
 		if (!System16VideoEnable) {
 			BurnTransferClear();
-			return 0;
+			return;
 		}
 	}
 	
@@ -3202,15 +3198,13 @@ INT32 System16BRender()
 	System16BRenderSpriteLayer(8);
 	System16BRenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 System16BAltRender()
+void System16BAltRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 
 	System16BUpdateTileValues();
@@ -3229,15 +3223,13 @@ INT32 System16BAltRender()
 	System16BRenderSpriteLayer(8);
 	System16BAltRenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 System18Render()
+void System18Render()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 	
 	INT32 VDPLayer = (System18VdpMixing >> 1) & 3;
@@ -3274,15 +3266,13 @@ INT32 System18Render()
 	for (INT32 i = 0; i < nBurnGunNumPlayers; i++) {
 		BurnGunDrawTarget(i, BurnGunX[i] >> 8, BurnGunY[i] >> 8);
 	}
-
-	return 0;
 }
 
-INT32 HangonRender()
+void HangonRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 	
 	System16CalcPalette();
@@ -3303,15 +3293,13 @@ INT32 HangonRender()
 	System16ARenderTextLayer(0);
 	System16ARenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 HangonAltRender()
+void HangonAltRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 	
 	System16CalcPalette();
@@ -3332,15 +3320,13 @@ INT32 HangonAltRender()
 	System16ARenderTextLayer(0);
 	System16ARenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 OutrunRender()
+void OutrunRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 
 	System16BUpdateTileValues();
@@ -3362,11 +3348,9 @@ INT32 OutrunRender()
 	BurnTransferCopy(System16Palette);
 
 	if (System16HasGears) BurnShiftRender();
-
-	return 0;
 }
 
-INT32 ShangonRender()
+void ShangonRender()
 {
 	// System16VideoEnable is ignored for Shangon, enabling it will break attract mode.
 	BurnTransferClear();
@@ -3389,15 +3373,13 @@ INT32 ShangonRender()
 	System16BAltRenderTextLayer(0);
 	System16BAltRenderTextLayer(1);
 	BurnTransferCopy(System16Palette);
-
-	return 0;
 }
 
-INT32 XBoardRender()
+void XBoardRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 
 	System16BUpdateTileValues();
@@ -3422,15 +3404,13 @@ INT32 XBoardRender()
 	for (INT32 i = 0; i < nBurnGunNumPlayers; i++) {
 		BurnGunDrawTarget(i, BurnGunX[i] >> 8, BurnGunY[i] >> 8);
 	}
-
-	return 0;
 }
 
-INT32 YBoardRender()
+void YBoardRender()
 {
 	if (!System16VideoEnable) {
 		BurnTransferClear();
-		return 0;
+		return;
 	}
 	
 	System16CalcPalette();
@@ -3444,6 +3424,4 @@ INT32 YBoardRender()
 	}
 
 	if (System16HasGears) BurnShiftRender();
-
-	return 0;
 }

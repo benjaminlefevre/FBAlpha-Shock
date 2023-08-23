@@ -1716,7 +1716,7 @@ static void cps3_draw_tilemapsprite_line(INT32 drawline, UINT32 * regs )
 
 static INT32 WideScreenFrameDelay = 0;
 
-INT32 DrvCps3Draw()
+static void DrvDraw()
 {
 	INT32 bg_drawn[4] = { 0, 0, 0, 0 };
 
@@ -1974,7 +1974,6 @@ INT32 DrvCps3Draw()
 			}
 		}
 	}
-	return 0;
 }
 
 static INT32 cps_int10_cnt = 0;
@@ -2039,7 +2038,7 @@ INT32 cps3Frame()
 	
 //	bprintf(0, _T("PC: %08x\n"), Sh2GetPC(0));
 	
-	if (pBurnDraw) DrvCps3Draw();
+	if (pBurnDraw) DrvDraw();
 
 	return 0;
 }
