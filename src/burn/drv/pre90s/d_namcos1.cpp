@@ -2173,7 +2173,7 @@ struct BurnDriver BurnDrvShadowld = {
 	"shadowld", NULL, NULL, NULL, "1987",
 	"Shadowland (YD3)\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_SCRFIGHT, 0,
+	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RUNGUN, 0,
 	NULL, shadowldRomInfo, shadowldRomName, NULL, NULL, DrvInputInfo, ShadowldDIPInfo,
 	ShadowldInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3
@@ -2225,7 +2225,7 @@ struct BurnDriver BurnDrvYoukaidk2 = {
 	"youkaidk2", "shadowld", NULL, NULL, "1987",
 	"Yokai Douchuuki (Japan, new version (YD2, Rev B))\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_SCRFIGHT, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RUNGUN, 0,
 	NULL, youkaidk2RomInfo, youkaidk2RomName, NULL, NULL, DrvInputInfo, ShadowldDIPInfo,
 	ShadowldInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3
@@ -2277,7 +2277,7 @@ struct BurnDriver BurnDrvYoukaidk1 = {
 	"youkaidk1", "shadowld", NULL, NULL, "1987",
 	"Yokai Douchuuki (Japan, old version (YD1))\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_SCRFIGHT, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RUNGUN, 0,
 	NULL, youkaidk1RomInfo, youkaidk1RomName, NULL, NULL, DrvInputInfo, ShadowldDIPInfo,
 	ShadowldInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3
@@ -4000,7 +4000,7 @@ struct BurnDriver BurnDrvTankfrce = {
 	"tankfrce", NULL, NULL, NULL, "1991",
 	"Tank Force (US, 2 Players)\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_SHOOT, 0,
 	NULL, tankfrceRomInfo, tankfrceRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
 	TankfrceInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3
@@ -4050,7 +4050,7 @@ struct BurnDriver BurnDrvTankfrce4 = {
 	"tankfrce4", "tankfrce", NULL, NULL, "1991",
 	"Tank Force (US, 4 Players)\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 4, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 4, HARDWARE_MISC_POST90S, GBF_SHOOT, 0,
 	NULL, tankfrce4RomInfo, tankfrce4RomName, NULL, NULL, Tankfrce4InputInfo, FaceoffDIPInfo,
 	Tankfrce4Init, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3
@@ -4091,7 +4091,7 @@ struct BurnDriver BurnDrvTankfrcej = {
 	"tankfrcej", "tankfrce", NULL, NULL, "1991",
 	"Tank Force (Japan)\0", NULL, "Namco", "System 1",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_POST90S, GBF_SHOOT, 0,
 	NULL, tankfrcejRomInfo, tankfrcejRomName, NULL, NULL, DrvInputInfo, DrvDIPInfo,
 	TankfrceInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x2000,
 	288, 224, 4, 3

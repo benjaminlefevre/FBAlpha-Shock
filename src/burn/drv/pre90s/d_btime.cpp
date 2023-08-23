@@ -2505,7 +2505,7 @@ struct BurnDriver BurnDrvBtime = {
 	"btime", NULL, NULL, NULL, "1982",
 	"Burger Time (Data East set 1)\0", NULL, "Data East Corporation", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM | GBF_ACTION, 0,
 	NULL, btimeRomInfo, btimeRomName, NULL, NULL, BtimeInputInfo, BtimeDIPInfo,
 	BtimeInit, DrvExit, BtimeFrame, BtimeDraw, DrvScan, &DrvRecalc, 16,
 	240, 242, 3, 4
@@ -2542,7 +2542,7 @@ struct BurnDriver BurnDrvBtime2 = {
 	"btime2", "btime", NULL, NULL, "1982",
 	"Burger Time (Data East set 2)\0", NULL, "Data East Corporation", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM | GBF_ACTION, 0,
 	NULL, btime2RomInfo, btime2RomName, NULL, NULL, BtimeInputInfo, BtimeDIPInfo,
 	BtimeInit, DrvExit, BtimeFrame, BtimeDraw, DrvScan, &DrvRecalc, 16,
 	240, 242, 3, 4
@@ -2586,7 +2586,7 @@ struct BurnDriver BurnDrvBtime3 = {
 	"btime3", "btime", NULL, NULL, "1982",
 	"Burger Time (Data East USA)\0", "graphics issues, use parent romset!", "Data East USA Inc.", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM | GBF_ACTION, 0,
 	NULL, btime3RomInfo, btime3RomName, NULL, NULL, BtimeInputInfo, BtimeDIPInfo,
 	Btime3Init, DrvExit, BtimeFrame, BtimeDraw, DrvScan, &DrvRecalc, 16,
 	240, 242, 3, 4
@@ -2624,7 +2624,7 @@ struct BurnDriver BurnDrvBtimem = {
 	"btimem", "btime", NULL, NULL, "1982",
 	"Burger Time (Midway)\0", NULL, "Data East (Bally Midway license)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_PLATFORM | GBF_ACTION, 0,
 	NULL, btimemRomInfo, btimemRomName, NULL, NULL, BtimeInputInfo, BtimeDIPInfo,
 	Btime3Init, DrvExit, BtimeFrame, BtimeDraw, DrvScan, &DrvRecalc, 16,
 	240, 242, 3, 4
@@ -2659,7 +2659,7 @@ struct BurnDriver BurnDrvMmonkey = {
 	"mmonkey", NULL, NULL, NULL, "1982",
 	"Minky Monkey\0", NULL, "Technos Japan / Roller Tron", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAZE, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_ACTION, 0,
 	NULL, mmonkeyRomInfo, mmonkeyRomName, NULL, NULL, MmonkeyInputInfo, MmonkeyDIPInfo,
 	MmonkeyInit, DrvExit, BtimeFrame, eggsDraw, DrvScan, &DrvRecalc, 16,
 	240, 242, 3, 4
@@ -2694,7 +2694,7 @@ struct BurnDriver BurnDrvBrubber = {
 	"brubber", NULL, NULL, NULL, "1982",
 	"Burnin' Rubber\0", NULL, "Data East", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RACING | GBF_ACTION, 0,
 	NULL, brubberRomInfo, brubberRomName, NULL, NULL, BnjInputInfo, BnjDIPInfo,
 	brubberInit, DrvExit, BtimeFrame, BnjDraw, DrvScan, &DrvRecalc, 16,
 	240, 256, 3, 4
@@ -2728,7 +2728,7 @@ struct BurnDriver BurnDrvBnj = {
 	"bnj", "brubber", NULL, NULL, "1982",
 	"Bump 'n' Jump\0", NULL, "Data East USA", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_RACING | GBF_ACTION, 0,
 	NULL, bnjRomInfo, bnjRomName, NULL, NULL, BnjInputInfo, BnjDIPInfo,
 	BnjInit, DrvExit, BtimeFrame, BnjDraw, DrvScan, &DrvRecalc, 16,
 	240, 256, 3, 4
@@ -2756,7 +2756,7 @@ struct BurnDriver BurnDrvDisco = {
 	"disco", NULL, NULL, NULL, "1982",
 	"Disco No.1\0", NULL, "Data East", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAZE, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_ACTION, 0,
 	NULL, discoRomInfo, discoRomName, NULL, NULL, DiscoInputInfo, DiscoDIPInfo,
 	DiscoInit, DrvExit, BtimeFrame, DiscoDraw, DrvScan, &DrvRecalc, 32,
 	240, 242, 3, 4
@@ -2785,7 +2785,7 @@ struct BurnDriver BurnDrvDiscof = {
 	"discof", "disco", NULL, NULL, "1982",
 	"Disco No.1 (Rev.F)\0", NULL, "Data East", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_MAZE, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_ACTION, 0,
 	NULL, discofRomInfo, discofRomName, NULL, NULL, DiscoInputInfo, DiscoDIPInfo,
 	DiscoInit, DrvExit, BtimeFrame, DiscoDraw, DrvScan, &DrvRecalc, 32,
 	240, 242, 3, 4

@@ -650,6 +650,20 @@ INT32 ZetI(INT32 n)
 	}
 }
 
+INT32 ZetSP(INT32 n)
+{
+#if defined FBA_DEBUG
+	if (!DebugCPU_ZetInitted) bprintf(PRINT_ERROR, _T("ZetSP called without init\n"));
+	if (nOpenedCPU == -1 && n < 0) bprintf(PRINT_ERROR, _T("ZetSP called when no CPU open\n"));
+#endif
+
+	if (n < 0) {
+		return ActiveZ80GetSP();
+	} else {
+		return ZetCPUContext[n]->reg.sp.w.l;
+	}
+}
+
 INT32 ZetScan(INT32 nAction)
 {
 #if defined FBA_DEBUG
@@ -785,14 +799,90 @@ void ZetSetBUSREQLine(INT32 nStatus)
 	ZetCPUContext[nOpenedCPU]->BusReq = nStatus;
 }
 
+void ZetSetAF(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.af.w.l = value;
+}
+
+void ZetSetAF2(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.af2.w.l = value;
+}
+
+void ZetSetBC(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.bc.w.l = value;
+}
+
+void ZetSetBC2(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.bc2.w.l = value;
+}
+
+void ZetSetDE(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.de.w.l = value;
+}
+
+void ZetSetDE2(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.de2.w.l = value;
+}
+
 void ZetSetHL(INT32 n, UINT16 value)
 {
-	ZetCPUContext[n]->reg.hl.w.l=value;
+	ZetCPUContext[n]->reg.hl.w.l = value;
+}
+
+void ZetSetHL2(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.hl2.w.l = value;
+}
+
+void ZetSetI(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.i = value;
+}
+
+void ZetSetIFF1(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.iff1 = value;
+}
+
+void ZetSetIFF2(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.iff2 = value;
+}
+
+void ZetSetIM(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.im = value;
+}
+
+void ZetSetIX(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.ix.w.l = value;
+}
+
+void ZetSetIY(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.iy.w.l = value;
+}
+
+void ZetSetPC(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.pc.w.l = value;
+}
+
+void ZetSetR(INT32 n, UINT16 value)
+{
+	ZetCPUContext[n]->reg.r = value;
+	ZetCPUContext[n]->reg.r2 = value & 0x80;
 }
 
 void ZetSetSP(INT32 n, UINT16 value)
 {
-	ZetCPUContext[n]->reg.sp.w.l=value;
+	ZetCPUContext[n]->reg.sp.w.l = value;
 }
 
 #undef MAX_Z80
