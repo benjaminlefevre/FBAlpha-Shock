@@ -1958,6 +1958,31 @@ static struct BurnRomInfo FlickyoRomDesc[] = {
 STD_ROM_PICK(Flickyo)
 STD_ROM_FN(Flickyo)
 
+static struct BurnRomInfo FlickyupRomDesc[] = {
+	// Coverted from and running on a Up n' Down board.
+	{ "2764-ic29",         0x002000, 0x59ba3107, BRF_ESS | BRF_PRG }, //  0	Z80 #1 Program Code
+	{ "2764-ic30",         0x002000, 0x5c84216f, BRF_ESS | BRF_PRG }, //  1	Z80 #1 Program Code
+	{ "2764-ic31",         0x002000, 0x106132fa, BRF_ESS | BRF_PRG }, //  2	Z80 #1 Program Code
+	{ "2764-ic32",         0x002000, 0xc5ea7f58, BRF_ESS | BRF_PRG }, //  3	Z80 #1 Program Code
+	
+	{ "epr-5869.120",      0x002000, 0x6d220d4e, BRF_ESS | BRF_PRG }, //  4	Z80 #2 Program Code
+	
+	{ "epr-5868.62",       0x002000, 0x7402256b, BRF_GRA },		  	  //  5 Tiles
+	{ "epr-5867.61",       0x002000, 0x2f5ce930, BRF_GRA },		  	  //  6 Tiles
+	{ "epr-5866.64",       0x002000, 0x967f1d9a, BRF_GRA },		  	  //  7 Tiles
+	{ "epr-5865.63",       0x002000, 0x03d9a34c, BRF_GRA },		  	  //  8 Tiles
+	{ "epr-5864.66",       0x002000, 0xe659f358, BRF_GRA },		  	  //  9 Tiles
+	{ "epr-5863.65",       0x002000, 0xa496ca15, BRF_GRA },		  	  // 10 Tiles
+	
+	{ "epr-5855.117",      0x004000, 0xb5f894a1, BRF_GRA },		  	  // 11 Sprites
+	{ "epr-5856.110",      0x004000, 0x266af78f, BRF_GRA },		  	  // 12 Sprites
+
+	{ "pr-5317.76",        0x000100, 0x648350b8, BRF_OPT },		  	  // 13 Timing PROM
+};
+
+STD_ROM_PICK(Flickyup)
+STD_ROM_FN(Flickyup)
+
 static struct BurnRomInfo GardiaRomDesc[] = {
 	{ "epr10255.1",        0x008000, 0x89282a6b, BRF_ESS | BRF_PRG }, //  0	Z80 #1 Program Code
 	{ "epr10254.2",        0x008000, 0x2826b6d8, BRF_ESS | BRF_PRG }, //  1	Z80 #1 Program Code
@@ -2892,26 +2917,26 @@ STD_ROM_PICK(Teddybbobl)
 STD_ROM_FN(Teddybbobl)
 
 static struct BurnRomInfo tokisensRomDesc[] = {
-	{ "epr10961.90",        0x8000, 0x1466b61d, BRF_ESS | BRF_PRG }, //  0 Z80 #1 Program Code
-	{ "epr10962.91",        0x8000, 0xa8479f91, BRF_ESS | BRF_PRG }, //  1
-	{ "epr10963.92",        0x8000, 0xb7193b39, BRF_ESS | BRF_PRG }, //  2
+	{ "epr-10961.90",        0x8000, 0x1466b61d, BRF_ESS | BRF_PRG }, //  0 Z80 #1 Program Code
+	{ "epr-10962.91",        0x8000, 0xa8479f91, BRF_ESS | BRF_PRG }, //  1
+	{ "epr-10963.92",        0x8000, 0xb7193b39, BRF_ESS | BRF_PRG }, //  2
 
-	{ "epr10967.126",       0x8000, 0x97966bf2, BRF_ESS | BRF_PRG }, //  3 Z80 #2 Program Code
+	{ "epr-10967.126",       0x8000, 0x97966bf2, BRF_ESS | BRF_PRG }, //  3 Z80 #2 Program Code
 
-	{ "epr10964.4",         0x8000, 0x9013b85c, BRF_GRA }, //  4 Tiles
-	{ "epr10965.5",         0x8000, 0xe4755cc6, BRF_GRA }, //  5
-	{ "epr10966.6",         0x8000, 0x5bbfbdcc, BRF_GRA }, //  6
+	{ "epr-10964.4",         0x8000, 0x9013b85c, BRF_GRA }, //  4 Tiles
+	{ "epr-10965.5",         0x8000, 0xe4755cc6, BRF_GRA }, //  5
+	{ "epr-10966.6",         0x8000, 0x5bbfbdcc, BRF_GRA }, //  6
 
-	{ "epr10958.87",        0x8000, 0xfc2bcbd7, BRF_GRA }, //  7 Sprites
-	{ "epr10957.86",        0x8000, 0x4ec56860, BRF_GRA }, //  8
-	{ "epr10960.89",        0x8000, 0x880e0d44, BRF_GRA }, //  9
-	{ "epr10959.88",        0x8000, 0x4deda48f, BRF_GRA }, // 10
+	{ "epr-10958.87",        0x8000, 0xfc2bcbd7, BRF_GRA }, //  7 Sprites
+	{ "epr-10957.86",        0x8000, 0x4ec56860, BRF_GRA }, //  8
+	{ "epr-10960.89",        0x8000, 0x880e0d44, BRF_GRA }, //  9
+	{ "epr-10959.88",        0x8000, 0x4deda48f, BRF_GRA }, // 10
 
-	{ "bprom.20",           0x0100, 0x8eee0f72, BRF_GRA }, // 11 Palette
-	{ "bprom.14",           0x0100, 0x3e7babd7, BRF_GRA }, // 12
-	{ "bprom.8",            0x0100, 0x371c44a6, BRF_GRA }, // 13
+	{ "pri10956.ic20",       0x0100, 0x8eee0f72, BRF_GRA }, // 11 Palette
+	{ "pri10955.ic14",       0x0100, 0x3e7babd7, BRF_GRA }, // 12
+	{ "pri10954.ic8",        0x0100, 0x371c44a6, BRF_GRA }, // 13
 
-	{ "bprom.28",           0x0100, 0x648350b8, BRF_GRA }, // 14 Timing PROM
+	{ "pr-5317.ic28",        0x0100, 0x648350b8, BRF_GRA }, // 14 Timing PROM
 };
  
 STD_ROM_PICK(tokisens)
@@ -6403,6 +6428,16 @@ struct BurnDriver BurnDrvFlickyo = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_SEGA_SYSTEM1, GBF_PLATFORM, 0,
 	NULL, FlickyoRomInfo, FlickyoRomName, NULL, NULL, FlickyInputInfo, FlickyDIPInfo,
+	Flicks1Init, System1Exit, System1Frame, System1Render, System1Scan,
+	NULL, 0x800, 256, 224, 4, 3
+};
+
+struct BurnDriver BurnDrvFlickyup = {
+	"flickyup", "flicky", NULL, NULL, "1984",
+	"Flicky (64k Version, on Up'n Down boardset)\0", NULL, "Sega", "System 1",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_SEGA_SYSTEM1, GBF_PLATFORM, 0,
+	NULL, FlickyupRomInfo, FlickyupRomName, NULL, NULL, FlickyInputInfo, FlickyDIPInfo,
 	Flicks1Init, System1Exit, System1Frame, System1Render, System1Scan,
 	NULL, 0x800, 256, 224, 4, 3
 };

@@ -51,6 +51,7 @@ void pia_init(void);
 void pia_exit(void);
 void pia_config(int which, int addressing, const struct pia6821_interface *intf);
 void pia_reset(void);
+void pia_scan(INT32 nAction, INT32 *);
 int pia_read(int which, int offset);
 void pia_write(int which, int offset, int data);
 void pia_set_input_a(int which, int data);
@@ -61,6 +62,9 @@ void pia_set_input_cb1(int which, int data);
 void pia_set_input_cb2(int which, int data);
 UINT8 pia_get_ddr_a(int which);
 UINT8 pia_get_ddr_b(int which);
+UINT8 pia_get_irq_a_state(int which);
+UINT8 pia_get_irq_b_state(int which);
+
 
 #if 0
 #define PIA_UNUSED_VAL(x) ((read8_handler)(x+1))

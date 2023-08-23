@@ -282,8 +282,10 @@ static INT32 DrvDoReset(INT32 clear_ram)
 	M6809Reset();
 	M6809Close();
 
+	I8039Open(0);
 	I8039Reset();
 	DACReset();
+	I8039Close();
 
 	scroll = 0;
 	nmi_enable = 0;
@@ -457,12 +459,14 @@ static INT32 DrvInit()
 	M6809SetReadHandler(finalizr_main_read);
 	M6809Close();
 
-	I8039Init(NULL);
+	I8039Init(0);
+	I8039Open(0);
 	I8039SetProgramReadHandler(finalizr_sound_read);
 	I8039SetCPUOpReadHandler(finalizr_sound_read);
 	I8039SetCPUOpReadArgHandler(finalizr_sound_read);
 	I8039SetIOReadHandler(finalizr_sound_read_port);
 	I8039SetIOWriteHandler(finalizr_sound_write_port);
+	I8039Close();
 
 	SN76489AInit(0, 1536000, 0);
 	SN76496SetRoute(0, 0.45, BURN_SND_ROUTE_BOTH);
@@ -498,13 +502,13 @@ static void draw_bg_layer()
 
 	for (INT32 offs = 0; offs < 32 * 32; offs++)
 	{
-		INT32 sx = ((offs & 0x1f) * 8);
+		INT32 sx = ((offs & 0x1f) * 8) - 8;
 		INT32 sy = ((offs / 0x20) * 8) - 16;
 		if (sy < 0 || sy >= nScreenHeight) continue;
 
 		sx -= scrollx;
 
-		if (sx < 25) sx += 256;
+		if (sx < 25 + -8) sx += 256;
 		if (sx >= nScreenWidth || sy >= nScreenHeight) continue;
 
 		INT32 attr  = DrvColRAM0[offs];
@@ -533,8 +537,8 @@ static void draw_fg_layer()
 {
 	for (INT32 offs = 0; offs < 32 * 32; offs++)
 	{
-		INT32 sx = (offs & 0x1f) * 8;
-		if (sx >= 32) continue;
+		INT32 sx = ((offs & 0x1f) * 8) - 16;
+		if (sx >= 24) continue;
 		INT32 sy = ((offs / 0x20) * 8) - 16;
 		if (sy < 0 || sy >= nScreenHeight) continue;
 
@@ -615,6 +619,7 @@ static void draw_sprites()
 	for (INT32 offs = 0; offs <= 0x200 - 5; offs += 5)
 	{
 		INT32 sx    = 32 + 1 + sr[offs + 3] - ((sr[offs + 4] & 0x01) << 8);
+		sx -= 8;
 		INT32 sy    = sr[offs + 2];
 		INT32 flipx = sr[offs + 4] & 0x20;
 		INT32 flipy = sr[offs + 4] & 0x40;
@@ -721,6 +726,7 @@ static INT32 DrvFrame()
 	INT32 nCyclesDone[2] = { 0, 0 };
 
 	M6809Open(0);
+	I8039Open(0);
 
 	vblank = 0;
 
@@ -748,14 +754,15 @@ static INT32 DrvFrame()
 		}
 	}
 
-	M6809Close();
-
 	if (pBurnSoundOut) {
 		INT32 nSegmentLength = nBurnSoundLen - nSoundBufferPos;
 		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 		SN76496Update(0, pSoundBuf, nSegmentLength);
 		DACUpdate(pBurnSoundOut, nBurnSoundLen);
 	}
+
+	I8039Close();
+	M6809Close();
 
 	if (pBurnDraw) {
 		DrvDraw();

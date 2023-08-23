@@ -137,6 +137,7 @@ bool Hangon = false;
 bool AlienSyndrome = false;
 bool HammerAway = false;
 bool Lockonph = false;
+bool AltbeastMode = false;
 bool System16Z80Enable = true;
 bool System1668KEnable = true;
 
@@ -297,10 +298,12 @@ static INT32 System16DoReset()
 	}
 	
 	if (System167751ProgSize) {
+		N7751Open(0);
 		N7751Reset();
 		DACReset();
 		N7751Command = 0;
 		N7751RomAddress = 0;
+		N7751Close();
 	}
 	
 	if (System16UPD7759DataSize) {
@@ -1946,13 +1949,14 @@ INT32 System16Init()
 		BurnYM2151SetAllRoutes(1.00, BURN_SND_ROUTE_BOTH);
 		
 		if (System167751ProgSize) {
-			N7751Init(NULL);
-		
+			N7751Init(0);
+			N7751Open(0);
 			N7751SetIOReadHandler(N7751ReadIo);
 			N7751SetIOWriteHandler(N7751WriteIo);
 			N7751SetProgramReadHandler(N7751Read);
 			N7751SetCPUOpReadHandler(N7751Read);
 			N7751SetCPUOpReadArgHandler(N7751Read);
+			N7751Close();
 			
 			YM2151SetPortWriteHandler(0, &System16N7751ControlWrite);
 			BurnYM2151SetAllRoutes(0.43, BURN_SND_ROUTE_BOTH);
@@ -2621,6 +2625,7 @@ INT32 System16Exit()
 	LaserGhost = false;
 	HammerAway = false;
 	Lockonph = false;
+	AltbeastMode = false;
 	System1668KEnable = true;
 	System16Z80Enable = true;
 
@@ -2755,10 +2760,12 @@ INT32 System16AFrame()
 		
 		if (System167751ProgSize) {
 			nCurrentCPU = 2;
+			N7751Open(0);
 			nNext = (i + 1) * nCyclesTotal[nCurrentCPU] / nInterleave;
 			nCyclesSegment = nNext - nSystem16CyclesDone[nCurrentCPU];
 			nCyclesSegment = N7751Run(nCyclesSegment);
 			nSystem16CyclesDone[nCurrentCPU] += nCyclesSegment;
+			N7751Close();
 		}
 		
 		if (System16I8751RomNum) {
@@ -2866,9 +2873,16 @@ INT32 System16BFrame()
 			nSystem16CyclesDone[nCurrentCPU] += mcs51Run(nCyclesSegment);
 			
 			if (i == (nInterleave - 1)) {
-				mcs51_set_irq_line(MCS51_INT0_LINE, CPU_IRQSTATUS_ACK);
-				nSystem16CyclesDone[nCurrentCPU] += mcs51Run(2000);
-				mcs51_set_irq_line(MCS51_INT0_LINE, CPU_IRQSTATUS_NONE);
+				// Golden Axe needs to run a block of 2000 cycles here to prevent hangups (bus contention) between cpus
+				// Altered Beast parent (set 8) shows corrupt tiles in the end of stage "Crystal Ball", so needs less cycles here.
+				// Note: Set 8 appears to be the only set with this issue.
+				if (AltbeastMode) {
+					mcs51_set_irq_line(MCS51_INT0_LINE, CPU_IRQSTATUS_HOLD);
+				} else {
+					mcs51_set_irq_line(MCS51_INT0_LINE, CPU_IRQSTATUS_ACK);
+					nSystem16CyclesDone[nCurrentCPU] += mcs51Run(2000);
+					mcs51_set_irq_line(MCS51_INT0_LINE, CPU_IRQSTATUS_NONE);
+				}
 			}
 		}
 

@@ -7045,8 +7045,6 @@ DRV		BurnDrvEdrandy;
 DRV		BurnDrvCtribeb;
 DRV		BurnDrvCtribeb2;
 DRV		BurnDrvCtribej;
-DRV		BurnDrvCtribeo;
-DRV		BurnDrvCtribe1;
 DRV		BurnDrvCtribe;
 DRV		BurnDrvDealer;
 DRV		BurnDrvmd_deathret;
@@ -8152,7 +8150,6 @@ DRV		BurnDrvWwfsstaru6;
 DRV		BurnDrvWwfsstaru7;
 DRV		BurnDrvWwfwfestj;
 DRV		BurnDrvWwfwfestk;
-DRV		BurnDrvWwfwfestb;
 DRV		BurnDrvWwfwfestu;
 DRV		BurnDrvWwfwfest;
 DRV		BurnDrvmd_wwfag;
@@ -15397,8 +15394,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvCtribeb,			// The Combatribes (bootleg set 1)
 	&BurnDrvCtribeb2,			// The Combatribes (bootleg set 2)
 	&BurnDrvCtribej,			// The Combatribes (Japan)
-	&BurnDrvCtribeo,			// The Combatribes (US , older)
-	&BurnDrvCtribe1,			// The Combatribes (US set 1?)
 	&BurnDrvCtribe,				// The Combatribes (US)
 	&BurnDrvDealer,				// The Dealer
 	&BurnDrvmd_deathret,		// The Death and Return of Superman (USA)
@@ -16504,7 +16499,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvWwfsstaru7,			// WWF Superstars (US revision 7)
 	&BurnDrvWwfwfestj,			// WWF WrestleFest (Japan)
 	&BurnDrvWwfwfestk,			// WWF WrestleFest (Korea)
-	&BurnDrvWwfwfestb,			// WWF WrestleFest (US bootleg)
 	&BurnDrvWwfwfestu,			// WWF WrestleFest (US)
 	&BurnDrvWwfwfest,			// WWF WrestleFest (World)
 	&BurnDrvmd_wwfag,			// WWF WrestleMania - The Arcade Game (Euro, USA)

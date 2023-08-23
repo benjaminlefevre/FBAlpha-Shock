@@ -2620,7 +2620,7 @@ static INT32 DrvFrame()
 		if (nSegmentLength) {
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
 		}
-		pokey_update(0, pBurnSoundOut, nBurnSoundLen);
+		pokey_update(pBurnSoundOut, nBurnSoundLen);
 		tms5220_update(pBurnSoundOut, nBurnSoundLen);
 	}
 	

@@ -67,6 +67,16 @@ UINT16 M6809GetPC()
 	return m6809_get_pc();
 }
 
+UINT16 M6809GetPrevPC()
+{
+#if defined FBA_DEBUG
+	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809GetPrevPC called without init\n"));
+	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809GetPrevPC called when no CPU open\n"));
+#endif
+
+	return m6809_get_prev_pc();
+}
+
 void M6809NewFrame()
 {
 #if defined FBA_DEBUG
@@ -234,6 +244,8 @@ void M6809RunEnd()
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809RunEnd called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809RunEnd called when no CPU open\n"));
 #endif
+
+	m6809_end_timeslice();
 }
 
 INT32 M6809MapMemory(UINT8* pMemory, UINT16 nStart, UINT16 nEnd, INT32 nType)
