@@ -5776,7 +5776,7 @@ void RenderZoomedPrioTile(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT
 Tile with Transparency Table Functions
 ================================================================================================*/
 
-void RenderTileTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab)
+void RenderTileTranstabOffset(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, UINT32 color_offset)
 {
 #if defined FBA_DEBUG
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderTileTranstab called without init\n"));
@@ -5798,14 +5798,19 @@ void RenderTileTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32
 
 			if (tab[pxl] == trans_col) continue;
 
-			dest[sy * nScreenWidth + sx] = pxl;
+			dest[sy * nScreenWidth + sx] = pxl + color_offset;
 		}
 
 		sx -= width;
 	}
 }
 
-void RenderTilePrioTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, INT32 priority)
+void RenderTileTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab)
+{
+	RenderTileTranstabOffset(dest, gfx, code, color, trans_col, sx, sy, flipx, flipy, width, height, tab, 0x00);
+}
+
+void RenderTilePrioTranstabOffset(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, UINT32 color_offset, INT32 priority)
 {
 #if defined FBA_DEBUG
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderTilePrioTranstab called without init\n"));
@@ -5827,7 +5832,7 @@ void RenderTilePrioTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, I
 
 			if (tab[pxl] == trans_col) continue;
 
-			dest[sy * nScreenWidth + sx] = pxl;
+			dest[sy * nScreenWidth + sx] = pxl + color_offset;
 			pPrioDraw[sy * nScreenWidth + sx] = priority;
 		}
 
@@ -5835,7 +5840,12 @@ void RenderTilePrioTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, I
 	}
 }
 
-void RenderPrioMaskTranstabSprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, UINT32 priority)
+void RenderTilePrioTranstab(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, INT32 priority)
+{
+	RenderTilePrioTranstabOffset(dest, gfx, code, color, trans_col, sx, sy, flipx, flipy, width, height, tab, 0x00, priority);
+}
+
+void RenderPrioMaskTranstabSpriteOffset(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, UINT32 color_offset, UINT32 priority)
 {
 #if defined FBA_DEBUG
 	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderPrioMaskTranstabSprite called without init\n"));
@@ -5860,13 +5870,18 @@ void RenderPrioMaskTranstabSprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 co
 			if (tab[pxl] == trans_col) continue;
 
 			if ((priority & (1 << pPrioDraw[sy * nScreenWidth + sx])) == 0) {
-				dest[sy * nScreenWidth + sx] = pxl;
+				dest[sy * nScreenWidth + sx] = pxl + color_offset;
 				pPrioDraw[sy * nScreenWidth + sx] = 0x1f;
 			}
 		}
 
 		sx -= width;
 	}
+}
+
+void RenderPrioMaskTranstabSprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 trans_col, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 width, INT32 height, UINT8 *tab, UINT32 priority)
+{
+	RenderPrioMaskTranstabSpriteOffset(dest, gfx, code, color, trans_col, sx, sy, flipx, flipy, width, height, tab, 0x00, priority);
 }
 
 /*================================================================================================
@@ -5975,5 +5990,72 @@ void RenderPrioSprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 t
 
 		sx -= width;
 	}
+}
+
+void RenderZoomedPrioTranstabSpriteOffset(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 t, INT32 sx, INT32 sy, INT32 fx, INT32 fy, INT32 width, INT32 height, INT32 zoomx, INT32 zoomy, UINT8 *tab, UINT32 color_offset, INT32 priority)
+{
+#if defined FBA_DEBUG
+	if (!Debug_GenericTilesInitted) bprintf(PRINT_ERROR, _T("RenderZoomedPrioSprite called without init\n"));
+#endif
+
+	// Based on MAME sources for tile zooming
+	UINT8 *gfx_base = gfx + (code * width * height);
+	int dh = (zoomy * height + 0x8000) / 0x10000;
+	int dw = (zoomx * width + 0x8000) / 0x10000;
+
+	priority |= 1 << 31;
+
+	if (dw && dh)
+	{
+		int dx = (width * 0x10000) / dw;
+		int dy = (height * 0x10000) / dh;
+		int ex = sx + dw;
+		int ey = sy + dh;
+		int x_index_base = 0;
+		int y_index = 0;
+
+		if (fx) {
+			x_index_base = (dw - 1) * dx;
+			dx = -dx;
+		}
+
+		if (fy) {
+			y_index = (dh - 1) * dy;
+			dy = -dy;
+		}
+
+		for (INT32 y = sy; y < ey; y++)
+		{
+			UINT8 *src = gfx_base + (y_index / 0x10000) * width;
+			UINT16 *dst = dest + y * nScreenWidth;
+			UINT8 *pri = pPrioDraw + y * nScreenWidth;
+
+			if (y >= nScreenHeightMin && y < nScreenHeightMax) 
+			{
+				for (INT32 x = sx, x_index = x_index_base; x < ex; x++)
+				{
+					if (x >= nScreenWidthMin && x < nScreenWidthMax) {
+						INT32 pxl = src[x_index>>16] + color;
+
+						if (tab[pxl] != t) {
+							if ((priority & (1 << pri[x])) == 0) {
+								dst[x] = pxl + color_offset;
+							}
+							pri[x] = 0x1f;
+						}
+					}
+	
+					x_index += dx;
+				}
+			}
+
+			y_index += dy;
+		}
+	}
+}
+
+void RenderZoomedPrioTranstabSprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 t, INT32 sx, INT32 sy, INT32 fx, INT32 fy, INT32 width, INT32 height, INT32 zoomx, INT32 zoomy, UINT8 *tab, INT32 priority)
+{
+	RenderZoomedPrioTranstabSpriteOffset(dest, gfx, code, color, t, sx, sy, fx, fy, width, height, zoomx, zoomy, tab, 0x00, priority);
 }
 

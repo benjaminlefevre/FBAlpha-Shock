@@ -691,8 +691,7 @@ static INT32 DrvDoReset()
 
 	BurnYMF278BReset(); // aliencha
 	BurnYM3812Reset();
-	MSM6295Reset(0);
-	MSM6295Reset(1); // aliencha
+	MSM6295Reset();
 
 	*okibank = -1;
 	set_oki_bank(0); // lordgun
@@ -898,19 +897,14 @@ static INT32 DrvInit(INT32 (*pInitCallback)(), INT32 lordgun)
 
 	ppi8255_init(2);
 	if (lordgun) {
-		PPI0PortReadA	= lordgun_dip_read;
-		PPI0PortWriteB	= lordgun_eeprom_write;
-		PPI0PortReadC	= lordgun_service_read;
+		ppi8255_set_read_ports(0, lordgun_dip_read, NULL, lordgun_service_read);
+		ppi8255_set_write_ports(0, NULL, lordgun_eeprom_write, NULL);
 	} else {
-		PPI0PortReadA	= aliencha_dip_read;
-		PPI0PortReadC	= aliencha_service_read;
-		PPI0PortWriteB	= aliencha_eeprom_write;
-		PPI0PortWriteC	= aliencha_dip_select;
+		ppi8255_set_read_ports(0, aliencha_dip_read, NULL, aliencha_service_read);
+		ppi8255_set_write_ports(0, NULL, aliencha_eeprom_write, aliencha_dip_select);
 	}
 
-	PPI1PortReadA	= lordgun_start1_read;
-	PPI1PortReadB	= lordgun_start2_read;
-	PPI1PortReadC	= lordgun_coin_read;
+	ppi8255_set_read_ports(1, lordgun_start1_read, lordgun_start2_read, lordgun_coin_read);
 
 	EEPROMInit(&eeprom_interface_93C46);
 
@@ -929,8 +923,7 @@ static INT32 DrvExit()
 
 	BurnYMF278BExit(); // aliencha
 	BurnYM3812Exit();
-	MSM6295Exit(0);
-	MSM6295Exit(1); // aliencha
+	MSM6295Exit();
 
 	ppi8255_exit();
 	BurnGunExit();
@@ -1355,7 +1348,7 @@ static INT32 lordgunFrame()
 
 	if (pBurnSoundOut) {
 		BurnYM3812Update(pBurnSoundOut, nBurnSoundLen);
-		MSM6295Render(0, pBurnSoundOut, nBurnSoundLen);
+		MSM6295Render(pBurnSoundOut, nBurnSoundLen);
 	}
 
 	ZetClose();
@@ -1403,8 +1396,7 @@ static INT32 alienchaFrame()
 
 	if (pBurnSoundOut) {
 		BurnYMF278BUpdate(nBurnSoundLen);
-		MSM6295Render(0, pBurnSoundOut, nBurnSoundLen);
-		MSM6295Render(1, pBurnSoundOut, nBurnSoundLen);
+		MSM6295Render(pBurnSoundOut, nBurnSoundLen);
 	}
 
 	ZetClose();
@@ -1426,9 +1418,8 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 	}
 
 	if (nAction & ACB_VOLATILE) {
-
 		memset(&ba, 0, sizeof(ba));
-    		ba.Data		= AllRam;
+		ba.Data		= AllRam;
 		ba.nLen		= RamEnd - AllRam;
 		ba.szName	= "All RAM";
 		BurnAcb(&ba);

@@ -47,20 +47,25 @@ static INT32 seibu_sndcpu_frequency;
 static INT32 seibu_snd_type;
 static INT32 is_sdgndmps = 0;
 
-// ADPCM related
+// ADPCM related (cabal)
 static UINT16 adpcmcurrent[2];
 static UINT8 adpcmnibble[2];
 static UINT16 adpcmend[2];
 static UINT8 adpcmplaying[2];
+static UINT8 adpcmending[2];
 static INT32 adpcmfrequency[2];
 static INT32 adpcmsignal[2];
 static INT32 adpcmstep[2];
+static INT32 adpcmcurrsampl[2];
 
 static INT32 diff_lookup[49*16];
 static const INT32 index_shift[8] = { -1, -1, -1, -1, 2, 4, 6, 8 };
 
 static void adpcm_init(); // forward
 static void adpcm_reset(); // forward
+
+static INT16 *mixer_buffer = NULL; // for cabal ADPCM resampler
+static INT32 samples_from = 0;
 
 UINT8 *SeibuADPCMData[2];
 INT32 SeibuADPCMDataLen[2];
@@ -430,8 +435,7 @@ void seibu_sound_reset()
 		break;
 	}
 
-	if ((seibu_snd_type & 8) == 0) MSM6295Reset(0);
-	if (seibu_snd_type & 4) MSM6295Reset(1);
+	if ((seibu_snd_type & 8) == 0) MSM6295Reset();
 
 	memset (main2sub, 0, 2);
 	memset (sub2main, 0, 2);
@@ -533,8 +537,11 @@ void seibu_sound_exit()
 
 	ZetExit();
 
-	if ((seibu_snd_type & 8) == 0) MSM6295Exit(0);
-	if (seibu_snd_type & 4) MSM6295Exit(1);
+	if ((seibu_snd_type & 8) == 0) MSM6295Exit();
+
+	// cabal ADPCM-exit
+	if (mixer_buffer) BurnFree(mixer_buffer);
+	samples_from = 0;
 
 	MSM6295ROM = NULL;
 
@@ -577,6 +584,9 @@ static void adpcm_init()
 		}
 	}
 
+	mixer_buffer = (INT16*)BurnMalloc(2 * sizeof(INT16) * 8000);
+	samples_from = (INT32)((double)((8000 * 100) / nBurnFPS) + 0.5);
+
 	adpcm_reset();
 }
 
@@ -587,6 +597,8 @@ static void adpcm_reset()
 		adpcmnibble[i] = 0;
 		adpcmend[i] = 0;
 		adpcmplaying[i] = 0;
+		adpcmending[i] = 0;
+		adpcmcurrsampl[i] = 0;
 		adpcmsignal[i] = -2;
 		adpcmstep[i] = 0;
 	}
@@ -613,29 +625,34 @@ static INT32 adpcm_clock(INT32 chip, UINT8 nibble)
 static void adpcm_update(INT32 chip, INT16 *pbuf, INT32 samples)
 {
 	UINT8 *adpcmrom = SeibuADPCMData[chip];
-	INT32 val, samp, i;
+	INT32 val;
 
-	while (adpcmplaying[chip] && samples > 0)
+	while ((adpcmplaying[chip] || adpcmending[chip]) && samples > 0)
 	{
-		val = (adpcmrom[adpcmcurrent[chip]] >> adpcmnibble[chip]) & 0xf;
+		if (adpcmplaying[chip]) {
+			val = (adpcmrom[adpcmcurrent[chip]] >> adpcmnibble[chip]) & 0xf;
 
-		adpcmnibble[chip] ^= 4;
-		if (adpcmnibble[chip] == 4)
-		{
-			adpcmcurrent[chip]++;
-			if (adpcmcurrent[chip] >= adpcmend[chip])
-				adpcmplaying[chip] = 0;
-		}
+			adpcmnibble[chip] ^= 4;
+			if (adpcmnibble[chip] == 4)
+			{
+				adpcmcurrent[chip]++;
+				if (adpcmcurrent[chip] >= adpcmend[chip]) {
+					adpcmplaying[chip] = 0;
+					adpcmending[chip] = 1;
+				}
+			}
 
-		samp = ((adpcm_clock(chip, val) << 4));
+			adpcmcurrsampl[chip] = (INT32)((double)(adpcm_clock(chip, val) << 4) * 0.40);
+		} else
+			if (adpcmending[chip]) { // ramp down, to get rid of clicks -dink
+				adpcmcurrsampl[chip] *= (double)0.997; // coefficient created with "exp(- log(2) * (1.0/8000) / 0.01)" and slightly tweaked.
+				if (adpcmcurrsampl[chip] == 0)
+					adpcmending[chip] = 0;
+			}
 
-		for (i = 0; (i < 6) && (samples > 0); i++) { // slow it down
-			*pbuf = BURN_SND_CLIP(*pbuf + samp);
-			pbuf++;
-			*pbuf = BURN_SND_CLIP(*pbuf + samp);
-			pbuf++;
-			samples--;
-		}
+		*pbuf = BURN_SND_CLIP(*pbuf + adpcmcurrsampl[chip]);
+		pbuf++;
+		samples--;
 	}
 }
 
@@ -661,10 +678,7 @@ void seibu_sound_update(INT16 *pbuf, INT32 nLen)
 	}
 
 	if ((seibu_snd_type & 8) == 0) {
-		MSM6295Render(0, pbuf, nLen);
-
-		if (seibu_snd_type & 4) 
-			MSM6295Render(1, pbuf, nLen);
+		MSM6295Render(pbuf, nLen); // (seibu_snd_type & 4) included under &8 == 0! (see init)
 	}
 }
 
@@ -674,8 +688,27 @@ void seibu_sound_update_cabal(INT16 *pbuf, INT32 nLen)
 	if (!DebugDev_SeibuSndInitted) bprintf(PRINT_ERROR, _T("seibu_sound_update called without init\n"));
 #endif
 
-	adpcm_update(0, pbuf, nLen);
-	adpcm_update(1, pbuf, nLen);
+	if (nLen != nBurnSoundLen) {
+		bprintf(PRINT_ERROR, _T("*** seibu_sound_update_cabal(): call once per frame!\n"));
+		return;
+	}
+
+	samples_from = (INT32)((double)((8000 * 100) / nBurnFPS) + 0.5);
+	memset(mixer_buffer, 0, samples_from * sizeof(INT16));
+
+	adpcm_update(0, mixer_buffer, samples_from);
+	adpcm_update(1, mixer_buffer, samples_from);
+
+	for (INT32 j = 0; j < nLen; j++)
+	{
+		INT32 k = (samples_from * j) / nBurnSoundLen;
+
+		INT32 rlmono = mixer_buffer[k];
+
+		pbuf[0] = BURN_SND_CLIP(pbuf[0] + BURN_SND_CLIP(rlmono));
+		pbuf[1] = BURN_SND_CLIP(pbuf[1] + BURN_SND_CLIP(rlmono));
+		pbuf += 2;
+	}
 }
 
 void seibu_sound_scan(INT32 nAction, INT32 *pnMin)

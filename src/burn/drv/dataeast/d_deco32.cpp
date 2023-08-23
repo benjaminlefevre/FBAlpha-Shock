@@ -28,6 +28,7 @@ static UINT8 *DrvSndROM0;
 static UINT8 *DrvSndROM1;
 static UINT8 *DrvSndROM2;
 static UINT8 *DrvTMSROM;
+static UINT8 *DrvDVIROM; // dragngun
 static UINT8 *DrvSysRAM;
 static UINT8 *DrvHucRAM;
 static UINT8 *DrvSprRAM;
@@ -39,6 +40,10 @@ static UINT8 *DrvPalBuf; // active palette
 static UINT8 *DrvAceRAM;
 static UINT8 *DrvJackRAM;
 static UINT8 *DrvTMSRAM;
+
+static UINT8 *DrvDVIRAM0; // dragngun
+static UINT8 *DrvDVIRAM1;
+static UINT32 *pTempSprite;
 
 static UINT16 *pTempDraw[4];
 
@@ -68,6 +73,9 @@ static INT32 has_ace = 0;
 static INT32 use_z80 = 0;
 static INT32 use_bsmt = 0;
 static INT32 speedhack_address = 0;
+
+static INT32 (*pStartDraw)() = NULL;
+static INT32 (*pDrawScanline)(INT32) = NULL;
 
 static struct BurnInputInfo CaptavenInputList[] = {
 	{"P1 Coin",		BIT_DIGITAL,	DrvJoy3 + 0,	"p1 coin"	},
@@ -373,6 +381,7 @@ static struct BurnInputInfo DragngunInputList[] = {
 	{"Service",		BIT_DIGITAL,	DrvJoy2 + 2,	"service"	},
 	{"Dip A",		BIT_DIPSWITCH,	DrvDips + 1,	"dip"		},
 	{"Dip B",		BIT_DIPSWITCH,	DrvDips + 3,	"dip"	}, // + 3!
+	{"Dip C",		BIT_DIPSWITCH,	DrvDips + 4,	"dip"	},
 };
 
 STDINPUTINFO(Dragngun)
@@ -382,6 +391,7 @@ static struct BurnDIPInfo DragngunDIPList[]=
 {
 	{0x0e, 0xff, 0xff, 0xfe, NULL			},
 	{0x0f, 0xff, 0xff, 0x00, NULL			},
+	{0x10, 0xff, 0xff, 0x04, NULL			},
 
 	{0   , 0xfe, 0   ,    2, "Reset"		},
 	{0x0e, 0x01, 0x01, 0x00, "Off"			},
@@ -398,6 +408,10 @@ static struct BurnDIPInfo DragngunDIPList[]=
 	{0   , 0xfe, 0   ,    2, "Speed Hacks"			},
 	{0x0f, 0x01, 0x01, 0x00, "Off"				},
 	{0x0f, 0x01, 0x01, 0x01, "On"				},
+
+	{0   , 0xfe, 0   ,    2, "Service Mode"		},
+	{0x10, 0x01, 0x04, 0x04, "Off"			},
+	{0x10, 0x01, 0x04, 0x00, "On"			},
 };
 
 STDDIPINFO(Dragngun)
@@ -493,8 +507,7 @@ void deco32_z80_sound_reset()
 	BurnYM2151Reset();
 	ZetClose();
 
-	MSM6295Reset(0);
-	MSM6295Reset(1);
+	MSM6295Reset();
 
 	deco32_sound_irq = 0;
 	deco16_soundlatch = 0xff;
@@ -533,8 +546,7 @@ void deco32_z80_sound_exit()
 	ZetExit();
 
 	BurnYM2151Exit();
-	MSM6295Exit(0);
-	MSM6295Exit(1);
+	MSM6295Exit();
 
 	MSM6295ROM = NULL;
 	use_z80 = 0;
@@ -543,8 +555,7 @@ void deco32_z80_sound_exit()
 void deco32_z80_sound_update(INT16 *buf, INT32 len)
 {
 	BurnYM2151Render(buf, len);
-	MSM6295Render(0, buf, len);
-	MSM6295Render(1, buf, len);
+	MSM6295Render(buf, len);
 }
 
 void deco32_z80_sound_scan(INT32 nAction, INT32 *pnMin)
@@ -1201,13 +1212,16 @@ static UINT32 lockload_read_long(UINT32 address)
 
 static void dragngun_write_byte(UINT32 address, UINT8 data)
 {
+	if (address >= 0x1000000 && address <= 0x1001000) {
+		*((UINT32*)(DrvDVIRAM0 + ((address & 0xfff) ^ 3))) = data;
+		return;
+	}
+
 	bprintf (0, _T("WB: %5.5x, %2.2x\n"), address, data);
 }
 
 static void dragngun_write_long(UINT32 address, UINT32 data)
 {
-//	if ((address & 0xfff0000) != 0x170000) bprintf (0, _T("WL: %5.5x, %8.8x\n"), address, data);
-
 	if (address >= 0x120000 && address <= 0x127fff) {
 		deco146_104_prot_ww(0, (address & 0x7ffc) >> 1, data);
 		return;
@@ -1224,6 +1238,11 @@ static void dragngun_write_long(UINT32 address, UINT32 data)
 	Write16Long(deco16_pf_rowscroll[2],		0x1e0000, 0x1e3fff) // 16-bit
 	Write16Long(deco16_pf_rowscroll[3],		0x1e4000, 0x1e5fff) // 16-bit
 
+	if (address >= 0x1000000 && address <= 0x1001000) {
+		*((UINT32*)(DrvDVIRAM0 + ((address & 0xfff) / 4))) = data;
+		return;
+	}
+
 	switch (address & ~3)
 	{
 		case 0x128000:
@@ -1234,6 +1253,21 @@ static void dragngun_write_long(UINT32 address, UINT32 data)
 		return;
 
 		case 0x138000:
+		case 0x13800c:
+		case 0x140200:
+		case 0x140400:
+		case 0x140800:
+		case 0x140a00:
+		case 0x140c00:
+		case 0x150000:
+		case 0x158000:
+		case 0x160000:
+		case 0x280000:
+		case 0x280004:
+		case 0x280008:
+		case 0x28000c:
+		case 0x234000:
+		case 0x408000:
 		return; // nop
 
 		case 0x138008:
@@ -1276,6 +1310,9 @@ static void dragngun_write_long(UINT32 address, UINT32 data)
 			sprite_ctrl = data;
 		return;
 	}
+	if ((address & 0xfff0000) == 0x170000) return; // more nops
+
+	bprintf (0, _T("WL: %5.5x, %8.8x\n"), address, data);
 }
 
 static UINT8 dragngun_read_byte(UINT32 address)
@@ -1287,7 +1324,17 @@ static UINT8 dragngun_read_byte(UINT32 address)
 	switch (address)
 	{
 		case 0x440000:
-			return (deco16_vblank ? 0xff : 0xfe); // service & 4
+			return (deco16_vblank ? 0xfb : 0xfa) | (DrvDips[4] & 0x04); // service & 4
+
+		case 0x438000:
+			switch (lightgun_port) {
+				case 4: return BurnGunReturnX(0);
+				case 5: return BurnGunReturnX(1);
+				case 6: return BurnGunReturnY(0);
+				case 7: return BurnGunReturnY(1);
+			}
+
+			return 0;
 	}
 
 	bprintf (0, _T("RB: %5.5x\n"), address);
@@ -1297,8 +1344,6 @@ static UINT8 dragngun_read_byte(UINT32 address)
 
 static UINT32 dragngun_read_long(UINT32 address)
 {
-//	bprintf (0, _T("RL: %5.5x\n"), address);
-
 	if (address >= 0x120000 && address <= 0x127fff) {
 		return deco146_104_prot_rw(0, (address & 0x7ffc) >> 1);
 	}
@@ -1314,6 +1359,10 @@ static UINT32 dragngun_read_long(UINT32 address)
 	Read16Long(deco16_pf_rowscroll[2],		0x1e0000, 0x1e3fff) // 16-bit
 	Read16Long(deco16_pf_rowscroll[3],		0x1e4000, 0x1e5fff) // 16-bit
 
+	if (address >= 0x1000008 && address <= 0x1001000) {
+		return *((UINT32*)(DrvDVIRAM0 + (address & 0xfff)));
+	}
+
 	switch (address & ~3)
 	{
 		case 0x128000:
@@ -1322,8 +1371,11 @@ static UINT32 dragngun_read_long(UINT32 address)
 		case 0x12800c:
 			return deco_irq_read((address / 4) & 3);
 
+		case 0x138000: // nop
+			return 0;
+
 		case 0x420000:
-			return (EEPROMRead() & 1) ? 0xff : 0xfe;
+			return 0xfffffffe | (EEPROMRead() & 1);
 
 		case 0x400000:
 			return MSM6295Read(2);
@@ -1336,17 +1388,17 @@ static UINT32 dragngun_read_long(UINT32 address)
 				case 7: return BurnGunReturnY(1);
 			}
 
-			//bprintf(0, _T("x{%X} "), address);
-			return 0; // analog
+			return 0;
 
 		case 0x440000:
-			return (deco16_vblank ? 0xff : 0xfe); // service & 4
+			return (deco16_vblank ? 0xfb : 0xfa) | (DrvDips[4] & 0x04); // service & 4
 
 		case 0x1000000:
 		case 0x1000004:
 			return BurnRandom();
 
 	}
+	bprintf (0, _T("RL: %5.5x\n"), address);
 	return 0;
 }
 
@@ -1390,8 +1442,6 @@ static INT32 DrvDoReset()
 
 	if (game_select != 3) DrvYM2151WritePort(0, 0);
 
-	if (game_select == 4) MSM6295Reset(2);
-
 	EEPROMReset();
 
 	deco16Reset();
@@ -1434,6 +1484,11 @@ static INT32 MemIndex()
 
 	DrvTMSROM	= Next; Next += 0x002000;
 
+	if (game_select == 4)
+	{
+		DrvDVIROM   = Next; Next += 0x1000000;
+	}
+
 	DrvPalette	= (UINT32*)Next; Next += 0x801 * sizeof(UINT32);
 
 	AllRam		= Next;
@@ -1450,15 +1505,22 @@ static INT32 MemIndex()
 	DrvSprBuf2	= Next; Next += 0x001000;
 	DrvTMSRAM	= Next; Next += 0x000100;
 	DrvJackRAM	= Next; Next += 0x001000;
+	DrvDVIRAM0  = Next; Next += 0x008000;
+	DrvDVIRAM1  = Next; Next += 0x000200;
 
 	RamEnd		= Next;
 
-	if (game_select == 2 || game_select == 3)
+	if (game_select == 2 || game_select == 3) // nslasher, tattass
 	{
 		pTempDraw[0]	= (UINT16*)Next; Next += nScreenWidth * nScreenHeight * sizeof(INT16);
 		pTempDraw[1]	= (UINT16*)Next; Next += nScreenWidth * nScreenHeight * sizeof(INT16);
 		pTempDraw[2]	= (UINT16*)Next; Next += nScreenWidth * nScreenHeight * sizeof(INT16);
 		pTempDraw[3]	= (UINT16*)Next; Next += nScreenWidth * nScreenHeight * sizeof(INT16);
+	}
+
+	if (game_select == 4) // dragngun
+	{
+		pTempSprite    = (UINT32*)Next; Next += nScreenWidth * nScreenHeight * sizeof(UINT32);
 	}
 
 	MemEnd		= Next;
@@ -2090,6 +2152,8 @@ static INT32 DragngunCommonInit(INT32 has_z80, UINT32 speedhack)
 	game_select = 4;
 	speedhack_address = speedhack;
 
+	GenericTilesInit(); // for allocating memory for pTempSprite
+
 	gfxlen[0] = 0x40000;
 	gfxlen[1] = 0x400000;
 	gfxlen[2] = 0x400000;
@@ -2139,6 +2203,19 @@ static INT32 DragngunCommonInit(INT32 has_z80, UINT32 speedhack)
 		if (BurnLoadRom(DrvGfxROM3 + 0x000000,	 23, 4)) return 1;
 		if (BurnLoadRom(DrvGfxROM3 + 0x400000,	 24, 4)) return 1;
 
+		if (BurnLoadRom(DrvDVIROM + (0x000000^3),    25, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x000001^3),    26, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x000002^3),    27, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x000003^3),    28, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x400000^3),    29, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x400001^3),    30, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x400002^3),    31, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x400003^3),    32, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x800000^3),    33, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x800001^3),    34, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x800002^3),    35, 4)) return 1;
+		if (BurnLoadRom(DrvDVIROM + (0x800003^3),    36, 4)) return 1;
+
 		if (BurnLoadRom(DrvSndROM0 + 0x000000,	 37, 1)) return 1;
 
 		if (BurnLoadRom(DrvSndROM1 + 0x000000,	 38, 1)) return 1;
@@ -2159,10 +2236,16 @@ static INT32 DragngunCommonInit(INT32 has_z80, UINT32 speedhack)
 
 	ArmInit(0);
 	ArmOpen(0);	
-	ArmMapMemory(DrvARMROM,			0x000000, 0x0fffff, MAP_ROM);
-	ArmMapMemory(DrvSysRAM,			0x100000, 0x11ffff, MAP_RAM); // 32-bit
-	ArmMapMemory(DrvPalRAM,			0x130000, 0x131fff, MAP_RAM); // 32-bit
-	ArmMapMemory(DrvSprRAM,			0x200000, 0x2283ff, MAP_RAM);
+	ArmMapMemory(DrvARMROM,			    0x000000, 0x0fffff, MAP_ROM);
+	ArmMapMemory(DrvSysRAM,			    0x100000, 0x11ffff, MAP_RAM); // 32-bit
+	ArmMapMemory(DrvPalRAM,			    0x130000, 0x131fff, MAP_RAM); // 32-bit
+	ArmMapMemory(DrvSprRAM,			    0x200000, 0x2283ff, MAP_RAM);
+	ArmMapMemory(DrvAceRAM,			    0x0204800, 0x0204fff, MAP_RAM);
+
+	ArmMapMemory(DrvDVIROM,    	        0x1400000, 0x1ffffff, MAP_ROM); // DVI needed to beat the final boss
+	ArmMapMemory(DrvDVIRAM0 + 0x1000,   0x1001000, 0x1007fff, MAP_RAM);
+	ArmMapMemory(DrvDVIRAM1,            0x10b0000, 0x10b01ff, MAP_RAM);
+
 	ArmMapMemory(DrvARMROM + 0x100000,	0x300000, 0x3fffff, MAP_ROM);
 	ArmSetWriteByteHandler(dragngun_write_byte);
 	ArmSetWriteLongHandler(dragngun_write_long);
@@ -2183,6 +2266,7 @@ static INT32 DragngunCommonInit(INT32 has_z80, UINT32 speedhack)
 	deco_146_104_set_interface_scramble_reverse();
 
 	deco16Init(0, 0, 1);
+	deco16_dragngun_kludge = 1; // st.3 boss blank tile fix
 	deco16_set_graphics(DrvGfxROM0, 0x020000 * 2, DrvGfxROM1, 0x120000 * 2, DrvGfxROM2, 0x400000 * 1);
 	deco16_set_color_base(0, 0x200);
 	deco16_set_color_base(1, 0x300);
@@ -2197,16 +2281,14 @@ static INT32 DragngunCommonInit(INT32 has_z80, UINT32 speedhack)
 	deco16_set_bank_callback(3, dragngun_bank_callback);
 
 	use_z80 = 0;
-	deco16SoundInit(DrvHucROM, DrvHucRAM, 4027500, 0, DrvYM2151WritePort, 0.42, 1006875, 1.00, 2013750, 0.35);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_1, 0.80, BURN_SND_ROUTE_LEFT);
-	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_2, 0.80, BURN_SND_ROUTE_RIGHT);
+	deco16SoundInit(DrvHucROM, DrvHucRAM, 4027500, 0, DrvYM2151WritePort, 0.42, 1006875, 0.50, 2013750, 0.18);
+	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_1, 0.40, BURN_SND_ROUTE_LEFT);
+	BurnYM2151SetRoute(BURN_SND_YM2151_YM2151_ROUTE_2, 0.40, BURN_SND_ROUTE_RIGHT);
 
 	MSM6295Init(2, (32220000/32) / 132, 1);
-	MSM6295SetBank(2, DrvSndROM2, 0, 0x3ffff);
+	MSM6295SetBank(2, DrvSndROM2 + ((DrvARMROM[0] == 0x5f) ? 0x00000 : 0x40000), 0, 0x3ffff);
 
-	MSM6295SetRoute(2, 0.35, BURN_SND_ROUTE_BOTH);
-
-	GenericTilesInit();
+	MSM6295SetRoute(2, 0.50, BURN_SND_ROUTE_BOTH);
 
 	{	// disable service mode lockout (what is this??)
 		if (DrvARMROM[0] == 0x5f) { // japan
@@ -2248,8 +2330,6 @@ static INT32 DrvExit()
 
 	ArmExit();
 
-	if (game_select == 4) MSM6295Exit(2);
-
 	if (uses_gun) {
 		BurnGunExit();
 		uses_gun = 0;
@@ -2263,6 +2343,9 @@ static INT32 DrvExit()
 	lightgun_irq_cb = NULL;
 	has_ace = 0;
 	speedhack_address = 0;
+
+	pStartDraw = NULL;
+	pDrawScanline = NULL;
 
 	return 0;
 }
@@ -3037,7 +3120,7 @@ static INT32 NslasherDraw()
 }
 
 static void dragngun_drawgfxzoom(UINT32 code, UINT32 color,INT32 flipx,INT32 flipy,INT32 sx,INT32 sy,
-		INT32 scalex, INT32 scaley, INT32 sprite_screen_width, INT32  sprite_screen_height, UINT8 alpha,INT32 priority)
+		INT32 scalex, INT32 scaley, INT32 sprite_screen_width, INT32 sprite_screen_height, UINT8 alpha, INT32 priority, INT32 depth)
 {
 	if (!scalex || !scaley) return;
 
@@ -3045,23 +3128,6 @@ static void dragngun_drawgfxzoom(UINT32 code, UINT32 color,INT32 flipx,INT32 fli
 
 	color = (color & 0x1f) * 16;
 	UINT32 *pal = DrvPalette + color;
-
-	INT32 depth = BurnHighCol(0,0xff,0,0);
-
-	switch (depth)
-	{
-		case 0x00ff00:
-			depth = nBurnBpp * 8;
-		break;
-
-		case 0x007e0:
-			depth = 16;
-		break;
-
-		case 0x003e0:
-			depth = 15;
-		break;
-	}
 
 	const UINT8 *code_base = DrvGfxROM3 + ((code & 0x7fff) * 0x100);
 
@@ -3112,13 +3178,13 @@ static void dragngun_drawgfxzoom(UINT32 code, UINT32 color,INT32 flipx,INT32 fli
 
 		if( ex > nScreenWidth )
 		{
-			INT32 pixels = ex-(nScreenWidth-1)-1;
+			INT32 pixels = ex-nScreenWidth;
 			ex -= pixels;
 		}
 
 		if( ey > nScreenHeight )
 		{
-			INT32 pixels = ey-(nScreenHeight-1)-1;
+			INT32 pixels = ey-nScreenHeight;
 			ey -= pixels;
 		}
 
@@ -3128,81 +3194,105 @@ static void dragngun_drawgfxzoom(UINT32 code, UINT32 color,INT32 flipx,INT32 fli
 			{
 				if (depth == 32)
 				{
-						const UINT8 *source = code_base + (y_index >> 16) * 16;
-						UINT32 *dest = ((UINT32*)pBurnDraw) + (y * nScreenWidth);
-						UINT8 *pri = deco16_prio_map + (y * 512);
-		
-						INT32 x_index = x_index_base;
-						for (INT32 x = sx; x < ex; x++)
+					const UINT8 *source = code_base + (y_index >> 16) * 16;
+					UINT32 *dest_tmap = ((UINT32*)pBurnDraw) + (y * nScreenWidth);
+					UINT32 *dest = pTempSprite + (y * nScreenWidth);
+					UINT8 *pri = deco16_prio_map + (y * 512);
+
+					INT32 x_index = x_index_base;
+					for (INT32 x = sx; x < ex; x++)
+					{
+						INT32 c = (source[x_index >> 16] >> shift) & 0xf;
+						if (c != 0xf)
 						{
-							INT32 c = (source[x_index >> 16] >> shift) & 0xf;
-							if (c != 0xf)
+							if (priority >= pri[x])
 							{
-								if (priority >= pri[x])
-								{
-									if (alpha == 0xff) {
-										dest[x] = pal[c];
-									} else {
-										dest[x] = alphablend32(dest[x], pal[c], 0x80);
-									}
+								if (alpha == 0xff) { // no alpha
+									dest[x] = pal[c];
+									dest[x] |= 0xff000000;
+								} else { // alpha
+									if ((dest[x] & 0xff000000) == 0x00000000)
+										dest[x] = alphablend32(dest_tmap[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+									else
+										dest[x] = alphablend32(dest[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+
+									dest[x] |= 0xff000000;
 								}
-								pri[x] |= 0x80;
+							} else {
+								dest[x] = 0x00000000;
 							}
-		
-							x_index += dx;
 						}
+
+						x_index += dx;
+					}
 				}
 				else if (depth == 16)
 				{
-						const UINT8 *source = code_base + (y_index >> 16) * 16;
-						UINT16 *dest = ((UINT16*)pBurnDraw) + (y * nScreenWidth);
-						UINT8 *pri = deco16_prio_map + (y * 512);
-		
-						INT32 x_index = x_index_base;
-						for (INT32 x = sx; x < ex; x++)
+					const UINT8 *source = code_base + (y_index >> 16) * 16;
+					UINT16 *dest_tmap = ((UINT16*)pBurnDraw) + (y * nScreenWidth);
+					UINT32 *dest = pTempSprite + (y * nScreenWidth);
+					UINT8 *pri = deco16_prio_map + (y * 512);
+
+					INT32 x_index = x_index_base;
+					for (INT32 x = sx; x < ex; x++)
+					{
+						INT32 c = (source[x_index >> 16] >> shift) & 0xf;
+						if (c != 0xf)
 						{
-							INT32 c = (source[x_index >> 16] >> shift) & 0xf;
-							if (c != 0xf)
+							if (priority >= pri[x])
 							{
-								if (priority >= pri[x])
-								{
-									if (alpha == 0xff) {
-										dest[x] = pal[c];
-									} else {
-										dest[x] = alphablend16(dest[x], pal[c], 0x80);
-									}
+								if (alpha == 0xff) { // no alpha
+									dest[x] = pal[c];
+									dest[x] |= 0xff000000;
+								} else { // alpha
+									if ((dest[x] & 0xff000000) == 0x00000000)
+										dest[x] = alphablend16(dest_tmap[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+									else
+										dest[x] = alphablend16(dest[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+
+									dest[x] |= 0xff000000;
 								}
-								pri[x] |= 0x80;
+							} else {
+								dest[x] = 0x00000000;
 							}
-		
-							x_index += dx;
 						}
+
+						x_index += dx;
+					}
 				}
 				else if (depth == 15)
 				{
-						const UINT8 *source = code_base + (y_index >> 16) * 16;
-						UINT16 *dest = ((UINT16*)pBurnDraw) + (y * nScreenWidth);
-						UINT8 *pri = deco16_prio_map + (y * 512);
-		
-						INT32 x_index = x_index_base;
-						for (INT32 x = sx; x < ex; x++)
+					const UINT8 *source = code_base + (y_index >> 16) * 16;
+					UINT16 *dest_tmap = ((UINT16*)pBurnDraw) + (y * nScreenWidth);
+					UINT32 *dest = pTempSprite + (y * nScreenWidth);
+					UINT8 *pri = deco16_prio_map + (y * 512);
+
+					INT32 x_index = x_index_base;
+					for (INT32 x = sx; x < ex; x++)
+					{
+						INT32 c = (source[x_index >> 16] >> shift) & 0xf;
+						if (c != 0xf)
 						{
-							INT32 c = (source[x_index >> 16] >> shift) & 0xf;
-							if (c != 0xf)
+							if (priority >= pri[x])
 							{
-								if (priority >= pri[x])
-								{
-									if (alpha == 0xff) {
-										dest[x] = pal[c];
-									} else {
-										dest[x] = alphablend15(dest[x], pal[c], 0x80);
-									}
+								if (alpha == 0xff) { // no alpha
+									dest[x] = pal[c];
+									dest[x] |= 0xff000000;
+								} else { // alpha
+									if ((dest[x] & 0xff000000) == 0x00000000)
+										dest[x] = alphablend15(dest_tmap[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+									else
+										dest[x] = alphablend15(dest[x] & 0x00ffffff, pal[c] & 0x00ffffff, alpha);
+
+									dest[x] |= 0xff000000;
 								}
-								pri[x] |= 0x80;
+							} else {
+								dest[x] = 0x00000000;
 							}
-		
-							x_index += dx;
 						}
+
+						x_index += dx;
+					}
 				}
 
 				y_index += dy;
@@ -3210,6 +3300,8 @@ static void dragngun_drawgfxzoom(UINT32 code, UINT32 color,INT32 flipx,INT32 fli
 		}
 	}
 }
+
+//extern int counter;
 
 static void dragngun_draw_sprites()
 {
@@ -3221,8 +3313,26 @@ static void dragngun_draw_sprites()
 	const UINT32 *layout_ram;
 	const UINT32 *lookup_ram;
 
-	//for (INT32 offs = 0;offs < 0x800;offs += 8)
-	for (INT32 offs = 0x800-8; offs >= 0; offs -= 8)
+	memset(pTempSprite, 0x00, nScreenWidth * nScreenHeight * sizeof(UINT32));
+
+	INT32 depth = BurnHighCol(0,0xff,0,0);
+
+	switch (depth)
+	{
+		case 0x00ff00:
+			depth = nBurnBpp * 8;
+		break;
+
+		case 0x007e0:
+			depth = 16;
+		break;
+
+		case 0x003e0:
+			depth = 15;
+		break;
+	}
+
+	for (INT32 offs = 0;offs < 0x800;offs += 8)
 	{
 		INT32 xpos,ypos;
 
@@ -3253,7 +3363,10 @@ static void dragngun_draw_sprites()
 
 		INT32 color = spritedata[offs+6]&0x1f;
 
-		INT32 priority = 7; //(spritedata[offs + 6] & 0x60) >> 5;
+		INT32 priority = (spritedata[offs + 6] & 0x60) >> 5;
+		INT32 priority_orig = priority;
+		// pri hacking: follow priority_orig
+		priority = 7;
 
 		INT32 alpha = (spritedata[offs+6] & 0x80) ? 0x80 : 0xff;
 
@@ -3290,9 +3403,16 @@ static void dragngun_draw_sprites()
 
 				if ((sprite & 0xc000) == 0x0000 || (sprite & 0xc000) == 0xc000)
 					sprite ^= 0xc000;
+				//if (counter) bprintf(0, _T("%X, "), sprite);
+
+				if (sprite >= 0x3e44 && sprite <= 0x3f03 && priority_orig == 1) // dragon-fire masking effect for titlescreen
+					priority = 1; else priority = 7;
+
+				if (sprite >= 0xfe4f55 && sprite <= 0xfe4fcc)
+					zoomx=(scalex+1) * 0x10000 / (w*16);
 
 				dragngun_drawgfxzoom(sprite,color,fx,fy,xpos>>16,(ypos>>16)-8,zoomx,zoomy,
-						((xpos+(zoomx<<4))>>16) - (xpos>>16), ((ypos+(zoomy<<4))>>16) - (ypos>>16), alpha,priority);
+						((xpos+(zoomx<<4))>>16) - (xpos>>16), ((ypos+(zoomy<<4))>>16) - (ypos>>16), alpha, priority, depth);
 
 				if (fx)
 					xpos-=zoomx<<4;
@@ -3305,33 +3425,91 @@ static void dragngun_draw_sprites()
 				ypos+=zoomy<<4;
 		}
 	}
+	//if (counter) bprintf(0, _T("\n-------\n"));
+
+	switch (depth) {
+		case 32: {
+			for (INT32 y = 0; y < nScreenHeight; y++)
+			{
+				UINT32 *src = pTempSprite + (y * nScreenWidth);
+				UINT32 *dst = ((UINT32*)pBurnDraw) + (y * nScreenWidth);
+
+				for (INT32 x = 0; x < nScreenWidth; x++)
+				{
+					UINT32 srcpix = src[x];
+
+					if ((srcpix & 0xff000000) == 0xff000000)
+					{
+						dst[x] = srcpix & 0x00ffffff;
+					}
+				}
+
+			}
+			break;
+		}
+		case 15:
+		case 16: {
+			for (INT32 y = 0; y < nScreenHeight; y++)
+			{
+				UINT32 *src = pTempSprite + (y * nScreenWidth);
+				UINT16 *dst = ((UINT16*)pBurnDraw) + (y * nScreenWidth);
+
+				for (INT32 x = 0; x < nScreenWidth; x++)
+				{
+					UINT32 srcpix = src[x];
+
+					if ((srcpix & 0xff000000) == 0xff000000)
+					{
+						dst[x] = srcpix & 0x0000ffff;
+					}
+				}
+
+			}
+			break;
+		}
+	}
 }
 
-static INT32 DragngunDraw()
+static INT32 DragngunStartDraw()
 {
 	DrvPaletteUpdate();
 
-	deco16_pf12_update();
-	deco16_pf34_update();
+	lastline = 0;
+
 	deco16_clear_prio_map();
 
 	BurnTransferClear(0x800);
 
-	if (nBurnLayer & 1) deco16_draw_layer(3, pTransDraw, 1 | DECO16_LAYER_8BITSPERPIXEL);
-	if (nBurnLayer & 2) deco16_draw_layer(2, pTransDraw, 2 | DECO16_LAYER_8BITSPERPIXEL);
-	if (nBurnLayer & 4) deco16_draw_layer(1, pTransDraw, 4);
-	if (nBurnLayer & 8) deco16_draw_layer(0, pTransDraw, 8);
+	return 0;
+}
 
-//	if (cliprect.max_y == 247)
-//	{
-//		rectangle clip(cliprect.min_x, cliprect.max_x, 8, 247);
-//
-//		m_sprgenzoom->dragngun_draw_sprites(bitmap,clip,m_spriteram->buffer(), m_sprite_layout_0_ram, m_sprite_layout_1_ram, m_sprite_lookup_0_ram, m_sprite_lookup_1_ram, m_sprite_ctrl, screen.priority(), m_temp_render_bitmap );
-//	}
+static INT32 DragngunDraw()
+{
+	if (DrvRecalc) {
+		DrvPaletteUpdate();
+		DrvRecalc = 0;
+	}
 
 	BurnTransferCopy(DrvPalette);
 
-	dragngun_draw_sprites();
+	if (nSpriteEnable & 1) dragngun_draw_sprites();
+
+	return 0;
+}
+
+static INT32 DragngunDrawScanline(INT32 line)
+{
+	if (line > nScreenHeight) return 0;
+
+	deco16_pf12_update();
+	deco16_pf34_update();
+
+	if (nBurnLayer & 1) deco16_draw_layer_by_line(lastline, line, 3, pTransDraw, 1 | DECO16_LAYER_8BITSPERPIXEL);
+	if (nBurnLayer & 2) deco16_draw_layer_by_line(lastline, line, 2, pTransDraw, 2 | DECO16_LAYER_8BITSPERPIXEL);
+	if (nBurnLayer & 4) deco16_draw_layer_by_line(lastline, line, 1, pTransDraw, 4);
+	if (nBurnLayer & 8) deco16_draw_layer_by_line(lastline, line, 0, pTransDraw, 8);
+
+	lastline = line;
 
 	return 0;
 }
@@ -3374,8 +3552,8 @@ static INT32 DrvFrame()
 
 	deco16_vblank = 1;
 
-	if (game_select == 0)
-		CaptavenStartDraw();
+	if (pStartDraw != NULL)
+		pStartDraw();
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
@@ -3384,12 +3562,18 @@ static INT32 DrvFrame()
 
 		deco_irq_scanline_callback(i); // iq_132 - ok?
 
-		if (game_select == 0 && i>=8 && raster_irq) CaptavenDrawScanline(i-8);
+		if (pDrawScanline != NULL && i>=7 && raster_irq) pDrawScanline(i-7);
 
 		if (i == 8) deco16_vblank = 0;
 
 		if (i == 248) {
-			if (game_select == 0) CaptavenDrawScanline(i-8);
+			if (pDrawScanline != NULL) {
+				pDrawScanline(i-8);
+
+				if (pBurnDraw) {
+					BurnDrvRedraw();
+				}
+			}
 			if (game_select == 1 || game_select == 2) irq_callback(1);
 			deco16_vblank = 1;
 		}
@@ -3398,7 +3582,6 @@ static INT32 DrvFrame()
 			INT32 nSegmentLength = nBurnSoundLen / (nInterleave / 4);
 			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 			deco16SoundUpdate(pSoundBuf, nSegmentLength);
-			if (game_select == 4) MSM6295Render(2, pSoundBuf, nSegmentLength);
 			nSoundBufferPos += nSegmentLength;
 		}
 	}
@@ -3409,14 +3592,13 @@ static INT32 DrvFrame()
 
 		if (nSegmentLength) {
 			deco16SoundUpdate(pSoundBuf, nSegmentLength);
-			if (game_select == 4) MSM6295Render(2, pSoundBuf, nSegmentLength);
 		}
 	}
 
 	h6280Close();
 	ArmClose();
 
-	if (pBurnDraw) {
+	if (pBurnDraw && pDrawScanline == NULL) {
 		BurnDrvRedraw();
 	}
 
@@ -3601,7 +3783,6 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		}
 
 		SCAN_VAR(DrvOkiBank);
-
 		SCAN_VAR(global_priority);
 		SCAN_VAR(DrvOkiBank);
 		SCAN_VAR(raster_irq_target);
@@ -3611,6 +3792,8 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		SCAN_VAR(lightgun_irq);
 		SCAN_VAR(raster_irq_scanline);
 		SCAN_VAR(lightgun_latch);
+		SCAN_VAR(sprite_ctrl);
+		SCAN_VAR(lightgun_port);
 	}
 
 	if (nAction & ACB_WRITE) {
@@ -3664,6 +3847,9 @@ STD_ROM_FN(captaven)
 
 static INT32 CaptavenInit()
 {
+	pStartDraw = CaptavenStartDraw;
+	pDrawScanline = CaptavenDrawScanline;
+
 	return CaptavenCommonInit(0, 0x39e8);
 }
 
@@ -4866,6 +5052,9 @@ STD_ROM_FN(dragngun)
 
 static INT32 DragngunInit()
 {
+	pStartDraw = DragngunStartDraw;
+	pDrawScanline = DragngunDrawScanline;
+
 	return DragngunCommonInit(0, 0x628c);
 }
 

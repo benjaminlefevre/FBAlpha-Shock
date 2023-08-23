@@ -1,7 +1,7 @@
 // Galaga & Dig-Dug driver for FB Alpha, based on the MAME driver by Nicola Salmoria & previous work by Martin Scragg, Mirko Buffoni, Aaron Giles
 // Dig Dug added July 27, 2015
 
-// notes: freeplay in galaga causes the game to crash before fully booting
+// notes: galaga freeplay mode doesn't display "freeplay" - need to investigate.
 
 #include "tiles_generic.h"
 #include "z80_intf.h"
@@ -75,7 +75,7 @@ static INT32 DrvButtonHold[2] = { 0, 0 }; // Fire button must be held for 1 fram
 static INT32 DrvButtonHeld[2] = { 0, 0 }; // otherwise Dig Dug acts strangely.
 static INT32 DrvLastButtons;              // State of the last button press
 
-static struct BurnInputInfo DrvInputList[] =
+static struct BurnInputInfo GalagaInputList[] =
 {
 	{"Coin 1"            , BIT_DIGITAL  , DrvInputPort0 + 4, "p1 coin"   },
 	{"Start 1"           , BIT_DIGITAL  , DrvInputPort0 + 2, "p1 start"  },
@@ -97,7 +97,7 @@ static struct BurnInputInfo DrvInputList[] =
 	{"Dip 3"             , BIT_DIPSWITCH, DrvDip + 2       , "dip"       },
 };
 
-STDINPUTINFO(Drv)
+STDINPUTINFO(Galaga)
 
 static struct BurnInputInfo DigdugInputList[] =
 {
@@ -198,7 +198,7 @@ static struct BurnDIPInfo DigdugDIPList[]=
 
 STDDIPINFO(Digdug)
 
-static struct BurnDIPInfo DrvDIPList[]=
+static struct BurnDIPInfo GalagaDIPList[]=
 {
 	// Default Values
 	{0x0c, 0xff, 0xff, 0x80, NULL                     },
@@ -234,7 +234,7 @@ static struct BurnDIPInfo DrvDIPList[]=
 	{0x0d, 0x01, 0x80, 0x00, "Cocktail"               },
 	
 	// Dip 3	
-	{0   , 0xfe, 0   , 7   , "Coinage"                },
+	{0   , 0xfe, 0   , 8   , "Coinage"                },
 	{0x0e, 0x01, 0x07, 0x04, "4 Coins 1 Play"         },
 	{0x0e, 0x01, 0x07, 0x02, "3 Coins 1 Play"         },
 	{0x0e, 0x01, 0x07, 0x06, "2 Coins 1 Play"         },
@@ -242,7 +242,7 @@ static struct BurnDIPInfo DrvDIPList[]=
 	{0x0e, 0x01, 0x07, 0x01, "2 Coins 3 Plays"        },
 	{0x0e, 0x01, 0x07, 0x03, "1 Coin  2 Plays"        },
 	{0x0e, 0x01, 0x07, 0x05, "1 Coin  3 Plays"        },
-  //  {0x0e, 0x01, 0x07, 0x00, "Freeplay"               },  // causes crash in cpu 2?
+	{0x0e, 0x01, 0x07, 0x00, "Freeplay"               },
 	
 	{0   , 0xfe, 0   , 8   , "Bonus Life"             },
 	{0x0e, 0x01, 0x38, 0x20, "20k  60k  60k"          },
@@ -252,7 +252,7 @@ static struct BurnDIPInfo DrvDIPList[]=
 	{0x0e, 0x01, 0x38, 0x38, "30k  80k"               },
 	{0x0e, 0x01, 0x38, 0x08, "30k 100k 100k"          },
 	{0x0e, 0x01, 0x38, 0x28, "30k 120k 120k"          },
-	{0x0e, 0x01, 0x38, 0x00, "None"                   },	
+	{0x0e, 0x01, 0x38, 0x00, "None"                   },
 	
 	{0   , 0xfe, 0   , 4   , "Lives"                  },
 	{0x0e, 0x01, 0xc0, 0x00, "2"                      },
@@ -261,7 +261,7 @@ static struct BurnDIPInfo DrvDIPList[]=
 	{0x0e, 0x01, 0xc0, 0xc0, "5"                      },
 };
 
-STDDIPINFO(Drv)
+STDDIPINFO(Galaga)
 
 static struct BurnDIPInfo GalagamwDIPList[]=
 {
@@ -332,7 +332,7 @@ static struct BurnDIPInfo GalagamwDIPList[]=
 
 STDDIPINFO(Galagamw)
 
-static struct BurnRomInfo DrvRomDesc[] = {
+static struct BurnRomInfo GalagaRomDesc[] = {
 	{ "gg1_1b.3p",     0x01000, 0xab036c9f, BRF_ESS | BRF_PRG }, //  0	Z80 #1 Program Code
 	{ "gg1_2b.3m",     0x01000, 0xd9232240, BRF_ESS | BRF_PRG }, //	 1
 	{ "gg1_3.2m",      0x01000, 0x753ce503, BRF_ESS | BRF_PRG }, //	 2
@@ -354,8 +354,8 @@ static struct BurnRomInfo DrvRomDesc[] = {
 	{ "prom-2.5c",     0x00100, 0x77245b66, BRF_GRA },	     //  13
 };
 
-STD_ROM_PICK(Drv)
-STD_ROM_FN(Drv)
+STD_ROM_PICK(Galaga)
+STD_ROM_FN(Galaga)
 
 static struct BurnRomInfo GalagaoRomDesc[] = {
 	{ "gg1-1.3p",      0x01000, 0xa3a0f743, BRF_ESS | BRF_PRG }, //  0	Z80 #1 Program Code
@@ -1126,60 +1126,33 @@ static void MachineInit()
 	ZetOpen(0);
 	ZetSetReadHandler(GalagaZ80ProgRead);
 	ZetSetWriteHandler(GalagaZ80ProgWrite);
-	ZetMapArea(0x0000, 0x3fff, 0, DrvZ80Rom1);
-	ZetMapArea(0x0000, 0x3fff, 2, DrvZ80Rom1);
-	ZetMapArea(0x8000, 0x87ff, 0, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 1, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 2, DrvVideoRam);
-	ZetMapArea(0x8800, 0x8bff, 0, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 1, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 2, DrvSharedRam1);
-	ZetMapArea(0x9000, 0x93ff, 0, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 1, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 2, DrvSharedRam2);
-	ZetMapArea(0x9800, 0x9bff, 0, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 1, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 2, DrvSharedRam3);
+	ZetMapMemory(DrvZ80Rom1,    0x0000, 0x3fff, MAP_ROM);
+	ZetMapMemory(DrvVideoRam,   0x8000, 0x87ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam1, 0x8800, 0x8bff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam2, 0x9000, 0x93ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam3, 0x9800, 0x9bff, MAP_RAM);
 	ZetClose();
 	
 	ZetInit(1);
 	ZetOpen(1);
 	ZetSetReadHandler(GalagaZ80ProgRead);
 	ZetSetWriteHandler(GalagaZ80ProgWrite);
-	ZetMapArea(0x0000, 0x3fff, 0, DrvZ80Rom2);
-	ZetMapArea(0x0000, 0x3fff, 2, DrvZ80Rom2);
-	ZetMapArea(0x8000, 0x87ff, 0, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 1, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 2, DrvVideoRam);
-	ZetMapArea(0x8800, 0x8bff, 0, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 1, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 2, DrvSharedRam1);
-	ZetMapArea(0x9000, 0x93ff, 0, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 1, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 2, DrvSharedRam2);
-	ZetMapArea(0x9800, 0x9bff, 0, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 1, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 2, DrvSharedRam3);
+	ZetMapMemory(DrvZ80Rom2,    0x0000, 0x3fff, MAP_ROM);
+	ZetMapMemory(DrvVideoRam,   0x8000, 0x87ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam1, 0x8800, 0x8bff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam2, 0x9000, 0x93ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam3, 0x9800, 0x9bff, MAP_RAM);
 	ZetClose();
 	
 	ZetInit(2);
 	ZetOpen(2);
 	ZetSetReadHandler(GalagaZ80ProgRead);
 	ZetSetWriteHandler(GalagaZ80ProgWrite);
-	ZetMapArea(0x0000, 0x3fff, 0, DrvZ80Rom3);
-	ZetMapArea(0x0000, 0x3fff, 2, DrvZ80Rom3);
-	ZetMapArea(0x8000, 0x87ff, 0, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 1, DrvVideoRam);
-	ZetMapArea(0x8000, 0x87ff, 2, DrvVideoRam);
-	ZetMapArea(0x8800, 0x8bff, 0, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 1, DrvSharedRam1);
-	ZetMapArea(0x8800, 0x8bff, 2, DrvSharedRam1);
-	ZetMapArea(0x9000, 0x93ff, 0, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 1, DrvSharedRam2);
-	ZetMapArea(0x9000, 0x93ff, 2, DrvSharedRam2);
-	ZetMapArea(0x9800, 0x9bff, 0, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 1, DrvSharedRam3);
-	ZetMapArea(0x9800, 0x9bff, 2, DrvSharedRam3);
+	ZetMapMemory(DrvZ80Rom3,    0x0000, 0x3fff, MAP_ROM);
+	ZetMapMemory(DrvVideoRam,   0x8000, 0x87ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam1, 0x8800, 0x8bff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam2, 0x9000, 0x93ff, MAP_RAM);
+	ZetMapMemory(DrvSharedRam3, 0x9800, 0x9bff, MAP_RAM);
 	ZetClose();
 	
 	NamcoSoundInit(18432000 / 6 / 32, 3, 0);
@@ -1196,7 +1169,7 @@ static void MachineInit()
 	DrvDoReset();
 }
 
-static INT32 DrvInit()
+static INT32 GalagaInit()
 {
 	INT32 nRet = 0, nLen;
 
@@ -1294,7 +1267,7 @@ static INT32 GallagInit()
 	return 0;
 }
 
-static INT32 DrvDigdugInit()
+static INT32 DigdugInit()
 {
 	INT32 nRet = 0, nLen;
 
@@ -2096,6 +2069,9 @@ static void DrvMakeInputs()
 		DrvInput[1] -= (DrvInputPort1r[i] & 1) << i;
 		DrvInput[2] -= (DrvInputPort2r[i] & 1) << i;
 	}
+
+	if (!digdugmode) // galaga only - service mode
+		DrvInput[0] = (DrvInput[0] & ~0x80) | (DrvDip[0] & 0x80);
 }
 
 static INT32 DrvFrame()
@@ -2144,7 +2120,8 @@ static INT32 DrvFrame()
 			nCurrentCPU = 2;
 			ZetOpen(nCurrentCPU);
 			ZetRun(nCyclesTotal[nCurrentCPU] / nInterleave);
-			if ((i == (nInterleave / 2)-3 || i == (nInterleave-1-3)) && DrvCPU3FireIRQ) {
+			if (((i == ((64 + 000) * nInterleave) / 272) ||
+				 (i == ((64 + 128) * nInterleave) / 272)) && DrvCPU3FireIRQ) {
 				ZetNmi();
 			}
 			ZetClose();
@@ -2253,8 +2230,8 @@ struct BurnDriver BurnDrvGalaga = {
 	"Galaga (Namco rev. B)\0", NULL, "Namco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, DrvRomInfo, DrvRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
+	NULL, GalagaRomInfo, GalagaRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
+	GalagaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
 
@@ -2263,8 +2240,8 @@ struct BurnDriver BurnDrvGalagao = {
 	"Galaga (Namco)\0", NULL, "Namco", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, GalagaoRomInfo, GalagaoRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
+	NULL, GalagaoRomInfo, GalagaoRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
+	GalagaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
 
@@ -2273,8 +2250,8 @@ struct BurnDriver BurnDrvGalagamw = {
 	"Galaga (Midway set 1)\0", NULL, "Namco (Midway License)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, GalagamwRomInfo, GalagamwRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, GalagamwDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
+	NULL, GalagamwRomInfo, GalagamwRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagamwDIPInfo,
+	GalagaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
 
@@ -2283,8 +2260,8 @@ struct BurnDriver BurnDrvGalagamk = {
 	"Galaga (Midway set 2)\0", NULL, "Namco (Midway License)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, GalagamkRomInfo, GalagamkRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
+	NULL, GalagamkRomInfo, GalagamkRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
+	GalagaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
 
@@ -2293,8 +2270,8 @@ struct BurnDriver BurnDrvGalagamf = {
 	"Galaga (Midway set 1 with fast shoot hack)\0", NULL, "Namco (Midway License)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, GalagamfRomInfo, GalagamfRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
-	DrvInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
+	NULL, GalagamfRomInfo, GalagamfRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
+	GalagaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
 
@@ -2303,7 +2280,7 @@ struct BurnDriver BurnDrvGallag = {
 	"Gallag\0", NULL, "bootleg", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, GallagRomInfo, GallagRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
+	NULL, GallagRomInfo, GallagRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
 	GallagInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
@@ -2313,7 +2290,7 @@ struct BurnDriver BurnDrvNebulbee = {
 	"Nebulous Bee\0", NULL, "bootleg", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
-	NULL, NebulbeeRomInfo, NebulbeeRomName, GalagaSampleInfo, GalagaSampleName, DrvInputInfo, DrvDIPInfo,
+	NULL, NebulbeeRomInfo, NebulbeeRomName, GalagaSampleInfo, GalagaSampleName, GalagaInputInfo, GalagaDIPInfo,
 	GallagInit, DrvExit, DrvFrame, DrvDraw, DrvScan, NULL, 576,
 	224, 288, 3, 4
 };
@@ -2324,7 +2301,7 @@ struct BurnDriver BurnDrvDigdug = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_MISC_PRE90S, GBF_MAZE | GBF_ACTION, 0,
     NULL, digdugRomInfo, digdugRomName, NULL, NULL, DigdugInputInfo, DigdugDIPInfo,
-	DrvDigdugInit, DrvExit, DrvFrame, DrvDigdugDraw, DrvScan, NULL, 0x300,
+	DigdugInit, DrvExit, DrvFrame, DrvDigdugDraw, DrvScan, NULL, 0x300,
 	224, 288, 3, 4
 };
 

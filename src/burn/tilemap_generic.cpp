@@ -265,7 +265,7 @@ void GenericTilemapCategoryConfig(INT32 which, INT32 categories)
 		return;
 	}
 
-	if (categories < 0 || categories >= 256) {
+	if (categories < 0 || categories > 256) {
 		bprintf (0, _T("GenericTilemapCategoryConfig(%d, %d); called with invalid category number (<0 or >255)!\nForcing to 0!\n"), which, categories);
 		categories = 0;
 	}
@@ -295,7 +295,7 @@ void GenericTilemapSetCategoryEntry(INT32 which, INT32 category, INT32 entry, IN
 		return;
 	}
 
-	if (category < 0 || category >= 256) {
+	if (category < 0 || category > 256) {
 		bprintf (0, _T("GenericTilemapSetCategoryEntry(%d, %d, %d, %d); called with invalid category number (<0 or >255)!\nForcing to 0!\n"), which, category, entry, trans);
 		category = 0;
 	}
@@ -815,6 +815,10 @@ void GenericTilemapDraw(INT32 which, UINT16 *Bitmap, INT32 priority)
 
 		INT32 sxshift = ((cur_map->scrollx - cur_map->xoffset) % cur_map->twidth);
 		INT32 scrollx = ((cur_map->scrollx - cur_map->xoffset) / cur_map->twidth) * cur_map->twidth;
+
+		// start drawing at tile-border, and let RenderCustomTile..Clip() take care of the sub-tile clipping.
+		miny -= (miny % cur_map->theight);
+		minx -= (minx % cur_map->twidth);
 
 		for (INT32 y = miny; y < (INT32)(maxy + cur_map->theight); y += cur_map->theight)
 		{

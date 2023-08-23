@@ -38,6 +38,8 @@ static UINT8 *DrvPrioBitmap;
 static UINT32 *DrvPalette;
 static UINT8 DrvRecalc;
 
+static INT32 nExtraCycles[2];
+
 static UINT16 scrollx[3];
 static UINT16 scrolly[3];
 static UINT16 scroll_flag[3];
@@ -1480,12 +1482,10 @@ static void __fastcall mcu_prot_write_word(UINT32 address, UINT16 data)
 	if (address >= mcu_write_address && address <= (mcu_write_address + 9)) {
 		mcu_ram[(address & 0xe)/2] = data;
 
-		if ((address & ~1) == (mcu_write_address+8)) {
-			if (mcu_ram[0] == mcu_config[0] && mcu_ram[1] == 0x55 && mcu_ram[2] == 0xaa && mcu_ram[3] == mcu_config[1]) {
-				mcu_hs = 1;
-			} else {
-				mcu_hs = 0;
-			}
+		if (mcu_ram[0] == mcu_config[0] && mcu_ram[1] == 0x55 && mcu_ram[2] == 0xaa && mcu_ram[3] == mcu_config[1] && (address & ~1) == (mcu_write_address+8)) {
+			mcu_hs = 1;
+		} else {
+			mcu_hs = 0;
 		}
 	}
 }
@@ -1496,7 +1496,7 @@ static void install_mcu_protection(UINT16 *config, UINT32 address)
 	mcu_config = config;
 
 	SekOpen(0);
-	SekMapHandler(2,		0x00000, 0x3ffff, MAP_READ | MAP_WRITE);
+	SekMapHandler(2,		0x00000, 0x3ffff, MAP_READ | MAP_FETCH | MAP_WRITE);
 	SekSetReadWordHandler(2,	mcu_prot_read_word);
 	SekSetReadByteHandler(2,	mcu_prot_read_byte);
 	SekSetWriteWordHandler(2,	mcu_prot_write_word);
@@ -1806,7 +1806,7 @@ static UINT16 __fastcall megasys1A_main_read_word(UINT32 address)
 static void __fastcall megasys1A_main_write_byte(UINT32 address, UINT8 data)
 {
 	if (address >= 0xf0000 && address <= 0xfffff) {
-		RAM_WRITE_BYTE_MIRRORED(0xffff)
+		RAM_WRITE_BYTE_MIRRORED(0xfffe)
 		return;
 	}
 
@@ -1825,7 +1825,7 @@ static void __fastcall megasys1A_main_write_byte(UINT32 address, UINT8 data)
 static void __fastcall megasys1A_main_write_word(UINT32 address, UINT16 data)
 {
 	if (address >= 0xf0000 && address <= 0xfffff) {
-		RAM_WRITE_WORD(0xffff)
+		RAM_WRITE_WORD(0xfffe)
 		return;
 	}
 
@@ -1843,7 +1843,7 @@ static void __fastcall megasys1A_main_write_word(UINT32 address, UINT16 data)
 
 static UINT16 input_protection_read()
 {
-	int i;
+	INT32 i;
 
 	if ((input_select & 0xf0) == 0xf0) return 0x000D;
 
@@ -1898,7 +1898,7 @@ static UINT16 __fastcall megasys1B_main_read_word(UINT32 address)
 static void __fastcall megasys1B_main_write_byte(UINT32 address, UINT8 data)
 {
 	if (address >= 0x60000 && address <= 0x7ffff) {
-		RAM_WRITE_BYTE_MIRRORED(0x1ffff)
+		RAM_WRITE_BYTE_MIRRORED(0x1fffe)
 		return;
 	}
 
@@ -1931,7 +1931,7 @@ static void __fastcall megasys1B_main_write_byte(UINT32 address, UINT8 data)
 static void __fastcall megasys1B_main_write_word(UINT32 address, UINT16 data)
 {
 	if (address >= 0x60000 && address <= 0x7ffff) {
-		RAM_WRITE_WORD(0x1ffff)
+		RAM_WRITE_WORD(0x1fffe)
 		return;
 	}
 
@@ -1996,7 +1996,7 @@ static UINT16 __fastcall megasys1C_main_read_word(UINT32 address)
 static void __fastcall megasys1C_main_write_byte(UINT32 address, UINT8 data)
 {
 	if (address >= 0x1c0000 && address <= 0x1fffff) {
-		RAM_WRITE_BYTE_MIRRORED(0xffff)
+		RAM_WRITE_BYTE_MIRRORED(0xfffe)
 		return;
 	}
 
@@ -2024,7 +2024,7 @@ static void __fastcall megasys1C_main_write_byte(UINT32 address, UINT8 data)
 static void __fastcall megasys1C_main_write_word(UINT32 address, UINT16 data)
 {
 	if (address >= 0x1c0000 && address <= 0x1fffff) {
-		RAM_WRITE_WORD(0xffff)
+		RAM_WRITE_WORD(0xfffe)
 		return;
 	}
 
@@ -2327,8 +2327,7 @@ static INT32 DrvDoReset()
 		SekReset();
 		SekClose();
 
-		MSM6295Reset(0);
-		MSM6295Reset(1);
+		MSM6295Reset();
 		BurnYM2151Reset();
 	}
 
@@ -2353,6 +2352,8 @@ static INT32 DrvDoReset()
 	soundlatch2 = 0;
 
 	oki_bank = 0xff;
+
+	nExtraCycles[0] = nExtraCycles[1] = 0;
 
 	return 0;
 }
@@ -2952,8 +2953,7 @@ static INT32 DrvExit()
 		BurnYM2203Exit();
 	} else {
 		BurnYM2151Exit();
-		MSM6295Exit(0);
-		MSM6295Exit(1);
+		MSM6295Exit();
 	}
 
 	SekExit();
@@ -3293,7 +3293,7 @@ static INT32 System1ZFrame()
 
 	INT32 nInterleave = 256;
 	INT32 nCyclesTotal[2] = { 6000000 / 56, 3000000 / 56 };
-	INT32 nCyclesDone[2] = { 0, 0 };
+	INT32 nCyclesDone[2] = { nExtraCycles[0], 0 };
 
 	SekOpen(0);
 	ZetOpen(0);
@@ -3318,6 +3318,8 @@ static INT32 System1ZFrame()
 
 	ZetClose();
 	SekClose();
+
+	nExtraCycles[0] = nCyclesDone[0] - nCyclesTotal[0];
 
 	if (pBurnDraw) {
 		DrvDraw();
@@ -3349,7 +3351,7 @@ static INT32 System1AFrame()
 	INT32 nInterleave = 262;
 	INT32 nSoundBufferPos = 0;
 	INT32 nCyclesTotal[2] = { ((tshingen) ? 8000000 : 6000000) / 56, 7000000 / 56 };
-	INT32 nCyclesDone[2] = { 0, 0 };
+	INT32 nCyclesDone[2] = { nExtraCycles[0], nExtraCycles[1] };
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
@@ -3373,8 +3375,7 @@ static INT32 System1AFrame()
 			INT32 nSegmentLength = nBurnSoundLen / (nInterleave / 8);
 			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 			nSoundBufferPos += nSegmentLength;
 		}
 
@@ -3388,12 +3389,14 @@ static INT32 System1AFrame()
 		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 		if (nSegmentLength > 0) {
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 		}
 	}
 
 	SekClose();
+
+	nExtraCycles[0] = nCyclesDone[0] - nCyclesTotal[0];
+	nExtraCycles[1] = nCyclesDone[1] - nCyclesTotal[1];
 
 	if (pBurnDraw) {
 		DrvDraw();
@@ -3425,7 +3428,7 @@ static INT32 System1BFrame()
 	INT32 nInterleave = 256;
 	INT32 nSoundBufferPos = 0;
 	INT32 nCyclesTotal[2] = { 8000000 / 60, 7000000 / 60 };
-	INT32 nCyclesDone[2] = { 0, 0 };
+	INT32 nCyclesDone[2] = { nExtraCycles[0], nExtraCycles[1] };
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
@@ -3449,8 +3452,7 @@ static INT32 System1BFrame()
 			INT32 nSegmentLength = nBurnSoundLen / (nInterleave / 8);
 			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 			nSoundBufferPos += nSegmentLength;
 		}
 
@@ -3464,12 +3466,14 @@ static INT32 System1BFrame()
 		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 		if (nSegmentLength > 0) {
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 		}
 	}
 
 	SekClose();
+
+	nExtraCycles[0] = nCyclesDone[0] - nCyclesTotal[0];
+	nExtraCycles[1] = nCyclesDone[1] - nCyclesTotal[1];
 
 	if (pBurnDraw) {
 		DrvDraw();
@@ -3501,7 +3505,7 @@ static INT32 System1CFrame()
 	INT32 nInterleave = 256;
 	INT32 nSoundBufferPos = 0;
 	INT32 nCyclesTotal[2] = { 12000000 / 60, 7000000 / 60 };
-	INT32 nCyclesDone[2] = { 0, 0 };
+	INT32 nCyclesDone[2] = { nExtraCycles[0], nExtraCycles[1] };
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
@@ -3525,8 +3529,7 @@ static INT32 System1CFrame()
 			INT32 nSegmentLength = nBurnSoundLen / (nInterleave / 8);
 			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 			nSoundBufferPos += nSegmentLength;
 		}
 
@@ -3540,12 +3543,14 @@ static INT32 System1CFrame()
 		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
 		if (nSegmentLength > 0) {
 			BurnYM2151Render(pSoundBuf, nSegmentLength);
-			MSM6295Render(0, pSoundBuf, nSegmentLength);
-			MSM6295Render(1, pSoundBuf, nSegmentLength);
+			MSM6295Render(pSoundBuf, nSegmentLength);
 		}
 	}
 
 	SekClose();
+
+	nExtraCycles[0] = nCyclesDone[0] - nCyclesTotal[0];
+	nExtraCycles[1] = nCyclesDone[1] - nCyclesTotal[1];
 
 	if (pBurnDraw) {
 		DrvDraw();
@@ -3556,7 +3561,7 @@ static INT32 System1CFrame()
 	return 0;
 }
 
-static INT32 System1DFrame()
+static INT32 System1DFrame() // peekaboo
 {
 	if (DrvReset) {
 		DrvDoReset();
@@ -3578,8 +3583,7 @@ static INT32 System1DFrame()
 
 	if (pBurnSoundOut) {
 		memset (pBurnSoundOut, 0, nBurnSoundLen * sizeof(INT16) * 2);
-		MSM6295Render(0, pBurnSoundOut, nBurnSoundLen);
-		MSM6295Render(1, pBurnSoundOut, nBurnSoundLen);
+		MSM6295Render(pBurnSoundOut, nBurnSoundLen);
 	}
 
 	if (pBurnDraw) {
@@ -3636,6 +3640,8 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 
 		SCAN_VAR(sound_cpu_reset);
 		SCAN_VAR(oki_bank);
+
+		SCAN_VAR(nExtraCycles);
 	}
 
 	if (nAction & ACB_WRITE) {

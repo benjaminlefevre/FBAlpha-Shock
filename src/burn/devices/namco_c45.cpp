@@ -9,6 +9,7 @@ static UINT8 *c45RoadTiles = NULL;
 static UINT16 *c45RoadBitmap = NULL;
 static UINT8 *c45RoadClut = NULL;
 static UINT8 c45_temp_clut[0x100];
+static INT32 c45_transparent_color = 0x7fffffff;
 
 void c45RoadReset()
 {
@@ -16,7 +17,7 @@ void c45RoadReset()
 	if (c45RoadTiles != NULL) memset (c45RoadTiles, 0, 0x40000);
 }
 
-void c45RoadInit(UINT32 , UINT8 *clut)
+void c45RoadInit(UINT32 transparent_color, UINT8 *clut)
 {
 	c45RoadRAM = (UINT8*)BurnMalloc(0x20000);
 	c45RoadTiles = (UINT8*)BurnMalloc(0x40000);
@@ -24,6 +25,8 @@ void c45RoadInit(UINT32 , UINT8 *clut)
 	c45RoadClut = clut;
 	c45RoadBitmap = (UINT16*)BurnMalloc(0x400 * sizeof(UINT16));
 
+	c45_transparent_color = transparent_color;
+	
 	if (c45RoadClut == NULL) {
 		c45RoadClut = c45_temp_clut;
 		for (INT32 i = 0; i < 0x100; i++) c45RoadClut[i] = i;
@@ -41,6 +44,8 @@ void c45RoadExit()
 	c45RoadBitmap = NULL;
 
 	c45RoadClut = NULL;
+
+	c45_transparent_color = 0x7fffffff;
 }
 
 static inline void update_tile_pixel(INT32 offset)
@@ -167,7 +172,7 @@ void c45RoadDraw()
 			screenx |= ~0x7ff;
 
 		// adjust the horizontal placement
-		screenx -= 64; // needs adjustment to left
+		screenx -= (64+16); // needs adjustment to left
 
 		INT32 numpixels = (44 * ROAD_TILE_SIZE << 16) / dsourcex;
 		UINT32 sourcex = 0;
@@ -182,7 +187,7 @@ void c45RoadDraw()
 		}
 
 		// crop right
-		clip_pixels = (screenx + numpixels) - (max_x+1);
+		clip_pixels = (screenx + numpixels) - (max_x + 1);
 		if (clip_pixels > 0)
 			numpixels -= clip_pixels;
 
@@ -193,8 +198,13 @@ void c45RoadDraw()
 
 		while (numpixels-- > 0)
 		{
-			if (pdest[screenx] <= pri) {
-				dest[screenx] = source_gfx[sourcex >> 16];
+			INT32 destpri = pdest[screenx];
+			INT32 pixel = source_gfx[sourcex >> 16];
+
+			if (destpri <= pri ) {
+				if (pixel != c45_transparent_color) {
+					dest[screenx] = pixel;
+				}
 				pdest[screenx] = pri;
 			}
 			screenx++;
@@ -217,10 +227,15 @@ void c45RoadState(INT32 nAction)
 
 	if (nAction & ACB_WRITE)
 	{
+		for (INT32 i = 0x10000; i < 0x1fa00; i++) {
+			update_tile_pixel(i / 2);
+		}
+#if 0
 		INT32 Planes[2] = { 0, 8 };
 		INT32 XOffs[16] = { STEP8(0, 1), STEP8(16, 1) };
 		INT32 YOffs[16] = { STEP16(0, 32) };
 
 		GfxDecode(0x0400, 2, 16, 16, Planes, XOffs, YOffs, 0x200, c45RoadRAM + 0x10000, c45RoadTiles);
+#endif
 	}
 }

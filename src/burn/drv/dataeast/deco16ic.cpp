@@ -54,6 +54,7 @@ UINT8 *deco16_sprite_prio_map; // boogwing
 INT32 deco16_vblank;
 
 INT32 deco16_music_tempofix; // set after deco16SoundInit(), fixes tempo issues in darkseal, vaportrail, and cbuster
+INT32 deco16_dragngun_kludge;
 
 void deco16ProtScan();
 void deco16ProtReset();
@@ -143,6 +144,39 @@ void deco16_draw_prio_sprite_nitrobal(UINT16 *dest, UINT8 *gfx, INT32 code, INT3
 	}
 }
 
+// draw sprite, write prio, but don't check prio
+void deco16_draw_prio_sprite_dumb(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 pri, INT32 spri)
+{
+	gfx += code * 0x100;
+
+	INT32 flip = 0;
+	if (flipx) flip |= 0x0f;
+	if (flipy) flip |= 0xf0;
+
+	sy -= deco16_global_y_offset;
+	sx -= deco16_global_x_offset;
+
+	for (INT32 yy = 0; yy < 16; yy++, sy++) {
+
+		if (sy < 0 || sy >= nScreenHeight) continue;
+
+		for (INT32 xx = 0; xx < 16; xx++, sx++) {
+			if (sx < 0 || sx >= nScreenWidth) continue;
+
+			INT32 pxl = gfx[((yy * 16) + xx) ^ flip];
+
+			if (!pxl) continue;
+
+			dest[sy * nScreenWidth + sx] = pxl | color;
+
+			if (pri  != -1) deco16_prio_map[sy * 512 + sx] |= pri; // right?
+			if (spri != -1) deco16_sprite_prio_map[sy * 512 + sx] |= spri;
+		}
+
+		sx -= 16;
+	}
+}
+
 void deco16_draw_prio_sprite(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 pri)
 {
 	deco16_draw_prio_sprite(dest, gfx, code, color, sx, sy, flipx, flipy, pri, -1);
@@ -156,7 +190,14 @@ static inline UINT32 alpha_blend(UINT32 d, UINT32 s, UINT32 p)
 		((((s & 0x00ff00) * p) + ((d & 0x00ff00) * a)) & 0x00ff0000)) / 256;
 }
 
+// normal
 void deco16_draw_alphaprio_sprite(UINT32 *palette, UINT8 *gfx, INT32 code, INT32 color, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 pri, INT32 spri, INT32 alpha)
+{
+	deco16_draw_alphaprio_sprite(palette, gfx, code, color, sx, sy, flipx, flipy, pri, spri, alpha, 0);
+}
+
+// w/dumb-mode parameter for wizdfire
+void deco16_draw_alphaprio_sprite(UINT32 *palette, UINT8 *gfx, INT32 code, INT32 color, INT32 sx, INT32 sy, INT32 flipx, INT32 flipy, INT32 pri, INT32 spri, INT32 alpha, INT32 dumb_mode)
 {
 	if (alpha == 0) return;
 
@@ -184,13 +225,21 @@ void deco16_draw_alphaprio_sprite(UINT32 *palette, UINT8 *gfx, INT32 code, INT32
 
 			INT32 bpriority = deco16_prio_map[(sy * 512) + sx];
 
-			if (spri == -1) {
-				if ((pri & (1 << (bpriority & 0x1f))) || (bpriority & 0x80)) continue;
-				deco16_prio_map[sy * 512 + sx] |= 0x80; // right?
+			if (dumb_mode) { // used by wizdfire
+				if (pri  != -1) {
+					if (bpriority == 0xff) continue;
+					deco16_prio_map[sy * 512 + sx] |= pri;
+				}
+				//if (spri != -1) deco16_sprite_prio_map[sy * 512 + sx] |= spri;
 			} else {
-				if (pri <= bpriority || spri <= deco16_sprite_prio_map[sy * 512 + sx]) continue;
-				deco16_sprite_prio_map[sy * 512 + sx] = spri;
-				deco16_prio_map[sy * 512 + sx] = pri; // right?
+				if (spri == -1) {
+					if ((pri & (1 << (bpriority & 0x1f))) || (bpriority & 0x80)) continue;
+					deco16_prio_map[sy * 512 + sx] |= 0x80; // right?
+				} else {
+					if (pri <= bpriority || spri <= deco16_sprite_prio_map[sy * 512 + sx]) continue;
+					deco16_sprite_prio_map[sy * 512 + sx] = spri;
+					deco16_prio_map[sy * 512 + sx] = pri;
+				}
 			}
 
 			if (alpha == 0xff) {
@@ -584,6 +633,8 @@ void deco16Init(INT32 no_pf34, INT32 split, INT32 full_width)
 	deco16_global_y_offset = 0;
 
 	deco16_priority = 0;
+
+	deco16_dragngun_kludge = 0;
 }
 
 void deco16Reset()
@@ -675,12 +726,24 @@ static void pf_update(INT32 tmap, INT32 scrollx, INT32 scrolly, UINT16 *rowscrol
 
 		INT32 rsize = rownum / rows;
 
+		// Dragon Gun st.3 boss scene bug kludge
+		INT32 roffset = 0; // for dragngun's silly bug @ st.3 boss
+
+		if (deco16_dragngun_kludge && tmap == 2 && rsize == 1) {
+			UINT16 *vram	= (UINT16 *)deco16_pf_ram[tmap];
+
+			if (vram[2] == 0x1076 && vram[3] == 0x1076) { // this is our scene!
+				roffset = 0x20;
+			}
+		}
+		// end of kludge.
+
 		deco16_scroll_rows[tmap] = rsize;
 
 		INT32 xscroll = scrollx + deco16_global_x_offset + deco16_scroll_offset[tmap][size/16][0];
 
 		for (INT32 r = 0; r < rows; r++) {
-			deco16_scroll_x[tmap][r & 0x1ff] = xscroll + BURN_ENDIAN_SWAP_INT16(rowscroll[r]);
+			deco16_scroll_x[tmap][r & 0x1ff] = xscroll + BURN_ENDIAN_SWAP_INT16(rowscroll[r + roffset]);
 		}
 
 		if (~control1 & 0x20) {
@@ -943,8 +1006,8 @@ void deco16SoundReset()
 
 	if (deco16_sound_enable[0]) BurnYM2151Reset();
 	if (deco16_sound_enable[1]) BurnYM2203Reset();
-	if (deco16_sound_enable[2]) MSM6295Reset(0);
-	if (deco16_sound_enable[3]) MSM6295Reset(1);
+	if (deco16_sound_enable[2] ||
+		deco16_sound_enable[3]) MSM6295Reset();
 
 	deco16_soundlatch = 0;
 }
@@ -1004,8 +1067,8 @@ void deco16SoundExit()
 
 	if (deco16_sound_enable[0]) BurnYM2151Exit();
 	if (deco16_sound_enable[1]) BurnYM2203Exit();
-	if (deco16_sound_enable[2]) MSM6295Exit(0);
-	if (deco16_sound_enable[3]) MSM6295Exit(1);
+	if (deco16_sound_enable[2] ||
+		deco16_sound_enable[3]) MSM6295Exit();
 
 	MSM6295ROM = NULL;
 
@@ -1022,8 +1085,8 @@ void deco16SoundUpdate(INT16 *buf, INT32 len)
 {
 	if (deco16_sound_enable[0]) BurnYM2151Render(buf, len);
 //	if (deco16_sound_enable[1]) BurnYM2203Update(buf, len);
-	if (deco16_sound_enable[2]) MSM6295Render(0, buf, len);
-	if (deco16_sound_enable[3]) MSM6295Render(1, buf, len);
+	if (deco16_sound_enable[2] ||
+		deco16_sound_enable[3]) MSM6295Render(buf, len);
 }
 
 void deco16SoundScan(INT32 nAction, INT32 *pnMin)
