@@ -3952,7 +3952,7 @@ static INT32 NeoInitCommon()
 	BurnYM2610SetRoute(BURN_SND_YM2610_YM2610_ROUTE_2, 1.00, BURN_SND_ROUTE_RIGHT);
 	BurnYM2610SetRoute(BURN_SND_YM2610_AY8910_ROUTE, 0.20, BURN_SND_ROUTE_BOTH);
 
-	BurnTimerAttachZet(nZ80Clockspeed * nNeogeoTurboHack);
+	BurnTimerAttachZet(nZ80Clockspeed);
 
 	if ((BurnDrvGetHardwareCode() & HARDWARE_PUBLIC_MASK) == HARDWARE_SNK_MVS) {
 		for (nNeoActiveSlot = 0; nNeoActiveSlot < MAX_SLOT; nNeoActiveSlot++) {
@@ -4560,7 +4560,7 @@ INT32 NeoFrame()
 		BurnTimerAttachZet(nZ80Clockspeed);
 #else
 		// Z80 CPU clock is always 4MHz
-		nCyclesTotal[1] = 8000000.0 / NEO_VREFRESH;
+		nCyclesTotal[1] = 4000000.0 / NEO_VREFRESH;
 #endif
 		// 68K cycles executed each scanline
 		SekOpen(0);
