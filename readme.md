@@ -1,5 +1,6 @@
 # FBAlpha-Shock Neo-Geo Turbo
 Final Burn Alpha 100 Mega Shock Edition Neo-Geo Turbo. A port of Final Burn Alpha for the Unico MVSX.
+
 This version is a fork adding mainly a special setting to overclock the neogeo core.
 
 ## Overview 
