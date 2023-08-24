@@ -1,4 +1,4 @@
-// FB Alpha - Emulator for MC68000/Z80 based arcade games
+// FinalBurn Neo - Emulator for MC68000/Z80 based arcade games
 //            Refer to the "license.txt" file for more info
 
 // Burner emulation library
@@ -92,7 +92,6 @@ __extension__ typedef long long				INT64;
 #include "state.h"
 #include "cheat.h"
 #include "hiscore.h"
-#include "joyprocess.h"
 
 extern INT32 nBurnVer;						// Version number of the library
 
@@ -193,7 +192,14 @@ struct BurnDIPInfo {
 
 
 // ---------------------------------------------------------------------------
-// Common CPU definitions 
+// Common CPU definitions
+
+// sync to nCyclesDone[]
+#define CPU_RUN(num,proc) do { nCyclesDone[num] += proc ## Run(((i + 1) * nCyclesTotal[num] / nInterleave) - nCyclesDone[num]); } while (0)
+#define CPU_IDLE(num,proc) do { nCyclesDone[num] += proc ## Idle(((i + 1) * nCyclesTotal[num] / nInterleave) - nCyclesDone[num]); } while (0)
+// sync to cpuTotalCycles()
+#define CPU_RUN_SYNCINT(num,proc) do { nCyclesDone[num] += proc ## Run(((i + 1) * nCyclesTotal[num] / nInterleave) - proc ## TotalCycles()); } while (0)
+#define CPU_IDLE_SYNCINT(num,proc) do { nCyclesDone[num] += proc ## Idle(((i + 1) * nCyclesTotal[num] / nInterleave) - proc ## TotalCycles()); } while (0)
 
 #define CPU_IRQSTATUS_NONE	0
 #define CPU_IRQSTATUS_ACK	1
@@ -221,6 +227,17 @@ struct BurnDIPInfo {
 #define MAP_ROM			(MAP_READ|MAP_FETCH)
 #define MAP_RAM			(MAP_ROM|MAP_WRITE)
 
+// Macros to Allocate and Free MemIndex
+#define BurnAllocMemIndex() do {                				\
+	AllMem = NULL;                                 				\
+	MemIndex();                                 				\
+	INT32 nLen = MemEnd - (UINT8 *)0;           				\
+	if ((AllMem = (UINT8 *)BurnMalloc(nLen)) == NULL) return 1;	\
+	memset(AllMem, 0, nLen);                       				\
+	MemIndex();                                 				\
+} while (0)
+
+#define BurnFreeMemIndex() do { BurnFree(AllMem); } while (0)
 
 // ---------------------------------------------------------------------------
 
@@ -239,7 +256,7 @@ extern bool bBurnUseBlend;
 extern INT32 nBurnFPS;
 extern INT32 nBurnCPUSpeedAdjust;
 extern INT32 nNeogeoTurboHack;
-extern INT32 bRunPause;
+extern int bRunPause;
 
 extern UINT32 nBurnDrvCount;			// Count of game drivers
 extern UINT32 nBurnDrvActive;			// Which game driver is selected
@@ -310,7 +327,7 @@ INT32 BurnSynchroniseStream(INT32 nSoundRate);
 double BurnGetTime();
 
 // Handy debug binary-file dumper
-#if defined (FBA_DEBUG)
+#if defined (FBNEO_DEBUG)
 void BurnDump_(char *filename, UINT8 *buffer, INT32 bufsize);
 #define BurnDump(fn, b, bs) do { \
     bprintf(0, _T("Dumping %S (0x%x bytes) to %S\n"), #b, bs, #fn); \
@@ -682,6 +699,9 @@ void IpsApplyPatches(UINT8* base, char* rom_name);
 #define FBF_19XX										(1 << 6)
 #define FBF_SONICWI										(1 << 7)
 #define FBF_PWRINST										(1 << 8)
+#define FBF_SONIC										(1 << 9)
+#define FBF_DONPACHI                                    (1 << 10)
+#define FBF_MAHOU                                       (1 << 11)
 
 #ifdef __cplusplus
  } // End of extern "C"

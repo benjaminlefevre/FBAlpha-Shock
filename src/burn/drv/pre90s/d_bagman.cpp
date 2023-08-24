@@ -746,12 +746,7 @@ static INT32 DrvGfxDecode()
 
 static INT32 BagmanCommonInit(INT32 game, INT32 memmap)
 {
-	AllMem = NULL;
-	MemIndex();
-	INT32 nLen = MemEnd - (UINT8 *)0;
-	if ((AllMem = (UINT8 *)BurnMalloc(nLen)) == NULL) return 1;
-	memset(AllMem, 0, nLen);
-	MemIndex();
+	BurnAllocMemIndex();
 
 	{
 		switch (game)
@@ -920,6 +915,7 @@ static INT32 BagmanCommonInit(INT32 game, INT32 memmap)
 	AY8910SetPorts(0, &ay8910_read_A, &ay8910_read_B, NULL, NULL);
 	AY8910SetAllRoutes(0, 0.15, BURN_SND_ROUTE_BOTH);
 	AY8910SetAllRoutes(1, 0.15, BURN_SND_ROUTE_BOTH);
+	AY8910SetBuffered(ZetTotalCycles, 3072000);
 
 	tms5110_init(640000);
 	tms5110_M0_callback(bagman_TMS5110_M0_cb);
@@ -942,8 +938,8 @@ static INT32 DrvExit()
 	AY8910Exit(0);
 	tms5110_exit();
 
-	BurnFree(AllMem);
-	
+	BurnFreeMemIndex();
+
 	botanic_input_xor = 0;
 	squaitsamode = 0;
 
@@ -1046,6 +1042,8 @@ static INT32 DrvFrame()
 		DrvDoReset();
 	}
 
+	ZetNewFrame();
+
 	{
 		DrvInputs[0] = 0xff;
 		DrvInputs[1] = 0xff ^ botanic_input_xor;
@@ -1062,37 +1060,22 @@ static INT32 DrvFrame()
 	}
 
 	INT32 nInterleave = 264;
-	INT32 nCyclesTotal = 3072000 / 60;
-	INT32 nCyclesDone = 0;
-	INT32 nSoundBufferPos = 0;
+	INT32 nCyclesTotal[1] = { 3072000 / 60 };
+	INT32 nCyclesDone[1] = { 0 };
 
 	ZetOpen(0);
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
-		nCyclesDone += ZetRun(nCyclesTotal / nInterleave);
+		CPU_RUN(0, Zet);
 
 		if (i == 240 && irq_mask) ZetSetIRQLine(0, CPU_IRQSTATUS_ACK);
-
-		// Render Sound Segment
-		if (pBurnSoundOut && i&1) {
-			INT32 nSegmentLength = nBurnSoundLen / (nInterleave/2);
-			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-			AY8910Render(pSoundBuf, nSegmentLength);
-			nSoundBufferPos += nSegmentLength;
-		}
 	}
 
 	ZetClose();
 
-	// Make sure the buffer is entirely filled.
 	if (pBurnSoundOut) {
-		INT32 nSegmentLength = nBurnSoundLen - nSoundBufferPos;
-		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-		if (nSegmentLength) {
-			AY8910Render(pSoundBuf, nSegmentLength);
-		}
-
+		AY8910Render(pBurnSoundOut, nBurnSoundLen);
 		tms5110_update(pBurnSoundOut, nBurnSoundLen);
 	}
 

@@ -22,6 +22,10 @@ extern INT32 nReplayExternalDataCount;
 extern UINT8 *ReplayExternalData;
 #endif
 
+#ifdef __LIBRETRO__
+extern void (*cBurnerKeyCallback)(UINT8 code, UINT8 KeyType, UINT8 down);
+#endif
+
 #ifndef BUILD_WIN32
 INT32 nReplayExternalDataCount = 0;
 UINT8 *ReplayExternalData = NULL;
@@ -1433,6 +1437,9 @@ static INT32 DrvInit()
 	nReplayExternalDataCount = sizeof(keyRows);
 	ReplayExternalData = &keyRows[0];
 #endif
+#ifdef __LIBRETRO__
+	cBurnerKeyCallback = msxKeyCallback;
+#endif
 	BurnSetRefreshRate((Hertz60) ? 60.0 : 50.0);
 
 	ZetInit(0);
@@ -1447,6 +1454,7 @@ static INT32 DrvInit()
 	AY8910Init(0, 3579545/2, 0);
 	AY8910SetPorts(0, ay8910portAread, NULL, ay8910portAwrite, ay8910portBwrite);
 	AY8910SetAllRoutes(0, 0.15, BURN_SND_ROUTE_BOTH);
+    AY8910SetBuffered(ZetTotalCycles, 3579545);
 
 	K051649Init(3579545/2);
 	K051649SetRoute(0.20, BURN_SND_ROUTE_BOTH);
@@ -1492,6 +1500,9 @@ static INT32 DrvExit()
 	cBurnerKeyCallback = NULL;
 	nReplayExternalDataCount = 0;
 	ReplayExternalData = NULL;
+#endif
+#ifdef __LIBRETRO__
+	cBurnerKeyCallback = NULL;
 #endif
 	return 0;
 }
@@ -1567,7 +1578,6 @@ static INT32 DrvFrame()
 	INT32 nInterleave = 256;
 	INT32 nCyclesTotal[1] = { 3579545 / ((Hertz60) ? 60 : 50) };
 	INT32 nCyclesDone[1] = { 0 };
-	INT32 nSoundBufferPos = 0;
 
 	ZetNewFrame();
 	ZetOpen(0);
@@ -1579,30 +1589,16 @@ static INT32 DrvFrame()
 
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
-		nCyclesDone[0] += ZetRun(nCyclesTotal[0] / nInterleave);
+        nCyclesDone[0] += ZetRun(((i + 1) * nCyclesTotal[0] / nInterleave) - nCyclesDone[0]);
 
-		TMS9928AScanline(i);
-
-		// Render Sound Segment
-		if (pBurnSoundOut) {
-			INT32 nSegmentLength = nBurnSoundLen / nInterleave;
-			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-			AY8910Render(pSoundBuf, nSegmentLength);
-			K051649Update(pSoundBuf, nSegmentLength);
-			nSoundBufferPos += nSegmentLength;
-		}
+        TMS9928AScanline(i);
 	}
 
 	ZetClose();
 
-	// Make sure the buffer is entirely filled.
 	if (pBurnSoundOut) {
-		INT32 nSegmentLength = nBurnSoundLen - nSoundBufferPos;
-		INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-		if (nSegmentLength) {
-			AY8910Render(pSoundBuf, nSegmentLength);
-			K051649Update(pSoundBuf, nSegmentLength);
-		}
+        AY8910Render(pBurnSoundOut, nBurnSoundLen);
+        K051649Update(pBurnSoundOut, nBurnSoundLen);
 		DACUpdate(pBurnSoundOut, nBurnSoundLen);
 	}
 
@@ -24561,6 +24557,25 @@ struct BurnDriver BurnDrvMSX_dangertower = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_MSX, GBF_MISC, 0,
 	MSXGetZipName, MSX_dangertowerRomInfo, MSX_dangertowerRomName, NULL, NULL, NULL, NULL, MSXInputInfo, MSXDIPInfo,
+	DrvInit, DrvExit, DrvFrame, TMS9928ADraw, DrvScan, NULL, 0x10,
+	272, 228, 4, 3
+};
+
+// Night Knight
+
+static struct BurnRomInfo MSX_nightknightRomDesc[] = {
+	{ "nightk.rom",	0x08000, 0x3a7965de, BRF_PRG | BRF_ESS },
+};
+
+STDROMPICKEXT(MSX_nightknight, MSX_nightknight, msx_msx)
+STD_ROM_FN(MSX_nightknight)
+
+struct BurnDriver BurnDrvMSX_nightknight = {
+	"msx_nightknight", NULL, "msx_msx", NULL, "2019",
+	"Night Knight (v1.0.3)\0", NULL, "Juan J. Martinez/usebox.net", "MSX",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_MSX, GBF_MISC, 0,
+	MSXGetZipName, MSX_nightknightRomInfo, MSX_nightknightRomName, NULL, NULL, NULL, NULL, MSXInputInfo, MSXDIPInfo,
 	DrvInit, DrvExit, DrvFrame, TMS9928ADraw, DrvScan, NULL, 0x10,
 	272, 228, 4, 3
 };

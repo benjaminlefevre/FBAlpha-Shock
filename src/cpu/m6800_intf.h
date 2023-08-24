@@ -59,6 +59,12 @@ void M6800Reset();
 #define M6801Reset		M6800Reset
 #define NSC8105Reset         M6800Reset
 
+void M6800ResetSoft();
+#define HD63701ResetSoft		M6800ResetSoft
+#define M6803ResetSoft		M6800ResetSoft
+#define M6801ResetSoft		M6800ResetSoft
+#define NSC8105ResetSoft         M6800ResetSoft
+
 void M6800NewFrame();
 #define HD63701NewFrame		M6800NewFrame
 #define M6803NewFrame		M6800NewFrame
@@ -152,7 +158,7 @@ INT32 M6800Scan(INT32 nAction);
 
 inline static INT32 M6800TotalCycles()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800TotalCycles called without init\n"));
 #endif
 
@@ -165,7 +171,7 @@ inline static INT32 M6800TotalCycles()
 
 inline static INT32 M6800Idle(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Idle called without init\n"));
 #endif
 

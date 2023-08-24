@@ -33,7 +33,7 @@ GenericTilesGfx GenericGfxData[MAX_TILEMAPS];
 
 void GenericTilemapInit(INT32 which, INT32 (*pScan)(INT32 col, INT32 row), void (*pTile)(INT32 offs, INT32 *tile_gfx, INT32 *tile_code, INT32 *tile_color, UINT32 *tile_flags, INT32 *category), UINT32 tile_width, UINT32 tile_height, UINT32 map_width, UINT32 map_height)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (Debug_GenericTilesInitted == 0) {
 		bprintf (PRINT_ERROR, _T("Please call GenericTilesInit() before GenericTilemapInit()!\n"));
 		return;
@@ -98,7 +98,7 @@ void GenericTilemapInit(INT32 which, INT32 (*pScan)(INT32 col, INT32 row), void 
 
 void GenericTilemapSetGfx(INT32 num, UINT8 *gfxbase, INT32 depth, INT32 tile_width, INT32 tile_height, INT32 gfxlen, UINT32 color_offset, UINT32 color_mask)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (Debug_GenericTilesInitted == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilesInit must be called before GenericTilemapSetGfx!\n"));
 		return;
@@ -161,7 +161,7 @@ void GenericTilemapExit()
 
 void GenericTilemapSetOffsets(INT32 which, INT32 x, INT32 y)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetOffsets(%d, %d, %d); called with impossible tilemap!\n"), which, x, y);
 		return;
@@ -183,7 +183,7 @@ void GenericTilemapSetOffsets(INT32 which, INT32 x, INT32 y)
 			}
 		}
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 		if (counter == 0) {
 			bprintf (PRINT_NORMAL, _T("GenericTilemapSetOffsets(TMAP_GLOBAL, %d, %d); called, but there are no initialized tilemaps!\n"), x, y);
 		}
@@ -195,7 +195,7 @@ void GenericTilemapSetOffsets(INT32 which, INT32 x, INT32 y)
 	// set offsets to a single tile map
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetOffsets(%d, %d, %d); called without initialized tilemap!\n"), which, x, y);
 		return;
@@ -208,7 +208,7 @@ void GenericTilemapSetOffsets(INT32 which, INT32 x, INT32 y)
 
 void GenericTilemapSetTransparent(INT32 which, UINT32 transparent)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetTransparent(%d, 0x%x); called with impossible tilemap number!\n"), which, transparent);
 		return;
@@ -217,7 +217,7 @@ void GenericTilemapSetTransparent(INT32 which, UINT32 transparent)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetTransparent(%d, 0x%x); called without initialized tilemap!\n"), which, transparent);
 		return;
@@ -232,9 +232,28 @@ void GenericTilemapSetTransparent(INT32 which, UINT32 transparent)
 	cur_map->flags |= TMAP_TRANSPARENT;
 }
 
+void GenericTilemapSetTransSplit(INT32 which, INT32 category, UINT16 layer0, UINT16 layer1)
+{
+#if defined FBNEO_DEBUG
+	if (which < 0 || which >= MAX_TILEMAPS) {
+		bprintf (PRINT_ERROR, _T("GenericTilemapSetTransSplit(%d, %d, 0x%4.4x, 0x%4.4x); called with impossible tilemap number!\n"), which, category, layer0, layer1);
+		return;
+	}
+#endif
+
+	cur_map = &maps[which];
+
+	if (category == 0) {
+		GenericTilemapCategoryConfig(0, 4);
+	}
+
+	GenericTilemapSetTransMask(0, 0 | (category & 1), layer0); // TMAP_DRAWLAYER0
+	GenericTilemapSetTransMask(0, 2 | (category & 1), layer1); // TMAP_DRAWLAYER1
+}
+
 void GenericTilemapSetTransMask(INT32 which, INT32 category, UINT16 transmask)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetTransMask(%d, %d, 0x%4.4x); called with impossible tilemap number!\n"), which, category, transmask);
 		return;
@@ -243,7 +262,7 @@ void GenericTilemapSetTransMask(INT32 which, INT32 category, UINT16 transmask)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapsSetTransMask(%d, %d, 0x%4.4x); called without initialized tilemap!\n"), which, category, transmask);
 		return;
@@ -268,7 +287,7 @@ void GenericTilemapSetTransMask(INT32 which, INT32 category, UINT16 transmask)
 
 void GenericTilemapCategoryConfig(INT32 which, INT32 categories)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapCategoryConfig(%d, %d); called with impossible tilemap number!\n"), which, categories);
 		return;
@@ -300,7 +319,7 @@ void GenericTilemapSetCategoryEntry(INT32 which, INT32 category, INT32 entry, IN
 {
 	trans = (trans) ? 1 : 0;
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetCategoryEntry(%d, %d, %d, %d); called with impossible tilemap number!\n"), which, category, entry, trans);
 		return;
@@ -319,7 +338,7 @@ void GenericTilemapSetCategoryEntry(INT32 which, INT32 category, INT32 entry, IN
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->transparent[category] == NULL) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetCategoryEntry(%d, %d, %d, %d); without configured category\n"), which, category, entry, trans);
 		return;
@@ -331,7 +350,7 @@ void GenericTilemapSetCategoryEntry(INT32 which, INT32 category, INT32 entry, IN
 
 void GenericTilemapSetScrollX(INT32 which, INT32 scrollx)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollX(%d, %d); called with impossible tilemap!\n"), which, scrollx);
 		return;
@@ -340,7 +359,7 @@ void GenericTilemapSetScrollX(INT32 which, INT32 scrollx)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollX(%d, %d); called without initialized tilemap!\n"), which, scrollx);
 		return;
@@ -352,7 +371,7 @@ void GenericTilemapSetScrollX(INT32 which, INT32 scrollx)
 
 void GenericTilemapSetScrollY(INT32 which, INT32 scrolly)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollY(%d, %d); called with impossible tilemap!\n"), which, scrolly);
 		return;
@@ -361,7 +380,7 @@ void GenericTilemapSetScrollY(INT32 which, INT32 scrolly)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollY(%d, %d); called without initialized tilemap!\n"), which, scrolly);
 		return;
@@ -373,7 +392,7 @@ void GenericTilemapSetScrollY(INT32 which, INT32 scrolly)
 
 void GenericTilemapSetScrollCols(INT32 which, UINT32 cols)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollCols(%d, %d); called with impossible tilemap!\n"), which, cols);
 		return;
@@ -382,7 +401,7 @@ void GenericTilemapSetScrollCols(INT32 which, UINT32 cols)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollCols(%d, %d); called without initialized tilemap!\n"), which, cols);
 		return;
@@ -419,7 +438,7 @@ void GenericTilemapSetScrollCols(INT32 which, UINT32 cols)
 
 void GenericTilemapSetScrollRows(INT32 which, UINT32 rows)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollRows(%d, %d); called with impossible tilemap!\n"), which, rows);
 		return;
@@ -428,7 +447,7 @@ void GenericTilemapSetScrollRows(INT32 which, UINT32 rows)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollRows(%d, %d); called without initialized tilemap!\n"), which, rows);
 		return;
@@ -465,7 +484,7 @@ void GenericTilemapSetScrollRows(INT32 which, UINT32 rows)
 
 void GenericTilemapSetScrollCol(INT32 which, INT32 col, INT32 scroll)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollCol(%d, %d, %d); called with impossible tilemap!\n"), which, col, scroll);
 		return;
@@ -474,7 +493,7 @@ void GenericTilemapSetScrollCol(INT32 which, INT32 col, INT32 scroll)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollCol(%d, %d, %d); called without initialized tilemap!\n"), which, col, scroll);
 		return;
@@ -493,7 +512,7 @@ void GenericTilemapSetScrollCol(INT32 which, INT32 col, INT32 scroll)
 
 void GenericTilemapSetScrollRow(INT32 which, INT32 row, INT32 scroll)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which < 0 || which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollRow(%d, %d, %d); called with impossible tilemap!\n"), which, row, scroll);
 		return;
@@ -502,7 +521,7 @@ void GenericTilemapSetScrollRow(INT32 which, INT32 row, INT32 scroll)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetScrollRow(%d, %d, %d); called without initialized tilemap!\n"), which, row, scroll);
 		return;
@@ -521,7 +540,7 @@ void GenericTilemapSetScrollRow(INT32 which, INT32 row, INT32 scroll)
 
 void GenericTilemapSetFlip(INT32 which, INT32 flip)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetFlip(%d, %d); called with impossible tilemap!\n"), which, flip);
 		return;
@@ -540,7 +559,7 @@ void GenericTilemapSetFlip(INT32 which, INT32 flip)
 			}
 		}
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 		if (counter == 0) {
 			bprintf (PRINT_ERROR, _T("GenericTilemapSetFlip(TMAP_GLOBAL, %d); called, but there are no initialized tilemaps!\n"), flip);
 		}
@@ -551,7 +570,7 @@ void GenericTilemapSetFlip(INT32 which, INT32 flip)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetFlip(%d, %d); called without initialized tilemap!\n"), which, flip);
 		return;
@@ -564,7 +583,7 @@ void GenericTilemapSetFlip(INT32 which, INT32 flip)
 
 void GenericTilemapSetEnable(INT32 which, INT32 enable)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetEnable(%d, %d); called with impossible tilemap!\n"), which, enable);
 		return;
@@ -581,7 +600,7 @@ void GenericTilemapSetEnable(INT32 which, INT32 enable)
 			}
 		}
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 		if (counter == 0) {
 			bprintf (PRINT_NORMAL, _T("GenericTilemapSetEnable(TMAP_GLOBAL, %d); called, but there are no initialized tilemaps!\n"), enable);
 		}
@@ -591,7 +610,7 @@ void GenericTilemapSetEnable(INT32 which, INT32 enable)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetEnable(%d, %d); called without initialized tilemap!\n"), which, enable);
 		return;
@@ -603,7 +622,7 @@ void GenericTilemapSetEnable(INT32 which, INT32 enable)
 
 void GenericTilemapUseDirtyTiles(INT32 which)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapUseDirtyTiles(%d) called with impossible tilemap!\n"), which);
 		return;
@@ -612,7 +631,7 @@ void GenericTilemapUseDirtyTiles(INT32 which)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapUseDirtyTiles(%d) called without initialized tilemap!\n"), which);
 		return;
@@ -628,7 +647,7 @@ void GenericTilemapUseDirtyTiles(INT32 which)
 
 void GenericTilemapSetTileDirty(INT32 which, UINT32 offset)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetTileDirty(%d, %x); called with impossible tilemap!\n"), which, offset);
 		return;
@@ -637,7 +656,7 @@ void GenericTilemapSetTileDirty(INT32 which, UINT32 offset)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapSetTileDirty(%d, %x) called without initialized tilemap!\n"), which, offset);
 		return;
@@ -654,7 +673,7 @@ void GenericTilemapSetTileDirty(INT32 which, UINT32 offset)
 
 void GenericTilemapAllTilesDirty(INT32 which)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapAllTilesDirty(%d); called with impossible tilemap!\n"), which);
 		return;
@@ -663,7 +682,7 @@ void GenericTilemapAllTilesDirty(INT32 which)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapAllTilesDirty(%d) called without initialized tilemap!\n"), which);
 		return;
@@ -680,7 +699,7 @@ void GenericTilemapAllTilesDirty(INT32 which)
 
 INT32 GenericTilemapGetTileDirty(INT32 which, UINT32 offset)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (which >= MAX_TILEMAPS) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapGetTileDirty(%d, %x); called with impossible tilemap!\n"), which, offset);
 		return 1; // default to dirty tile
@@ -689,7 +708,7 @@ INT32 GenericTilemapGetTileDirty(INT32 which, UINT32 offset)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapGetTileDirty(%d, %x) called without initialized tilemap!\n"), which, offset);
 		return 1; // default to dirty tile
@@ -706,7 +725,7 @@ INT32 GenericTilemapGetTileDirty(INT32 which, UINT32 offset)
 
 void GenericTilemapDraw(INT32 which, UINT16 *Bitmap, INT32 priority)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (Bitmap == NULL) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapDraw(%d, Bitmap, %d); called without initialized Bitmap!\n"), which, priority);
 		return;
@@ -715,7 +734,7 @@ void GenericTilemapDraw(INT32 which, UINT16 *Bitmap, INT32 priority)
 
 	cur_map = &maps[which];
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cur_map->initialized == 0) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapDraw(%d, Bitmap, %d); called without initialized tilemap!\n"), which, priority);
 		return;
@@ -1399,7 +1418,7 @@ void GenericTilemapDraw(INT32 which, INT32 bitmap, INT32 priority)
 
 void GenericTilemapDumpToBitmap()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (pBurnDrvPalette == NULL) {
 		bprintf (PRINT_ERROR, _T("GenericTilemapDumptoBitmap called with pBurnDrvPalette == NULL\n"));
 		return;

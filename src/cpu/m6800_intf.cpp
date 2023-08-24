@@ -12,6 +12,25 @@ static M6800Ext *M6800CPUContext = NULL;
 static INT32 nM6800CyclesDone[MAX_CPU];
 INT32 nM6800CyclesTotal;
 
+static void m6800_core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6800Close();
+		M6800Open(cpu);
+	}
+
+	M6800SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6800Close();
+		if (active != -1) M6800Open(active);
+	}
+}
+
 cpu_core_config M6800Config =  // M6802, M6808
 {
 	M6800Open,
@@ -21,12 +40,33 @@ cpu_core_config M6800Config =  // M6802, M6808
 	M6800GetActive,
 	M6800TotalCycles,
 	M6800NewFrame,
+	M6800Idle,
+	m6800_core_set_irq,
 	M6800Run,		// different
 	M6800RunEnd,
 	M6800Reset,
 	0x10000,
 	0
 };
+
+static void hd63701_core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6800Close();
+		M6800Open(cpu);
+	}
+
+	HD63701SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6800Close();
+		if (active != -1) M6800Open(active);
+	}
+}
 
 cpu_core_config HD63701Config =
 {
@@ -37,12 +77,33 @@ cpu_core_config HD63701Config =
 	M6800GetActive,
 	M6800TotalCycles,
 	M6800NewFrame,
+	M6800Idle,
+	hd63701_core_set_irq, // different
 	HD63701Run,		// different
 	M6800RunEnd,
 	M6800Reset,
 	0x10000,
 	0
 };
+
+static void m6803_core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6800Close();
+		M6800Open(cpu);
+	}
+
+	M6803SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6800Close();
+		if (active != -1) M6800Open(active);
+	}
+}
 
 cpu_core_config M6803Config =  // M6801, M6803
 {
@@ -53,12 +114,71 @@ cpu_core_config M6803Config =  // M6801, M6803
 	M6800GetActive,
 	M6800TotalCycles,
 	M6800NewFrame,
+	M6800Idle,
+	m6803_core_set_irq,
 	M6803Run,		// different
 	M6800RunEnd,
 	M6800Reset,
 	0x10000,
 	0
 };
+
+static void m6801_core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6800Close();
+		M6800Open(cpu);
+	}
+
+	M6801SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6800Close();
+		if (active != -1) M6800Open(active);
+	}
+}
+
+cpu_core_config M6801Config =
+{
+	M6800Open,
+	M6800Close,
+	M6800CheatRead,
+	M6800WriteRom,
+	M6800GetActive,
+	M6800TotalCycles,
+	M6800NewFrame,
+	M6800Idle,
+	m6801_core_set_irq,
+	M6803Run,		// different
+	M6800RunEnd,
+	M6800Reset,
+	0x10000,
+	0
+};
+
+
+static void msc8105_core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6800Close();
+		M6800Open(cpu);
+	}
+
+	NSC8105SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6800Close();
+		if (active != -1) M6800Open(active);
+	}
+}
 
 cpu_core_config NSC8105Config =
 {
@@ -69,6 +189,8 @@ cpu_core_config NSC8105Config =
 	M6800GetActive,
 	M6800TotalCycles,
 	M6800NewFrame,
+	M6800Idle,
+	msc8105_core_set_irq,
 	NSC8105Run,		// different
 	M6800RunEnd,
 	M6800Reset,
@@ -106,16 +228,25 @@ static void M6800WritePortDummyHandler(UINT16, UINT8)
 
 void M6800Reset()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Reset called without init\n"));
 #endif
 
 	m6800_reset();
 }
 
+void M6800ResetSoft()
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800ResetSoft called without init\n"));
+#endif
+
+	m6800_reset_soft();
+}
+
 void M6800NewFrame()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800NewFrame called without init\n"));
 #endif
 
@@ -132,7 +263,7 @@ UINT8 M6800CheatRead(UINT32 a)
 
 void M6800Open(INT32 num)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Open called without init\n"));
 	if (num > nM6800Count) bprintf(PRINT_ERROR, _T("M6800Open called with invalid index %x\n"), num);
 	if (nActiveCPU != -1) bprintf(PRINT_ERROR, _T("M6800Open called when CPU already open with index %x\n"), num);
@@ -147,7 +278,7 @@ void M6800Open(INT32 num)
 
 void M6800Close()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Close called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6800Close called when no CPU open\n"));
 #endif
@@ -162,7 +293,7 @@ void M6800Close()
 
 INT32 M6800GetActive()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800GetActive called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6800GetActive called when no CPU open\n"));
 #endif
@@ -226,7 +357,7 @@ INT32 M6800CoreInit(INT32 num, INT32 type)
 	if (type == CPU_TYPE_M6801) {
 		m6801_init();
 
-		CpuCheatRegister(num, &M6803Config);
+		CpuCheatRegister(num, &M6801Config);
 	}
 
 	if (type == CPU_TYPE_NSC8105) {
@@ -267,7 +398,7 @@ INT32 NSC8105Init(INT32 num)
 
 void M6800Exit()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Exit called without init\n"));
 #endif
 
@@ -283,7 +414,7 @@ void M6800Exit()
 
 void M6800SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6800SetIRQLine called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6800) bprintf(PRINT_ERROR, _T("M6800SetIRQLine called with invalid CPU Type\n"));
@@ -311,7 +442,7 @@ void M6800SetIRQLine(INT32 vector, INT32 status)
 
 void HD63701SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("HD63701SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("HD63701SetIRQLine called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_HD63701) bprintf(PRINT_ERROR, _T("HD63701SetIRQLine called with invalid CPU Type\n"));
@@ -339,7 +470,7 @@ void HD63701SetIRQLine(INT32 vector, INT32 status)
 
 void M6803SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6803SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6803SetIRQLine called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6803) bprintf(PRINT_ERROR, _T("M6803SetIRQLine called with invalid CPU Type\n"));
@@ -367,7 +498,7 @@ void M6803SetIRQLine(INT32 vector, INT32 status)
 
 void M6801SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6801SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6801SetIRQLine called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6801) bprintf(PRINT_ERROR, _T("M6800SetIRQLine called with invalid CPU Type\n"));
@@ -395,7 +526,7 @@ void M6801SetIRQLine(INT32 vector, INT32 status)
 
 void NSC8105SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("NSC8105SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("NSC8105SetIRQLine called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6801) bprintf(PRINT_ERROR, _T("NSC8105SetIRQLine called with invalid CPU Type\n"));
@@ -423,7 +554,7 @@ void NSC8105SetIRQLine(INT32 vector, INT32 status)
 
 INT32 M6800Run(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Run called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6800Run called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6800) bprintf(PRINT_ERROR, _T("M6800Run called with invalid CPU Type\n"));
@@ -438,7 +569,7 @@ INT32 M6800Run(INT32 cycles)
 
 INT32 HD63701Run(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("HD63701Run called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("HD63701Run called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_HD63701) bprintf(PRINT_ERROR, _T("HD63701Run called with invalid CPU Type\n"));
@@ -453,7 +584,7 @@ INT32 HD63701Run(INT32 cycles)
 
 INT32 M6803Run(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6803Run called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6803Run called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6803 && M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_M6801) bprintf(PRINT_ERROR, _T("M6803Run called with invalid CPU Type\n"));
@@ -468,7 +599,7 @@ INT32 M6803Run(INT32 cycles)
 
 INT32 NSC8105Run(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("NSC8105Run called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("NSC8105Run called when no CPU open\n"));
 	if (M6800CPUContext[nActiveCPU].nCpuType != CPU_TYPE_NSC8105) bprintf(PRINT_ERROR, _T("NSC8105Run called with invalid CPU Type\n"));
@@ -481,16 +612,9 @@ INT32 NSC8105Run(INT32 cycles)
 	return cycles;
 }
 
-void M6800RunEnd()
-{
-#if defined FBA_DEBUG
-	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800RunEnd called without init\n"));
-#endif
-}
-
 UINT32 M6800GetPC(INT32)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800GetPC called without init\n"));
 #endif
 
@@ -499,7 +623,7 @@ UINT32 M6800GetPC(INT32)
 
 INT32 M6800MapMemory(UINT8* pMemory, UINT16 nStart, UINT16 nEnd, INT32 nType)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800MapMemory called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6800MapMemory called when no CPU open\n"));
 #endif
@@ -524,7 +648,7 @@ INT32 M6800MapMemory(UINT8* pMemory, UINT16 nStart, UINT16 nEnd, INT32 nType)
 
 void M6800SetReadHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetReadHandler called without init\n"));
 #endif
 
@@ -533,7 +657,7 @@ void M6800SetReadHandler(UINT8 (*pHandler)(UINT16))
 
 void M6800SetWriteHandler(void (*pHandler)(UINT16, UINT8))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetWriteHandler called without init\n"));
 #endif
 
@@ -542,7 +666,7 @@ void M6800SetWriteHandler(void (*pHandler)(UINT16, UINT8))
 
 void M6800SetReadOpHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetReadOpHandler called without init\n"));
 #endif
 
@@ -551,7 +675,7 @@ void M6800SetReadOpHandler(UINT8 (*pHandler)(UINT16))
 
 void M6800SetReadOpArgHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetReadOpArgHandler called without init\n"));
 #endif
 
@@ -560,7 +684,7 @@ void M6800SetReadOpArgHandler(UINT8 (*pHandler)(UINT16))
 
 void M6800SetReadPortHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetReadPortHandler called without init\n"));
 #endif
 
@@ -569,7 +693,7 @@ void M6800SetReadPortHandler(UINT8 (*pHandler)(UINT16))
 
 void M6800SetWritePortHandler(void (*pHandler)(UINT16, UINT8))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800SetWritePortHandler called without init\n"));
 #endif
 
@@ -661,7 +785,7 @@ void M6800WritePort(UINT16 Address, UINT8 Data)
 
 void M6800WriteRom(UINT32 Address, UINT8 Data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800WriteRom called without init\n"));
 #endif
 
@@ -693,7 +817,7 @@ void M6800WriteRom(UINT32 Address, UINT8 Data)
 
 INT32 M6800Scan(INT32 nAction)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6800Initted) bprintf(PRINT_ERROR, _T("M6800Scan called without init\n"));
 #endif
 

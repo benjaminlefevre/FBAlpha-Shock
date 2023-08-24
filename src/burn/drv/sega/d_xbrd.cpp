@@ -2606,7 +2606,7 @@ UINT16 __fastcall XBoardReadWord(UINT32 a)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 Read Word -> 0x%06X\n"), a);
 #endif
 
@@ -2699,7 +2699,7 @@ UINT8 __fastcall XBoardReadByte(UINT32 a)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 Read Byte -> 0x%06X\n"), a);
 #endif
 
@@ -2815,7 +2815,7 @@ void __fastcall XBoardWriteWord(UINT32 a, UINT16 d)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 Write Word -> 0x%06X, 0x%04X\n"), a, d);
 #endif
 }
@@ -2901,7 +2901,7 @@ void __fastcall XBoardWriteByte(UINT32 a, UINT8 d)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 Write Byte -> 0x%06X, 0x%02X\n"), a, d);
 #endif
 }
@@ -2945,7 +2945,7 @@ UINT16 __fastcall XBoard2ReadWord(UINT32 a)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 # 2 Read Word -> 0x%06X\n"), a);
 #endif
 
@@ -2971,7 +2971,7 @@ UINT8 __fastcall XBoard2ReadByte(UINT32 a)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 # 2 Read Byte -> 0x%06X\n"), a);
 #endif
 
@@ -3013,7 +3013,7 @@ void __fastcall XBoard2WriteWord(UINT32 a, UINT16 d)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 # 2 Write Word -> 0x%06X, 0x%04X\n"), a, d);
 #endif
 }
@@ -3028,7 +3028,7 @@ void __fastcall XBoard2WriteByte(UINT32 a, UINT8 d)
 		}
 	}
 
-#if 0 && defined FBA_DEBUG
+#if 0 && defined FBNEO_DEBUG
 	bprintf(PRINT_NORMAL, _T("68000 # 2 Write Byte -> 0x%06X, 0x%02X\n"), a, d);
 #endif
 }
@@ -3039,35 +3039,15 @@ Driver Inits
 
 static UINT8 AbcopProcessAnalogControls(UINT16 value)
 {
-	UINT8 temp = 0;
-	
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) < 0xf82 && (System16AnalogPort0 >> 4) > 0x80) {
-				temp = (UINT8)(0x80 - 0xf82);
-			} else {
-				temp = 0x80 - (System16AnalogPort0 >> 4);
-			}
-			
-			if (temp < 0x20) {
-				temp = 0x20;
-				return temp;
-			}
-
-			if (temp > 0xe0) {
-				temp = 0xe0;
-				return temp;
-			}
-
-			return temp;
+			return ProcessAnalog(System16AnalogPort0, 1, INPUT_DEADZONE, 0x20, 0xe0);
 		}
 		
-		// Accelerate 
+		// Accelerate
 		case 1: {
-			if (System16AnalogPort1 > 1) return 0xff;
-			return 0;
+			return ProcessAnalog(System16AnalogPort1, 0, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x00, 0xff);
 		}
 	}
 	
@@ -3083,76 +3063,20 @@ static INT32 AbcopInit()
 
 static UINT8 AburnerProcessAnalogControls(UINT16 value)
 {
-	UINT8 temp = 0;
-
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) > 0x7f && (System16AnalogPort0 >> 4) <= 0x80) {
-				temp = 0x80 + 0x7f;
-			} else {
-				temp = 0x80 + (System16AnalogPort0 >> 4);
-			}
-
-			if (temp < 0x45) {
-				temp = 0x20;
-				return temp;
-			}
-
-			if (temp > 0xb0) {
-				temp = 0xe0;
-				return temp;
-			}
-//                        bprintf(PRINT_NORMAL, _T("[%X,%X]"), temp, System16AnalogPort0 >> 4);
-			return temp;
+			return ProcessAnalog(System16AnalogPort0, 0, INPUT_DEADZONE, 0x20, 0xe0);
 		}
 		
 		// Up / Down 
 		case 1: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort1 >> 4) < 0xf82 && (System16AnalogPort1 >> 4) > 0x80) {
-				temp = (UINT8)(0x80 - 0xf82);
-			} else {
-				temp = 0x80 - (System16AnalogPort1 >> 4);
-			}
-
-			if (temp < 0x40) {
-				temp = 0x40;
-				return temp;
-			}
-
-			if (temp > 0xc0) {
-				temp = 0xc0;
-				return temp;
-			}
-
-			return temp;
+			return ProcessAnalog(System16AnalogPort1, 1, INPUT_DEADZONE, 0x40, 0xc0);
 		}
 		
 		// Throttle
 		case 2: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort2 >> 4) > 0x7f && (System16AnalogPort2 >> 4) <= 0x80) {
-				temp = 0x80 + 0x7f;
-			} else {
-				temp = 0x80 + (System16AnalogPort2 >> 4);
-			}
-
-//                        bprintf(PRINT_NORMAL, _T("[%X,%X]"), temp, System16AnalogPort2 >> 4);
-			if (temp > 0xb0) {
-				temp = 0xff;
-				return temp;
-			}
-
-			if (temp < 0x45) {
-				temp = 0;
-				return temp;
-			}
-
-			temp = 0x80;
-			
-			return temp;
+			return ProcessAnalog(System16AnalogPort2, 0, INPUT_DEADZONE, 0x00, 0xff);
 		}
 	}	
 	
@@ -3177,24 +3101,17 @@ static UINT8 GpriderProcessAnalogControls(UINT16 value)
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) > 0x7f && (System16AnalogPort0 >> 4) <= 0x80) {
-				return 0x80 + 0x7f;
-			} else {
-				return 0x80 + (System16AnalogPort0 >> 4);
-			}
+			return ProcessAnalog(System16AnalogPort0, 0, INPUT_DEADZONE, 0x01, 0xff);
 		}
 
 		// Accelerate
 		case 1: {
-			if (System16AnalogPort1 > 1) return 0x10;
-			return 0xef;
+			return ProcessAnalog(System16AnalogPort1, 1, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x10, 0xef);
 		}
 		
 		// Brake
 		case 2: {
-			if (System16AnalogPort2 > 1) return 0x10;
-			return 0xef;
+			return ProcessAnalog(System16AnalogPort2, 1, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x10, 0xef);
 		}
 	}
 	
@@ -3310,33 +3227,20 @@ static INT32 LoffireInit()
 
 static UINT8 RacheroProcessAnalogControls(UINT16 value)
 {
-	UINT8 temp = 0;
-	
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) < 0xf82 && (System16AnalogPort0 >> 4) > 0x80) {
-				temp = (UINT8)(0x80 - 0xf82);
-			} else {
-				temp = 0x80 - (System16AnalogPort0 >> 4);
-			}
-			
-			if (temp < 0x20) temp = 0x20;
-			if (temp > 0xe0) temp = 0xe0;
-			return temp;
+			return ProcessAnalog(System16AnalogPort0, 1, INPUT_DEADZONE, 0x20, 0xe0);
 		}
 
 		// Accelerate
 		case 1: {
-			if (System16AnalogPort1 > 1) return 0xff;
-			return 0;
+			return ProcessAnalog(System16AnalogPort1, 0, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x00, 0xff);
 		}
 
 		// Brake
 		case 2: {
-			if (System16AnalogPort2 > 1) return 0xff;
-			return 0;
+			return ProcessAnalog(System16AnalogPort2, 0, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x00, 0xff);
 		}
 	}
 	
@@ -3370,33 +3274,20 @@ static INT32 RascotInit()
 
 static UINT8 SmgpProcessAnalogControls(UINT16 value)
 {
-	UINT8 temp = 0;
-	
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) > 0x7f && (System16AnalogPort0 >> 4) <= 0x80) {
-				return 0x80 + 0x7f;
-			} else {
-				return 0x80 + (System16AnalogPort0 >> 4);
-			}
-
-			if (temp < 0x39) temp = 0x38;
-			if (temp > 0xc8) temp = 0xc8;
-			return temp;
+			return ProcessAnalog(System16AnalogPort0, 0, INPUT_DEADZONE, 0x38, 0xc8);
 		}
 		
 		// Accelerate
 		case 1: {
-			if (System16AnalogPort1 > 1) return 0xb8;
-			return 0x38;
+			return ProcessAnalog(System16AnalogPort1, 0, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x38, 0xb8);
 		}
 
 		// Brake
 		case 2: {
-			if (System16AnalogPort2 > 1) return 0xa8;
-			return 0x28;
+			return ProcessAnalog(System16AnalogPort2, 0, INPUT_DEADZONE | INPUT_LINEAR | INPUT_MIGHTBEDIGITAL, 0x28, 0xa8);
 		}
 	}
 	
@@ -3418,64 +3309,20 @@ static INT32 SmgpInit()
 
 static UINT8 ThndrbldProcessAnalogControls(UINT16 value)
 {
-	UINT8 temp = 0;
-	
 	switch (value) {
 		// Left / Right
 		case 0: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort0 >> 4) < 0xf82 && (System16AnalogPort0 >> 4) > 0x80) {
-				temp = (UINT8)(0x80 - 0xf82);
-			} else {
-				temp = 0x80 - (System16AnalogPort0 >> 4);
-			}
-
-			if (temp < 0x20) {
-				temp = 0x20;
-				return temp;
-			}
-
-			if (temp > 0xe0) {
-				temp = 0xe0;
-				return temp;
-			}
-
-			return temp;
+			return ProcessAnalog(System16AnalogPort0, 1, INPUT_DEADZONE, 0x01, 0xff);
 		}
 		
-		// Throttle
+		// Slottle :)
 		case 1: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort2 >> 4) > 0x7f && (System16AnalogPort2 >> 4) <= 0x80) {
-				temp = 0x80 + 0x7f;
-			} else {
-				temp = 0x80 + (System16AnalogPort2 >> 4);
-			}
-
-			if (temp == 1) temp = 0;
-			return temp;
+			return ProcessAnalog(System16AnalogPort2, 1, INPUT_DEADZONE, 0x01, 0xff);
 		}
 		
 		// Up / Down
 		case 2: {
-			// Prevent CHAR data overflow
-			if((System16AnalogPort1 >> 4) > 0x7f && (System16AnalogPort1 >> 4) <= 0x80) {
-				temp = 0x80 + 0x7f;
-			} else {
-				temp = 0x80 + (System16AnalogPort1 >> 4);
-			}
-
-			if (temp < 0x20) {
-				temp = 0x20;
-				return temp;
-			}
-
-			if (temp > 0xe0) {
-				temp = 0xe0;
-				return temp;
-			}
-
-			return temp;
+			return ProcessAnalog(System16AnalogPort1, 0, INPUT_DEADZONE, 0x01, 0xff);
 		}
 	}
 	

@@ -12,6 +12,30 @@ static M6809Ext *m6809CPUContext = NULL;
 static INT32 nM6809CyclesDone[MAX_CPU];
 INT32 nM6809CyclesTotal;
 
+static INT32 core_idle(INT32 cycles)
+{
+	return M6809Idle(cycles);
+}
+
+static void core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveCPU;
+
+	if (active != cpu)
+	{
+		if (active != -1) M6809Close();
+		M6809Open(cpu);
+	}
+
+	M6809SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		M6809Close();
+		if (active != -1) M6809Open(active);
+	}
+}
+
 cpu_core_config M6809Config =
 {
 	M6809Open,
@@ -21,6 +45,8 @@ cpu_core_config M6809Config =
 	M6809GetActive,
 	M6809TotalCycles,
 	M6809NewFrame,
+	core_idle,	
+	core_set_irq,
 	M6809Run,
 	M6809RunEnd,
 	M6809Reset,
@@ -49,7 +75,7 @@ static UINT8 M6809ReadOpArgDummyHandler(UINT16)
 
 void M6809Reset()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Reset called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809Reset called when no CPU open\n"));
 #endif
@@ -59,7 +85,7 @@ void M6809Reset()
 
 UINT16 M6809GetPC()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809GetPC called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809GetPC called when no CPU open\n"));
 #endif
@@ -69,7 +95,7 @@ UINT16 M6809GetPC()
 
 UINT16 M6809GetPrevPC()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809GetPrevPC called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809GetPrevPC called when no CPU open\n"));
 #endif
@@ -79,7 +105,7 @@ UINT16 M6809GetPrevPC()
 
 void M6809NewFrame()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809NewFrame called without init\n"));
 #endif
 
@@ -87,6 +113,26 @@ void M6809NewFrame()
 		nM6809CyclesDone[i] = 0;
 	}
 	nM6809CyclesTotal = 0;
+}
+
+INT32 M6809TotalCycles()
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809TotalCycles called without init\n"));
+#endif
+
+	return nM6809CyclesTotal + m6809_get_segmentcycles();
+}
+
+INT32 M6809Idle(INT32 cycles)
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Idle called without init\n"));
+#endif
+
+	nM6809CyclesTotal += cycles;
+
+	return cycles;
 }
 
 UINT8 M6809CheatRead(UINT32 a)
@@ -101,7 +147,7 @@ INT32 M6809Init(INT32 cpu)
 	nActiveCPU = -1;
 	nM6809Count = cpu;
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (cpu >= MAX_CPU-1) bprintf (0, _T("M6809Init called with greater than maximum (%d) cpu number (%d)\n"), MAX_CPU-1, cpu);
 #endif
 
@@ -109,7 +155,7 @@ INT32 M6809Init(INT32 cpu)
 		m6809CPUContext = (M6809Ext*)malloc(MAX_CPU * sizeof(M6809Ext));
 
 		if (m6809CPUContext == NULL) {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 			if (cpu >= MAX_CPU-1) bprintf (0, _T("M6809Init failed to initialize context!\n"));
 #endif
 			return 1;
@@ -144,7 +190,7 @@ INT32 M6809Init(INT32 cpu)
 
 void M6809Exit()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Exit called without init\n"));
 #endif
 
@@ -160,7 +206,7 @@ void M6809Exit()
 
 void M6809Open(INT32 num)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Open called without init\n"));
 	if (num > nM6809Count) bprintf(PRINT_ERROR, _T("M6809Open called with invalid index %x\n"), num);
 	if (nActiveCPU != -1) bprintf(PRINT_ERROR, _T("M6809Open called when CPU already open with index %x\n"), num);
@@ -175,7 +221,7 @@ void M6809Open(INT32 num)
 
 void M6809Close()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Close called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809Close called when no CPU open\n"));
 #endif
@@ -189,7 +235,7 @@ void M6809Close()
 
 INT32 M6809GetActive()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809GetActive called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809GetActive called when no CPU open\n"));
 #endif
@@ -199,7 +245,7 @@ INT32 M6809GetActive()
 
 void M6809SetIRQLine(INT32 vector, INT32 status)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809SetIRQLine called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809SetIRQLine called when no CPU open\n"));
 #endif
@@ -226,7 +272,7 @@ void M6809SetIRQLine(INT32 vector, INT32 status)
 
 INT32 M6809Run(INT32 cycles)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Run called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809Run called when no CPU open\n"));
 #endif
@@ -240,7 +286,7 @@ INT32 M6809Run(INT32 cycles)
 
 void M6809RunEnd()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809RunEnd called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809RunEnd called when no CPU open\n"));
 #endif
@@ -250,7 +296,7 @@ void M6809RunEnd()
 
 INT32 M6809MapMemory(UINT8* pMemory, UINT16 nStart, UINT16 nEnd, INT32 nType)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809MapMemory called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809MapMemory called when no CPU open\n"));
 #endif
@@ -275,7 +321,7 @@ INT32 M6809MapMemory(UINT8* pMemory, UINT16 nStart, UINT16 nEnd, INT32 nType)
 
 INT32 M6809UnmapMemory(UINT16 nStart, UINT16 nEnd, INT32 nType)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809UnmapMemory called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809UnmapMemory called when no CPU open\n"));
 #endif
@@ -300,7 +346,7 @@ INT32 M6809UnmapMemory(UINT16 nStart, UINT16 nEnd, INT32 nType)
 
 void M6809SetReadHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809SetReadHandler called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809SetReadHandler called when no CPU open\n"));
 #endif
@@ -310,7 +356,7 @@ void M6809SetReadHandler(UINT8 (*pHandler)(UINT16))
 
 void M6809SetWriteHandler(void (*pHandler)(UINT16, UINT8))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809SetWriteHandler called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809SetWriteHandler called when no CPU open\n"));
 #endif
@@ -320,7 +366,7 @@ void M6809SetWriteHandler(void (*pHandler)(UINT16, UINT8))
 
 void M6809SetReadOpHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809SetReadOpHandler called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809SetReadOpHandler called when no CPU open\n"));
 #endif
@@ -330,7 +376,7 @@ void M6809SetReadOpHandler(UINT8 (*pHandler)(UINT16))
 
 void M6809SetReadOpArgHandler(UINT8 (*pHandler)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809SetReadOpArgHandler called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809SetReadOpArgHandler called when no CPU open\n"));
 #endif
@@ -404,7 +450,7 @@ UINT8 M6809ReadOpArg(UINT16 Address)
 
 void M6809WriteRom(UINT32 Address, UINT8 Data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809WriteRom called without init\n"));
 	if (nActiveCPU == -1) bprintf(PRINT_ERROR, _T("M6809WriteRom called when no CPU open\n"));
 #endif
@@ -435,7 +481,7 @@ void M6809WriteRom(UINT32 Address, UINT8 Data)
 
 INT32 M6809Scan(INT32 nAction)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Scan called without init\n"));
 #endif
 

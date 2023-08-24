@@ -15,6 +15,11 @@ static UINT8 *pic16c5x_ram = NULL;
 static UINT8 (*pPic16c5xReadPort)(UINT16 port) = NULL;
 static void (*pPic16c5xWritePort)(UINT16 port, UINT8 data) = NULL;
 
+static void core_set_irq(INT32,INT32,INT32)
+{
+	// not for this hardware
+}
+
 cpu_core_config pic16c5xConfig =
 {
 	pic16c5xOpen,
@@ -24,6 +29,8 @@ cpu_core_config pic16c5xConfig =
 	pic16c5xGetActive,
 	pic16c5xTotalCycles,
 	pic16c5xNewFrame,
+	pic16c5xIdle,
+	core_set_irq,
 	pic16c5xRun,
 	pic16c5xRunEnd,
 	pic16c5xReset,
@@ -33,7 +40,7 @@ cpu_core_config pic16c5xConfig =
 
 UINT16 pic16c5xFetch(UINT16 address)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5x_read_op called without init\n"));
 #endif
 
@@ -46,7 +53,7 @@ UINT16 pic16c5xFetch(UINT16 address)
 
 UINT8 pic16c5xRead(UINT16 address)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5x_read_byte called without init\n"));
 #endif
 
@@ -63,7 +70,7 @@ UINT8 pic16c5xRead(UINT16 address)
 
 void pic16c5xWrite(UINT16 address, UINT8 data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5x_write_byte called without init\n"));
 #endif
 
@@ -82,7 +89,7 @@ void pic16c5xWrite(UINT16 address, UINT8 data)
 
 UINT8 pic16c5xReadPort(UINT16 port)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5x_read_port called without init\n"));
 #endif
 
@@ -95,7 +102,7 @@ UINT8 pic16c5xReadPort(UINT16 port)
 
 void pic16c5xWritePort(UINT16 port, UINT8 data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5x_write_port called without init\n"));
 #endif
 
@@ -117,7 +124,7 @@ void pic16c5xSetWritePortHandler(void (*pWritePort)(UINT16 port, UINT8 data))
 
 void pic16c5xReset()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5xReset called without init\n"));
 #endif
 
@@ -127,16 +134,6 @@ void pic16c5xReset()
 INT32 pic16c5xGetActive()
 {
 	return 0; // only one cpu supported atm
-}
-
-INT32 pic16c5xTotalCycles() // not functional
-{
-	return 0;
-}
-
-void pic16c5xNewFrame() // not functional
-{
-	// 
 }
 
 UINT8 pic16c5xCheatRead(UINT32 address)
@@ -166,7 +163,7 @@ void pic16c5xInit(INT32 /*nCPU*/, INT32 type, UINT8 *mem)
 
 void pic16c5xExit()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5xExit called without init\n"));
 #endif
 
@@ -186,21 +183,21 @@ void pic16c5xExit()
 
 void pic16c5xOpen(INT32)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5xOpen called without init\n"));
 #endif
 }
 
 void pic16c5xClose()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5xClose called without init\n"));
 #endif
 }
 
 INT32 pic16c5xScan(INT32 nAction)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_PIC16C5XInitted) bprintf(PRINT_ERROR, _T("pic16c5xScan called without init\n"));
 #endif
 

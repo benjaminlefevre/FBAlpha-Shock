@@ -304,7 +304,8 @@ static void DrvPaletteInit()
 
 static INT32 DrvInit()
 {
-//	BurnSetRefreshRate(60.58);
+	//setting refresh above 60 causes clicky audio on some systems!
+	//BurnSetRefreshRate(60.58);
 
 	AllMem = NULL;
 	MemIndex();
@@ -439,8 +440,10 @@ static INT32 DrvDraw()
 		DrvRecalc = 0;
 	}
 
-	draw_layer();
-	draw_sprites();
+	BurnTransferClear();
+
+	if (nBurnLayer & 1) draw_layer();
+	if (nSpriteEnable & 1) draw_sprites();
 
 	BurnTransferCopy(DrvPalette);
 

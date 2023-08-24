@@ -26,7 +26,13 @@ bool bBurnUseMMX;
 bool bBurnUseASMCPUEmulation = false;
 #endif
 
-#if defined (FBA_DEBUG)
+// Just so we can start using FBNEO_DEBUG and keep backwards compatablity should whatever is left of FB Alpha rise from it's grave. 
+#if defined (FBNEO_DEBUG) && (!defined FBA_DEBUG)
+#define FBA_DEBUG 1
+#endif
+
+
+#if defined (FBNEO_DEBUG)
  clock_t starttime = 0;
 #endif
 
@@ -595,7 +601,7 @@ extern "C" INT32 BurnDrvInit()
 		return 1;
 	}
 
-#if defined (FBA_DEBUG)
+#if defined (FBNEO_DEBUG)
 	{
 		TCHAR szText[1024] = _T("");
 		TCHAR* pszPosition = szText;
@@ -651,7 +657,7 @@ extern "C" INT32 BurnDrvInit()
 
 	nCurrentFrame = 0;
 
-#if defined (FBA_DEBUG)
+#if defined (FBNEO_DEBUG)
 	if (!nReturnValue) {
 		starttime = clock();
 		nFramesEmulated = 0;
@@ -667,7 +673,7 @@ extern "C" INT32 BurnDrvInit()
 // Exit game emulation
 extern "C" INT32 BurnDrvExit()
 {
-#if defined (FBA_DEBUG)
+#if defined (FBNEO_DEBUG)
 	if (starttime) {
 		clock_t endtime;
 		clock_t nElapsedSecs;
@@ -693,7 +699,7 @@ extern "C" INT32 BurnDrvExit()
 	INT32 nRet = pDriver[nBurnDrvActive]->Exit();			// Forward to drivers function
 	
 	BurnExitMemoryManager();
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	DebugTrackerExit();
 #endif
 
@@ -718,7 +724,7 @@ INT32 BurnDrvCartridgeSetup(BurnCartrigeCommand nCommand)
 
 	BurnExtCartridgeSetupCallback(CART_INIT_END);
 
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 		bprintf(PRINT_NORMAL, _T("  * Loading"));
 #endif
 
@@ -792,12 +798,14 @@ INT32 BurnUpdateProgress(double fProgress, const TCHAR* pszText, bool bAbs)
 }
 
 // ----------------------------------------------------------------------------
-
+// NOTE: Make sure this is called before any soundcore init!
 INT32 BurnSetRefreshRate(double dFrameRate)
 {
 	if (!bForce60Hz) {
 		nBurnFPS = (INT32)(100.0 * dFrameRate);
 	}
+
+	nBurnSoundLen = (nBurnSoundRate * 100 + (nBurnFPS >> 1)) / nBurnFPS;
 
 	return 0;
 }
@@ -928,7 +936,7 @@ double BurnGetTime()
 // ----------------------------------------------------------------------------
 // Wrapper for MAME logerror calls
 
-#if defined (FBA_DEBUG) && defined (MAME_USE_LOGERROR)
+#if defined (FBNEO_DEBUG) && defined (MAME_USE_LOGERROR)
 void logerror(char* szFormat, ...)
 {
 	static char szLogMessage[1024];
@@ -946,7 +954,7 @@ void logerror(char* szFormat, ...)
 }
 #endif
 
-#if defined (FBA_DEBUG)
+#if defined (FBNEO_DEBUG)
 void BurnDump_(char *filename, UINT8 *buffer, INT32 bufsize)
 {
     FILE *f = fopen(filename, "wb+");

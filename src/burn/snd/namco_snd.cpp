@@ -55,6 +55,102 @@ struct namco_sound
 
 static struct namco_sound *chip = NULL;
 
+static void NamcoSoundUpdate_INT(INT16* buffer, INT32 length); // forwards
+static void NamcoSoundUpdateStereo_INT(INT16* buffer, INT32 length); // forwards
+
+// for stream-sync
+static INT32 namco_buffered = 0;
+static INT32 (*pCPUTotalCycles)() = NULL;
+static UINT32 nDACCPUMHZ = 0;
+static INT32 nPosition;
+static INT16 *soundbuf;
+
+// Streambuffer handling
+static INT32 SyncInternal()
+{
+    if (!namco_buffered) return 0;
+	return (INT32)(float)(nBurnSoundLen * (pCPUTotalCycles() / (nDACCPUMHZ / (nBurnFPS / 100.0000))));
+}
+
+static void UpdateStream(INT32 samples_len)
+{
+    if (!namco_buffered) return;
+    if (samples_len > nBurnSoundLen) samples_len = nBurnSoundLen;
+
+	INT32 nSamplesNeeded = samples_len;
+
+    nSamplesNeeded -= nPosition;
+    if (nSamplesNeeded <= 0) return;
+
+	INT16 *mix = soundbuf + 5 + (nPosition * 2); // * 2 (stereo stream)
+
+	//bprintf(0, _T("Namco_sync: %d samples    frame %d\n"), nSamplesNeeded, nCurrentFrame);
+
+	if (chip->stereo)
+		NamcoSoundUpdateStereo_INT(mix, nSamplesNeeded);
+	else
+		NamcoSoundUpdate_INT(mix, nSamplesNeeded);
+
+    nPosition += nSamplesNeeded;
+}
+
+void NamcoSoundSetStereo(INT32 stereomode)
+{
+	chip->stereo = stereomode;
+}
+
+void NamcoSoundSetBuffered(INT32 (*pCPUCyclesCB)(), INT32 nCpuMHZ)
+{
+    bprintf(0, _T("*** Using BUFFERED NamcoSnd-mode.\n"));
+	nPosition = 0;
+
+    namco_buffered = 1;
+
+    pCPUTotalCycles = pCPUCyclesCB;
+    nDACCPUMHZ = nCpuMHZ;
+}
+
+void NamcoSoundUpdate(INT16* pSoundBuf, INT32 Length)
+{
+#if defined FBNEO_DEBUG
+	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundUpdate called without init\n"));
+#endif
+
+	if (namco_buffered) {
+		if (Length != nBurnSoundLen) {
+			bprintf(0, _T("NamcoSoundUpdate() in buffered mode must be called once per frame!\n"));
+			return;
+		}
+	} else {
+		nPosition = 0;
+	}
+
+	INT16 *mix = soundbuf + 5 + (nPosition * 2);
+
+	if (chip->stereo)
+		NamcoSoundUpdateStereo_INT(mix, Length - nPosition); // fill to end
+	else
+		NamcoSoundUpdate_INT(mix, Length - nPosition); // fill to end
+
+	INT16 *pBuf = soundbuf + 5;
+
+	while (Length > 0) {
+		if (chip->bAdd) {
+			pSoundBuf[0] = BURN_SND_CLIP(pSoundBuf[0] + pBuf[0]);
+			pSoundBuf[1] = BURN_SND_CLIP(pSoundBuf[1] + pBuf[1]);
+		} else {
+			pSoundBuf[0] = BURN_SND_CLIP(pBuf[0]);
+			pSoundBuf[1] = BURN_SND_CLIP(pBuf[1]);
+		}
+
+		pBuf += 2;
+		pSoundBuf += 2;
+		Length--;
+	}
+
+	nPosition = 0;
+}
+
 static void update_namco_waveform(INT32 offset, UINT8 data)
 {
 	if (chip->wave_size == 1)
@@ -124,20 +220,12 @@ static inline UINT32 namco_stereo_update_one(INT16 *buffer, INT32 length, const 
 	return counter;
 }
 
-void NamcoSoundUpdate(INT16* buffer, INT32 length)
+static void NamcoSoundUpdate_INT(INT16* buffer, INT32 length)
 {
-#if defined FBA_DEBUG
-	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundUpdate called without init\n"));
-#endif
-
 	sound_channel *voice;
 
-	INT32 add_stream = chip->bAdd;
+	memset(buffer, 0, length * 2 * sizeof(INT16));
 
-	/* zap the contents of the buffers */
-	if (add_stream == 0) {
-		memset(buffer, 0, length * 2 * sizeof(INT16));
-	}
 	/* if no sound, we're done */
 	if (chip->sound_enable == 0)
 		return;
@@ -217,20 +305,11 @@ void NamcoSoundUpdate(INT16* buffer, INT32 length)
 	}
 }
 
-void NamcoSoundUpdateStereo(INT16* buffer, INT32 length)
+static void NamcoSoundUpdateStereo_INT(INT16* buffer, INT32 length)
 {
-#if defined FBA_DEBUG
-	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundUpdateStereo called without init\n"));
-#endif
-
 	sound_channel *voice;
 
-	INT32 add_stream = chip->bAdd;
-
-	/* zap the contents of the buffers */
-	if (add_stream == 0) {
-		memset(buffer, 0, length * 2 * sizeof(INT16));
-	}
+	memset(buffer, 0, length * 2 * sizeof(INT16));
 
 	/* if no sound, we're done */
 	if (chip->sound_enable == 0)
@@ -337,7 +416,7 @@ void NamcoSoundUpdateStereo(INT16* buffer, INT32 length)
 
 void NamcoSoundWrite(UINT32 offset, UINT8 data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundWrite called without init\n"));
 #endif
 
@@ -347,6 +426,8 @@ void NamcoSoundWrite(UINT32 offset, UINT8 data)
 	data &= 0x0f;
 	if (namco_soundregs[offset] == data)
 		return;
+
+	if (namco_buffered) UpdateStream(SyncInternal());
 
 	/* set the register */
 	namco_soundregs[offset] = data;
@@ -401,6 +482,8 @@ static void namcos1_sound_write(INT32 offset, INT32 data)
 	if (namco_soundregs[offset] == data)
 		return;
 
+	if (namco_buffered) UpdateStream(SyncInternal());
+
 	/* set the register */
 	namco_soundregs[offset] = data;
 
@@ -429,7 +512,7 @@ static void namcos1_sound_write(INT32 offset, INT32 data)
 
 		case 0x04:
 			voice->volume[1] = data & 0x0f;
-	
+
 			INT32 nssw = ((data & 0x80) >> 7);
 			if (++voice == chip->last_channel)
 				voice = chip->channel_list;
@@ -448,6 +531,8 @@ void namco_15xx_write(INT32 offset, UINT8 data)
 
 	if (namco_soundregs[offset] == data)
 		return;
+
+	if (namco_buffered) UpdateStream(SyncInternal());
 
 	/* set the register */
 	namco_soundregs[offset] = data;
@@ -499,7 +584,7 @@ void namco_15xx_sound_enable(INT32 value)
 
 void namcos1_custom30_write(INT32 offset, INT32 data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("namcos1_custom30_write called without init\n"));
 #endif
 
@@ -522,7 +607,7 @@ void namcos1_custom30_write(INT32 offset, INT32 data)
 
 UINT8 namcos1_custom30_read(INT32 offset)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("namcos1_custom30_read called without init\n"));
 #endif
 
@@ -582,7 +667,7 @@ static INT32 build_decoded_waveform()
 
 void NamcoSoundReset()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundReset called without init\n"));
 #endif
 
@@ -615,6 +700,8 @@ void NamcoSoundInit(INT32 clock, INT32 num_voices, INT32 bAdd)
 
 	namco_soundregs = (UINT8*)BurnMalloc(0x400);
 	memset(namco_soundregs, 0, 0x400);
+
+	soundbuf = (INT16*)BurnMalloc(0x1000); // for buffered updates
 
 	chip->num_voices = num_voices;
 	chip->last_channel = chip->channel_list + chip->num_voices;
@@ -660,11 +747,11 @@ void NamcoSoundInit(INT32 clock, INT32 num_voices, INT32 bAdd)
 	chip->output_dir[BURN_SND_NAMCOSND_ROUTE_2] = BURN_SND_ROUTE_BOTH;
 }
 
-void NacmoSoundSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir)
+void NamcoSoundSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir)
 {
-#if defined FBA_DEBUG
-	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NacmoSoundSetRoute called without init\n"));
-	if (nIndex < 0 || nIndex > 1) bprintf(PRINT_ERROR, _T("NacmoSoundSetRoute called with invalid index %i\n"), nIndex);
+#if defined FBNEO_DEBUG
+	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundSetRoute called without init\n"));
+	if (nIndex < 0 || nIndex > 1) bprintf(PRINT_ERROR, _T("NamcoSoundSetRoute called with invalid index %i\n"), nIndex);
 #endif
 
 	chip->gain[nIndex] = nVolume;
@@ -673,7 +760,7 @@ void NacmoSoundSetRoute(INT32 nIndex, double nVolume, INT32 nRouteDir)
 
 void NamcoSoundExit()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugSnd_NamcoSndInitted) bprintf(PRINT_ERROR, _T("NamcoSoundExit called without init\n"));
 #endif
 
@@ -685,6 +772,14 @@ void NamcoSoundExit()
 		BurnFree(namco_wavedata);
 	}
 	BurnFree(namco_waveformdata);
+
+	BurnFree(soundbuf);
+    if (namco_buffered) {
+        namco_buffered = 0;
+        pCPUTotalCycles = NULL;
+		nDACCPUMHZ = 0;
+		nPosition = 0;
+    }
 
 	NamcoSoundProm = NULL;
 	namco_wavedata = NULL; // this is important.

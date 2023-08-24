@@ -492,12 +492,7 @@ static INT32 DrvInit(INT32 game)
 {
 	game_select = game;
 
-	AllMem = NULL;
-	MemIndex();
-	INT32 nLen = MemEnd - (UINT8 *)0;
-	if ((AllMem = (UINT8 *)BurnMalloc(nLen)) == NULL) return 1;
-	memset(AllMem, 0, nLen);
-	MemIndex();
+	BurnAllocMemIndex();
 
 	memset (DrvNVRAM, 0xff, 0x800);
 
@@ -568,6 +563,7 @@ static INT32 DrvInit(INT32 game)
 	AY8910SetPorts(1, &ay8910_1_read_A, &ay8910_1_read_B, NULL, NULL);
 	AY8910SetAllRoutes(0, 0.25, BURN_SND_ROUTE_BOTH);
 	AY8910SetAllRoutes(1, 0.25, BURN_SND_ROUTE_BOTH);
+    AY8910SetBuffered(ZetTotalCycles, (game_select ? 5000000 : 3355700));
 
 	sp0256_init(DrvSndROM, 3355700);
 	sp0256_set_drq_cb(sp0256_drq_callback);
@@ -581,11 +577,8 @@ static INT32 DrvInit(INT32 game)
 		GenericTilemapInit(0, TILEMAP_SCAN_ROWS, holeland_map_callback, 16, 16, 32, 32);
 		GenericTilemapSetGfx(0, DrvGfxROM0, 2, 16, 16, 0x40000, 0, 0x3f);
 		GenericTilemapSetOffsets(0, 0, -32);
-		GenericTilemapCategoryConfig(0, 4);
-		GenericTilemapSetTransMask(0, 0, 0xff); // fg TMAP_DRAWLAYER0 category 0
-		GenericTilemapSetTransMask(0, 1, 0x01); // "" category 1
-		GenericTilemapSetTransMask(0, 2, 0x00); // bg TMAP_DRAWLAYER1 category 0
-		GenericTilemapSetTransMask(0, 3, 0xfe); // "" category 1
+		GenericTilemapSetTransSplit(0, 0, 0xff, 0x00); // tmap, category, layer0, layer1
+		GenericTilemapSetTransSplit(0, 1, 0x01, 0xfe);
 	}
 	else
 	{
@@ -606,7 +599,7 @@ static INT32 DrvExit()
 	AY8910Exit(1);
 	sp0256_exit();
 
-	BurnFree(AllMem);
+	BurnFreeMemIndex();
 
 	return 0;
 }
@@ -752,15 +745,16 @@ static INT32 DrvFrame()
 		}
 	}
 
-	INT32 nSoundBufferPos = 0;
 	INT32 nInterleave = 256;
-	INT32 nCyclesTotal = (game_select ? 5000000 : 3355700) / 60;
-	INT32 nCyclesDone = 0;
+	INT32 nCyclesTotal[1] = { (game_select ? 5000000 : 3355700) / 60 };
+	INT32 nCyclesDone[1] = { 0 };
 
-	ZetOpen(0);
+    ZetNewFrame();
+
+    ZetOpen(0);
 	for (INT32 i = 0; i < nInterleave; i++)
 	{
-		nCyclesDone += ZetRun((nCyclesTotal * (i + 1) / nInterleave) - nCyclesDone);
+		CPU_RUN(0, Zet);
 
 		if (i == 240) {
 			if (pBurnDraw) {
@@ -769,22 +763,11 @@ static INT32 DrvFrame()
 
 			ZetSetIRQLine(0, CPU_IRQSTATUS_HOLD);
 		}
-
-		if (pBurnSoundOut && (i%16) == 15) {
-			INT32 nSegmentLength = nBurnSoundLen / (nInterleave / 16);
-			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-			AY8910Render(pSoundBuf, nSegmentLength);
-			nSoundBufferPos += nSegmentLength;
-		}
 	}
 	ZetClose();
 
 	if (pBurnSoundOut) {
-		INT32 nSegmentLength = nBurnSoundLen - nSoundBufferPos;
-		if (nSegmentLength) {
-			INT16* pSoundBuf = pBurnSoundOut + (nSoundBufferPos << 1);
-			AY8910Render(pSoundBuf, nSegmentLength);
-		}
+        AY8910Render(pBurnSoundOut, nBurnSoundLen);
 		ZetOpen(0);
 		if (game_select == 0) sp0256_update(pBurnSoundOut, nBurnSoundLen);
 		ZetClose();

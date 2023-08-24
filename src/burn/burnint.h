@@ -10,18 +10,11 @@
 #include <string.h>
 #include <assert.h>
 
-#if defined(__LIBRETRO__) && defined(_MSC_VER)
-#include <tchar.h>
-#else
 #include "tchar.h"
-#endif
-
-#ifdef __LIBRETRO__
-#include "burn_libretro_opts.h"
-#endif
 
 #include "burn.h"
 #include "burn_sound.h"
+#include "joyprocess.h"
 
 #ifdef LSB_FIRST
 typedef union
@@ -141,7 +134,10 @@ struct cpu_core_config {
 	void (*write)(UINT32, UINT8);	// write
 	INT32 (*active)();		// active cpu
 	INT32 (*totalcycles)();		// total cycles
-	void (*newframe)();		// new frame
+	void (*newframe)();		// new frame'
+	INT32 (*idle)(INT32);	// idle cycles
+
+	void (*irq)(INT32, INT32, INT32);	// set irq, cpu, line, status
 
 	INT32 (*run)(INT32);		// execute cycles
 	void (*runend)();		// end run
@@ -156,6 +152,7 @@ void CpuCheatRegister(INT32 type, cpu_core_config *config);
 // burn_memory.cpp
 void BurnInitMemoryManager();
 UINT8 *BurnMalloc(INT32 size);
+UINT8 *BurnRealloc(void *ptr, INT32 size);
 void _BurnFree(void *ptr);
 #define BurnFree(x) do {_BurnFree(x); x = NULL; } while (0)
 void BurnExitMemoryManager();

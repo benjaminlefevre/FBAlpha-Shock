@@ -586,7 +586,7 @@ static void expand_tile_gfx()
 		PGMTileROM[i * 2 + 1] = d >> 4;
 	}
 
-	PGMTileROM = (UINT8*)realloc(PGMTileROM, 0x400000);
+	PGMTileROM = (UINT8*)BurnRealloc(PGMTileROM, 0x400000);
 }
 
 static void expand_colourdata()
@@ -867,7 +867,7 @@ INT32 pgmFrame()
         // silly hold coin logic
         for (INT32 i = 0; i < 4; i++) {
             if ((previous_coin != (PgmCoins & 0xf)) && PgmBtn1[i] && !hold_coin[i]) {
-                hold_coin[i] = 11; // frames to hold coin + 1
+                hold_coin[i] = 7 + 1; // frames to hold coin + 1
             }
             if (hold_coin[i]) {
                 hold_coin[i]--;

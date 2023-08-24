@@ -4278,8 +4278,6 @@ INT32 NeoExit()
 
 	bDisableNeoWatchdog = false;
 
-	// release the NeoGeo CD information object if needed
-	NeoCDInfo_Exit();
 
 	s1945pmode = 0;
 

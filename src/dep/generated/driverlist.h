@@ -5961,16 +5961,11 @@ DRV		BurnDrvSonson;
 DRV		BurnDrvSonsonj;
 DRV		BurnDrvpce_sonson2;
 DRV		BurnDrvmd_skp12;
-DRV		BurnDrvmd_skp11;
 DRV		BurnDrvmd_skp10;
-DRV		BurnDrvmd_skp09;
 DRV		BurnDrvmd_skp08;
-DRV		BurnDrvmd_skp07;
 DRV		BurnDrvmd_skp06;
-DRV		BurnDrvmd_skp05;
 DRV		BurnDrvmd_skp04;
 DRV		BurnDrvmd_skp02;
-DRV		BurnDrvmd_skp03;
 DRV		BurnDrvmd_skp01;
 DRV		BurnDrvmd_sk;
 DRV		BurnDrvmd_sks1;
@@ -14291,16 +14286,11 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvSonsonj,			// Son Son (Japan)
 	&BurnDrvpce_sonson2,		// Son Son II
 	&BurnDrvmd_skp12,			// Sonic & Knuckles (Prototype 0525, 19940525, 15.28)
-	&BurnDrvmd_skp11,			// Sonic & Knuckles (Prototype 0606, 19940605, 22.25, S2K chip) [no comment, NOT WORKING]
 	&BurnDrvmd_skp10,			// Sonic & Knuckles (Prototype 0606, 19940606, 10.02)
-	&BurnDrvmd_skp09,			// Sonic & Knuckles (Prototype 0608, 19940608, 03.35, S2K chip) [no comment, NOT WORKING]
 	&BurnDrvmd_skp08,			// Sonic & Knuckles (Prototype 0608, 19940608, 05.03)
-	&BurnDrvmd_skp07,			// Sonic & Knuckles (Prototype 0610, 19940610, 03.11, S2K chip) [no comment, NOT WORKING]
 	&BurnDrvmd_skp06,			// Sonic & Knuckles (Prototype 0610, 19940610, 07.49)
-	&BurnDrvmd_skp05,			// Sonic & Knuckles (Prototype 0612, 19940612, 18.18, S2K chip) [no comment, NOT WORKING]
 	&BurnDrvmd_skp04,			// Sonic & Knuckles (Prototype 0612, 19940612, 18.27)
 	&BurnDrvmd_skp02,			// Sonic & Knuckles (Prototype 0618, 19940618, 09.15)
-	&BurnDrvmd_skp03,			// Sonic & Knuckles (Prototype 0618, 19940618, 9.07, S2K chip) [no comment, NOT WORKING]
 	&BurnDrvmd_skp01,			// Sonic & Knuckles (Prototype 0619, 19940619, 08.18)
 	&BurnDrvmd_sk,				// Sonic & Knuckles (World)
 	&BurnDrvmd_sks1,			// Sonic & Knuckles + Sonic the Hedgehog (World)

@@ -35,6 +35,24 @@ extern void s2650_exit();
 extern void s2650_reset(void);
 extern INT32 s2650_get_pc();
 
+static void core_set_irq(INT32 cpu, INT32 line, INT32 state)
+{
+	INT32 active = nActiveS2650;
+	if (active != cpu)
+	{
+		if (active != -1) s2650Close();
+		s2650Open(cpu);
+	}
+
+	s2650SetIRQLine(line, state);
+
+	if (active != cpu)
+	{
+		s2650Close();
+		if (active != -1) s2650Open(active);
+	}
+}
+
 cpu_core_config s2650Config =
 {
 	s2650Open,
@@ -44,6 +62,8 @@ cpu_core_config s2650Config =
 	s2650GetActive,
 	s2650TotalCycles,
 	s2650NewFrame,
+	s2650Idle,
+	core_set_irq,
 	s2650Run,
 	s2650RunEnd,
 	s2650Reset,
@@ -53,7 +73,7 @@ cpu_core_config s2650Config =
 
 void s2650MapMemory(UINT8 *ptr, INT32 nStart, INT32 nEnd, INT32 nType)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650MapMemory called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650MapMemory called when no CPU open\n"));
 #endif
@@ -71,7 +91,7 @@ void s2650MapMemory(UINT8 *ptr, INT32 nStart, INT32 nEnd, INT32 nType)
 
 void s2650SetWriteHandler(void (*write)(UINT16, UINT8))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650SetWriteHandler called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650SetWriteHandler called when no CPU open\n"));
 #endif
@@ -81,7 +101,7 @@ void s2650SetWriteHandler(void (*write)(UINT16, UINT8))
 
 void s2650SetReadHandler(UINT8 (*read)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650SetReadHandler called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650SetReadHandler called when no CPU open\n"));
 #endif
@@ -91,7 +111,7 @@ void s2650SetReadHandler(UINT8 (*read)(UINT16))
 
 void s2650SetOutHandler(void (*write)(UINT16, UINT8))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650SetOutHandler called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650SetOutHandler called when no CPU open\n"));
 #endif
@@ -101,7 +121,7 @@ void s2650SetOutHandler(void (*write)(UINT16, UINT8))
 
 void s2650SetInHandler(UINT8 (*read)(UINT16))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650SetInHandler called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650SetInHandler called when no CPU open\n"));
 #endif
@@ -173,7 +193,7 @@ UINT8 s2650ReadPort(UINT16 port)
 
 void s2650WriteROM(UINT32 address, UINT8 data)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650WriteRom called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650WriteRom called when no CPU open\n"));
 #endif
@@ -202,7 +222,7 @@ void s2650WriteROM(UINT32 address, UINT8 data)
 
 void s2650SetIrqCallback(INT32 (*irqcallback)(INT32))
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650SetIrqCallback called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650SetIrqCallback called when no CPU open\n"));
 #endif
@@ -213,21 +233,6 @@ void s2650SetIrqCallback(INT32 (*irqcallback)(INT32))
 UINT8 s2650ReadCheat(UINT32 a)
 {
 	return s2650Read(a);
-}
-
-INT32 s2650TotalCycles()
-{
-	return 0;		// unimplemented
-}
-
-void s2650NewFrame()
-{
-	// unimplemented
-}
-
-void s2650RunEnd()
-{
-	// unimplemented
 }
 
 void s2650Init(INT32 num)
@@ -244,7 +249,7 @@ void s2650Init(INT32 num)
 
 void s2650Exit()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650Exit called without init\n"));
 #endif
 
@@ -259,7 +264,7 @@ void s2650Exit()
 
 void s2650Open(INT32 num)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650Open called without init\n"));
 	if (num > s2650Count) bprintf(PRINT_ERROR, _T("s2650Open called with invalid index %x\n"), num);
 	if (nActiveS2650 != -1) bprintf(PRINT_ERROR, _T("s2650Open called when CPU already open with index %x\n"), num);
@@ -271,7 +276,7 @@ void s2650Open(INT32 num)
 
 void s2650Close()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650Close called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650Close called when no CPU open\n"));
 #endif
@@ -281,7 +286,7 @@ void s2650Close()
 
 UINT32 s2650GetPC(INT32)
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650GetPC called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650GetPC called when no CPU open\n"));
 #endif
@@ -291,7 +296,7 @@ UINT32 s2650GetPC(INT32)
 
 INT32 s2650GetActive()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650GetActive called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650GetActive called when no CPU open\n"));
 #endif
@@ -301,7 +306,7 @@ INT32 s2650GetActive()
 
 void s2650Reset()
 {
-#if defined FBA_DEBUG
+#if defined FBNEO_DEBUG
 	if (!DebugCPU_S2650Initted) bprintf(PRINT_ERROR, _T("s2650Reset called without init\n"));
 	if (nActiveS2650 == -1) bprintf(PRINT_ERROR, _T("s2650Reset called when no CPU open\n"));
 #endif
