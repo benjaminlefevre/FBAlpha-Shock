@@ -1731,7 +1731,6 @@ DRV		BurnDrvDorodon2;
 DRV		BurnDrvdotrikun;
 DRV		BurnDrvdotriku2;
 DRV		BurnDrvdotriman;
-DRV		BurnDrvDblaxleu;
 DRV		BurnDrvDblaxle;
 DRV		BurnDrvmd_doublecl;
 DRV		BurnDrvDdragonb;
@@ -6487,7 +6486,6 @@ DRV		BurnDrvmd_strikerp;
 DRV		BurnDrvS1945;
 DRV		BurnDrvS1945a;
 DRV		BurnDrvS1945j;
-DRV		BurnDrvS1945jn;
 DRV		BurnDrvS1945k;
 DRV		BurnDrvS1945ii;
 DRV		BurnDrvS1945iii;
@@ -10077,7 +10075,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvdotrikun,			// Dottori Kun (new version)
 	&BurnDrvdotriku2,			// Dottori Kun (old version)
 	&BurnDrvdotriman,			// Dottori-Man Jr.
-	&BurnDrvDblaxleu,			// Double Axle (US earlier)
 	&BurnDrvDblaxle,			// Double Axle (US)
 	&BurnDrvmd_doublecl,		// Double Clutch (Euro)
 	&BurnDrvDdragonb,			// Double Dragon (bootleg with HD6309)
@@ -14833,7 +14830,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvS1945,				// Strikers 1945
 	&BurnDrvS1945a,				// Strikers 1945 (Alt)
 	&BurnDrvS1945j,				// Strikers 1945 (Japan)
-	&BurnDrvS1945jn,			// Strikers 1945 (Japan, unprotected)
 	&BurnDrvS1945k,				// Strikers 1945 (Korea)
 	&BurnDrvS1945ii,			// Strikers 1945 II
 	&BurnDrvS1945iii,			// Strikers 1945 III (World) / Strikers 1999 (Japan)

@@ -68,6 +68,8 @@ static UINT8 DrvDips[1];
 static UINT8 DrvReset;
 static UINT8 DrvInputs[6];
 
+static INT32 is_shufshot = 0;
+
 static INT16 DrvAnalogPort0 = 0;
 static INT16 DrvAnalogPort1 = 0;
 static INT16 DrvAnalogPort2 = 0;
@@ -201,12 +203,12 @@ static struct BurnInputInfo SftmInputList[] = {
 	{"P1 Down",			BIT_DIGITAL,	DrvJoy1 + 6,	"p1 down"	},
 	{"P1 Left",			BIT_DIGITAL,	DrvJoy1 + 5,	"p1 left"	},
 	{"P1 Right",		BIT_DIGITAL,	DrvJoy1 + 4,	"p1 right"	},
-	{"P1 Button 1",		BIT_DIGITAL,	DrvJoy1 + 2,	"p1 fire 1"	},
-	{"P1 Button 2",		BIT_DIGITAL,	DrvJoy1 + 3,	"p1 fire 2"	},
-	{"P1 Button 3",		BIT_DIGITAL,	DrvJoy3 + 0,	"p1 fire 3"	},
-	{"P1 Button 4",		BIT_DIGITAL,	DrvJoy3 + 2,	"p1 fire 4"	},
-	{"P1 Button 5",		BIT_DIGITAL,	DrvJoy3 + 4,	"p1 fire 5"	},
-	{"P1 Button 6",		BIT_DIGITAL,	DrvJoy3 + 6,	"p1 fire 6"	},
+	{"P1 Weak Punch",	BIT_DIGITAL,	DrvJoy1 + 2,	"p1 fire 1"	},
+	{"P1 Medium Punch",	BIT_DIGITAL,	DrvJoy1 + 3,	"p1 fire 2"	},
+	{"P1 Strong Punch",	BIT_DIGITAL,	DrvJoy3 + 0,	"p1 fire 3"	},
+	{"P1 Weak Kick",	BIT_DIGITAL,	DrvJoy3 + 2,	"p1 fire 4"	},
+	{"P1 Medium Kick",	BIT_DIGITAL,	DrvJoy3 + 4,	"p1 fire 5"	},
+	{"P1 Strong Kick",	BIT_DIGITAL,	DrvJoy3 + 6,	"p1 fire 6"	},
 
 	{"P2 Coin",			BIT_DIGITAL,	DrvJoy2 + 0,	"p2 coin"	},
 	{"P2 Start",		BIT_DIGITAL,	DrvJoy2 + 1,	"p2 start"	},
@@ -214,12 +216,12 @@ static struct BurnInputInfo SftmInputList[] = {
 	{"P2 Down",			BIT_DIGITAL,	DrvJoy2 + 6,	"p2 down"	},
 	{"P2 Left",			BIT_DIGITAL,	DrvJoy2 + 5,	"p2 left"	},
 	{"P2 Right",		BIT_DIGITAL,	DrvJoy2 + 4,	"p2 right"	},
-	{"P2 Button 1",		BIT_DIGITAL,	DrvJoy2 + 2,	"p2 fire 1"	},
-	{"P2 Button 2",		BIT_DIGITAL,	DrvJoy2 + 3,	"p2 fire 2"	},
-	{"P2 Button 3",		BIT_DIGITAL,	DrvJoy3 + 1,	"p2 fire 3"	},
-	{"P2 Button 4",		BIT_DIGITAL,	DrvJoy3 + 3,	"p2 fire 4"	},
-	{"P2 Button 5",		BIT_DIGITAL,	DrvJoy3 + 5,	"p2 fire 5"	},
-	{"P2 Button 6",		BIT_DIGITAL,	DrvJoy3 + 7,	"p2 fire 6"	},
+	{"P2 Weak Punch",	BIT_DIGITAL,	DrvJoy2 + 2,	"p2 fire 1"	},
+	{"P2 Medium Punch",	BIT_DIGITAL,	DrvJoy2 + 3,	"p2 fire 2"	},
+	{"P2 Strong Punch",	BIT_DIGITAL,	DrvJoy3 + 1,	"p2 fire 3"	},
+	{"P2 Weak Kick",	BIT_DIGITAL,	DrvJoy3 + 3,	"p2 fire 4"	},
+	{"P2 Medium Kick",	BIT_DIGITAL,	DrvJoy3 + 5,	"p2 fire 5"	},
+	{"P2 Strong Kick",	BIT_DIGITAL,	DrvJoy3 + 7,	"p2 fire 6"	},
 
 	{"Reset",			BIT_DIGITAL,	&DrvReset,		"reset"		},
 	{"Service",			BIT_DIGITAL,	DrvJoy5 + 1,	"service"	},
@@ -2206,7 +2208,8 @@ static void __fastcall common32_main_write_word(UINT32 address, UINT16 data)
 		return;
 	}
 
-	bprintf (0, _T("MWW: %5.5x, %4.4x\n"), address, data);
+	if ((address&0xffff00) != 0x61ff00)
+		bprintf (0, _T("MWW: %5.5x, %4.4x\n"), address, data);
 }
 
 static void __fastcall common32_main_write_byte(UINT32 address, UINT8 data)
@@ -2274,7 +2277,8 @@ static void __fastcall common32_main_write_byte(UINT32 address, UINT8 data)
 		return;
 	}
 
-	bprintf (0, _T("MWB: %5.5x, %2.2x\n"), address, data);
+	if ((address&0xffff00) != 0x61ff00)
+		bprintf (0, _T("MWB: %5.5x, %2.2x\n"), address, data);
 }
 
 static UINT8 wcbowl_track_read(INT32 player)
@@ -2285,6 +2289,17 @@ static UINT8 wcbowl_track_read(INT32 player)
 static UINT16 track_read_8bit(INT32 player)
 {
 	return (BurnTrackballRead(player, 0) & 0xff) | ((BurnTrackballRead(player, 1) & 0xff) << 8);
+}
+
+static INT32 shufshot_weird_y(INT16 ana)
+{
+	// todo: revisit at a later time.
+	// "git 'r dun"-style
+	if (ana > 1024) ana = 1024;
+	if (ana < -1024) ana = -1024;
+	ana /= 256; // -4 - +4
+	ana *= 0.9; // tone it down a bit..
+	return (ana);
 }
 
 static UINT32 track_read_4bit(INT32 player)
@@ -2306,6 +2321,12 @@ static UINT32 track_read_4bit(INT32 player)
 		else if (dy > 0x80) dy -= 0x100;
 		if (dy > 7) dy = 7;
 		else if (dy < -7) dy = -7;
+
+		if (is_shufshot) {
+			// keep shufshot happy...
+			dy = shufshot_weird_y((player == 0) ? DrvAnalogPort1 : DrvAnalogPort3);
+		}
+
 		tb_effy[player] = (tb_effy[player] + dy) & 0xff;
 		INT32 upper = tb_effy[player] & 15;
 
@@ -2812,8 +2833,9 @@ static INT32 DrvGetRoms(bool bLoad)
 			if (bLoad) {
 				if (BurnLoadRom(pSndLoad[bank] + 1, i, 2)) return 1;
 			}
-			if (nSndROMLen[1]) {
+			if (nSndROMLen[1] || is_shufshot) {
 				// wcbowl,wcbowldx,wcbowl{140,165,161,16} have bank1 and 0x200000 spacing
+				// shufshot has 0x200000 spacing but only bank0
 				pSndLoad[bank] += 0x200000;
 			} else {
 				pSndLoad[bank] += ri.nLen * 2;
@@ -2999,6 +3021,8 @@ static INT32 DrvExit()
 	BurnFree (videoram16);
 
 	Trackball_Type = -1;
+
+	is_shufshot = 0;
 
 	return 0;
 }
@@ -4211,7 +4235,7 @@ struct BurnDriver BurnDrvWcbowl161 = {
 };
 
 
-// World Class Bowling (v1.65)
+// World Class Bowling (v1.6)
 
 static struct BurnRomInfo wcbowl16RomDesc[] = {
 	{ "wcb_prom0_v1.6n.prom0",				0x020000, 0x332c558f, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
@@ -4242,7 +4266,7 @@ STD_ROM_FN(wcbowl16)
 
 struct BurnDriver BurnDrvWcbowl16 = {
 	"wcbowl16", "wcbowl", NULL, NULL, "1995",
-	"World Class Bowling (v1.65)\0", NULL, "Incredible Technologies", "Miscellaneous",
+	"World Class Bowling (v1.6)\0", NULL, "Incredible Technologies", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
 	NULL, wcbowl16RomInfo, wcbowl16RomName, NULL, NULL, NULL, NULL, WcbowlInputInfo, WcbowloDIPInfo,
@@ -4744,7 +4768,7 @@ struct BurnDriver BurnDrvSftm110 = {
 
 // Street Fighter: The Movie (v1.12N, Japan)
 
-static struct BurnRomInfo sftmjRomDesc[] = {
+static struct BurnRomInfo sftmj112RomDesc[] = {
 	{ "sfmn_0_v1.12.prom0",					0x040000, 0x640a04a8, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 	{ "sfmn_1_v1.12.prom1",					0x040000, 0x2a27b690, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "sfmn_2_v1.12.prom2",					0x040000, 0xcec1dd7b, 1 | BRF_PRG | BRF_ESS }, //  2
@@ -4770,15 +4794,15 @@ static struct BurnRomInfo sftmjRomDesc[] = {
 	{ "sfm_srom3.srom3",					0x080000, 0x4f181534, 7 | BRF_SND },           // 18 Ensoniq Bank 3
 };
 
-STD_ROM_PICK(sftmj)
-STD_ROM_FN(sftmj)
+STD_ROM_PICK(sftmj112)
+STD_ROM_FN(sftmj112)
 
-struct BurnDriver BurnDrvSftmj = {
-	"sftmj", "sftm", NULL, NULL, "1995",
+struct BurnDriver BurnDrvSftmj112 = {
+	"sftmj112", "sftm", NULL, NULL, "1995",
 	"Street Fighter: The Movie (v1.12N, Japan)\0", NULL, "Capcom / Incredible Technologies", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
-	NULL, sftmjRomInfo, sftmjRomName, NULL, NULL, NULL, NULL, SftmInputInfo, SftmDIPInfo,
+	NULL, sftmj112RomInfo, sftmj112RomName, NULL, NULL, NULL, NULL, SftmInputInfo, SftmDIPInfo,
 	SftmInit, DrvExit, DrvFrame, DrvDraw32, DrvScan, &DrvRecalc, 0x8000,
 	384, 256, 4, 3
 };
@@ -4821,6 +4845,7 @@ STD_ROM_FN(shufshot)
 static INT32 ShufshotInit()
 {
 	Trackball_Type = TB_TYPE0;
+	is_shufshot = 1;
 
 	return Common32BitInit(0x111a, 1, 0);
 }
@@ -5124,7 +5149,7 @@ struct BurnDriver BurnDrvGt3dl191 = {
 };
 
 
-// Golden Tee 3D Golf (v1.92L)
+// Golden Tee 3D Golf (v1.9L)
 
 static struct BurnRomInfo gt3dl19RomDesc[] = {
 	{ "gtg3_prom0_v1.9l.prom0",				0x080000, 0xb6293cf6, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
@@ -5160,7 +5185,7 @@ STD_ROM_FN(gt3dl19)
 
 struct BurnDriver BurnDrvGt3dl19 = {
 	"gt3dl19", "gt3d", NULL, NULL, "1995",
-	"Golden Tee 3D Golf (v1.92L)\0", NULL, "Incredible Technologies", "Miscellaneous",
+	"Golden Tee 3D Golf (v1.9L)\0", NULL, "Incredible Technologies", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_MISC_POST90S, GBF_MISC, 0,
 	NULL, gt3dl19RomInfo, gt3dl19RomName, NULL, NULL, NULL, NULL, Gt3dInputInfo, Gt3dDIPInfo,
