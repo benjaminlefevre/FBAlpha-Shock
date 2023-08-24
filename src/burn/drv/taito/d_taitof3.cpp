@@ -2539,7 +2539,7 @@ static struct BurnRomInfo gunlockRomDesc[] = {
 
 	{ "d66-06.ic48",	0x100000, 0xb3d8126d, TAITO_CHARS_BYTESWAP },     //  7 Layer Tiles
 	{ "d66-07.ic49",	0x100000, 0xa6da9be7, TAITO_CHARS_BYTESWAP },     //  8
-	{ "d66-08.ic49",	0x100000, 0x9959f30b, TAITO_CHARS },              //  9
+	{ "d66-08.ic50",	0x100000, 0x9959f30b, TAITO_CHARS },              //  9
 
 	{ "d66-23.ic10",	0x040000, 0x57fb7c49, TAITO_68KROM2_BYTESWAP },   // 10 68k Code
 	{ "d66-22.ic23",	0x040000, 0x83dd7f9b, TAITO_68KROM2_BYTESWAP },   // 11
@@ -3955,7 +3955,7 @@ static INT32 spcinvdjInit()
 
 struct BurnDriver BurnDrvSpcinvdj = {
 	"spcinvdj", "spacedx", NULL, NULL, "1994",
-	"Space Invaders DX (Ver 2.6J 1994/09/14) (F3 Version)\0", NULL, "Taito Corporation", "Taito F3 System",
+	"Space Invaders DX (Ver 2.6J 1994/09/14) (F3 Version)\0", "Graphics issues in Cellophane mode - use parent!", "Taito Corporation", "Taito F3 System",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_TAITO_MISC, GBF_VERSHOOT, 0,
 	NULL, spcinvdjRomInfo, spcinvdjRomName, NULL, NULL, NULL, NULL, F3InputInfo, F3DIPInfo,
