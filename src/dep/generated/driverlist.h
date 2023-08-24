@@ -1657,7 +1657,6 @@ DRV		BurnDrvmd_djboy;
 DRV		BurnDrvDjboyj;
 DRV		BurnDrvmd_djboyj;
 DRV		BurnDrvDjboy;
-DRV		BurnDrvDjboya;
 DRV		BurnDrvmd_djboyu;
 DRV		BurnDrvDorunrun;
 DRV		BurnDrvDockman;
@@ -2592,9 +2591,6 @@ DRV		BurnDrvGensitou;
 DRV		BurnDrvmd_georgeko;
 DRV		BurnDrvmd_georgekou;
 DRV		BurnDrvGeostorm;
-DRV		BurnDrvGetStarb1;
-DRV		BurnDrvGetStarb2;
-DRV		BurnDrvGetStarj;
 DRV		BurnDrvghostbi;
 DRV		BurnDrvtg_ghostman;
 DRV		BurnDrvGhostmun;
@@ -2743,7 +2739,6 @@ DRV		BurnDrvGrowla;
 DRV		BurnDrvGrowl;
 DRV		BurnDrvGryzor;
 DRV		BurnDrvGryzor1;
-DRV		BurnDrvGetStar;
 DRV		BurnDrvGrdnstrmg;
 DRV		BurnDrvGrdnstrm;
 DRV		BurnDrvGrdnstrmv;
@@ -5905,10 +5900,6 @@ DRV		BurnDrvSkywolf;
 DRV		BurnDrvSkywolf2;
 DRV		BurnDrvSkywolf3;
 DRV		BurnDrvmd_slamshaq;
-DRV		BurnDrvSlapBtJP;
-DRV		BurnDrvSlapBtUK;
-DRV		BurnDrvSlapFghtr;
-DRV		BurnDrvSlapFigh;
 DRV		BurnDrvmd_slapfigh;
 DRV		BurnDrvSlapshtr;
 DRV		BurnDrvSlapshot;
@@ -7355,11 +7346,6 @@ DRV		BurnDrvThndzone;
 DRV		BurnDrvmd_tbolt2;
 DRV		BurnDrvmd_tbolt2a;
 DRV		BurnDrvTndrcade;
-DRV		BurnDrvTigerHB1;
-DRV		BurnDrvTigerHB2;
-DRV		BurnDrvTigerHB3;
-DRV		BurnDrvTigerhJ;
-DRV		BurnDrvTigerH;
 DRV		BurnDrvtg_tigerrod;
 DRV		BurnDrvTigeroadb;
 DRV		BurnDrvTigeroadb2;
@@ -10001,7 +9987,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvDjboyj,				// DJ Boy (Japan)
 	&BurnDrvmd_djboyj,			// DJ Boy (Jpn)
 	&BurnDrvDjboy,				// DJ Boy (set 1)
-	&BurnDrvDjboya,				// DJ Boy (set 2)
 	&BurnDrvmd_djboyu,			// DJ Boy (USA)
 	&BurnDrvDorunrun,			// Do! Run Run (set 1)
 	&BurnDrvDockman,			// Dock Man
@@ -10936,9 +10921,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvmd_georgeko,		// George Foreman's KO Boxing (Euro)
 	&BurnDrvmd_georgekou,		// George Foreman's KO Boxing (USA)
 	&BurnDrvGeostorm,			// Geostorm (Japan)
-	&BurnDrvGetStarb1,			// Get Star (bootleg, set 1)
-	&BurnDrvGetStarb2,			// Get Star (bootleg, set 2)
-	&BurnDrvGetStarj,			// Get Star (Japan)
 	&BurnDrvghostbi,			// Ghost Busters (Intro demo)
 	&BurnDrvtg_ghostman,		// Ghost Manor [game randomly locks up, NOT WORKING]
 	&BurnDrvGhostmun,			// Ghost Muncher
@@ -11087,7 +11069,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvGrowl,				// Growl (World, Rev 1)
 	&BurnDrvGryzor,				// Gryzor (Set 1)
 	&BurnDrvGryzor1,			// Gryzor (Set 2)
-	&BurnDrvGetStar,			// Guardian
 	&BurnDrvGrdnstrmg,			// Guardian Storm (Germany)
 	&BurnDrvGrdnstrm,			// Guardian Storm (horizontal, not encrypted)
 	&BurnDrvGrdnstrmv,			// Guardian Storm (vertical)
@@ -14249,10 +14230,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvSkywolf2,			// Sky Wolf (set 2)
 	&BurnDrvSkywolf3,			// Sky Wolf (set 3)
 	&BurnDrvmd_slamshaq,		// Slam - Shaq vs. the Legends (Prototype)
-	&BurnDrvSlapBtJP,			// Slap Fight (bootleg set 1)
-	&BurnDrvSlapBtUK,			// Slap Fight (bootleg set 2)
-	&BurnDrvSlapFghtr,			// Slap Fight (bootleg set 3)
-	&BurnDrvSlapFigh,			// Slap Fight (Japan set 1)
 	&BurnDrvmd_slapfigh,		// Slap Fight MD (Jpn)
 	&BurnDrvSlapshtr,			// Slap Shooter
 	&BurnDrvSlapshot,			// Slap Shot (Japan)
@@ -15699,11 +15676,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvmd_tbolt2,			// Thunderbolt II (Prototype)
 	&BurnDrvmd_tbolt2a,			// Thunderbolt II (Unprotected, Prototype)
 	&BurnDrvTndrcade,			// Thundercade / Twin Formation
-	&BurnDrvTigerHB1,			// Tiger Heli (bootleg, set 1)
-	&BurnDrvTigerHB2,			// Tiger Heli (bootleg, set 2)
-	&BurnDrvTigerHB3,			// Tiger Heli (bootleg, set 3)
-	&BurnDrvTigerhJ,			// Tiger Heli (Japan)
-	&BurnDrvTigerH,				// Tiger Heli (US)
 	&BurnDrvtg_tigerrod,		// Tiger Road
 	&BurnDrvTigeroadb,			// Tiger Road (US bootleg, set 1)
 	&BurnDrvTigeroadb2,			// Tiger Road (US bootleg, set 2)
