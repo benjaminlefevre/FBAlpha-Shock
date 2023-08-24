@@ -1,7 +1,7 @@
 makesettings [[
 BINPATH  := ../../../fba-toolchains/linux-host/arm-2011.09/bin
-CC       := ${BINPATH}/arm-none-linux-gnueabi-gcc -mfloat-abi=softfp
-CXX      := ${BINPATH}/arm-none-linux-gnueabi-g++ -mfloat-abi=softfp
+CC       := ${BINPATH}/arm-none-linux-gnueabi-gcc
+CXX      := ${BINPATH}/arm-none-linux-gnueabi-g++
 STRIP    := ${BINPATH}/arm-none-linux-gnueabi-strip -s
 ]]
 
@@ -31,7 +31,7 @@ function set_system()
 end
 
 function set_links()
-   linkoptions { "-static" }
+   linkoptions { "-static", "-mfloat-abi=softfp" }
 
    links {
       "m",
@@ -44,6 +44,7 @@ function set_buildoptions()
    buildoptions
    {
       "-static",
+      "-mfloat-abi=softfp",
       "-s",
       "-fsigned-char",
       "-fsigned-char",
