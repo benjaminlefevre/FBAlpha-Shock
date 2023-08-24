@@ -5,14 +5,14 @@ This version is a fork (source: https://github.com/jhawkzz/FBAlpha-Shock).
 
 ## Overview 
 
-*** FBA 
+### FBA 
 This is a port of Final Burn Alpha's last official release, 0.2.97.43 (28 April 2018) to the Unico MVSX.
 
 The source code from which this is derived can be found here: [https://static.fbalpha.com/files/fba_src_029743.7z]
 
 Because there have been additional changes since that release, this repo is not a fork. Instead, the intial commit of this repo is the untouched source from the link above.
 
-*** FBNeo
+### FBNeo
 This is also a port of Final Burn Neo (fork of FBA).
 
 Source code: [https://github.com/finalburnneo/FBNeo]
