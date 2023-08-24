@@ -36,6 +36,9 @@ static INT32 m_cur_gfx_banks;
 static INT32 tilemap_flip;
 static INT32 m_rom_half;
 static INT32 K056832_metamorphic_textfix = 0;
+static INT32 K056832_Linemap_Enabled = 0;
+static UINT32 *linemap_bitmap = NULL;
+static UINT8 *linemap_primap = NULL;
 
 #define CLIP_MINX	global_clip[0]
 #define CLIP_MAXX	global_clip[1]
@@ -125,6 +128,12 @@ void K056832Exit()
 
 	K056832_metamorphic_textfix = 0;
 
+	if (K056832_Linemap_Enabled) {
+		BurnFree(linemap_bitmap);
+		BurnFree(linemap_primap);
+		K056832_Linemap_Enabled = 0;
+	}
+
 	m_callback = NULL;
 }
 
@@ -154,25 +163,25 @@ void K056832SetExtLinescroll()
 
 INT32 K056832IsIrqEnabled()
 {
-	return k056832Regs[3] & 1;
+	return BURN_ENDIAN_SWAP_INT16(k056832Regs[3]) & 1;
 }
 
 void K056832ReadAvac(INT32 *mode, INT32 *data)
 {
-	*mode = k056832Regs[0x04/2] & 7;
-	*data = k056832Regs[0x38/2];
+	*mode = BURN_ENDIAN_SWAP_INT16(k056832Regs[0x04/2]) & 7;
+	*data = BURN_ENDIAN_SWAP_INT16(k056832Regs[0x38/2]);
 }
 
 UINT16 K056832ReadRegister(INT32 reg)
 {
-	return k056832Regs[reg & 0x1f];
+	return BURN_ENDIAN_SWAP_INT16(k056832Regs[reg & 0x1f]);
 }
 
 INT32 K056832GetLookup( INT32 bits )
 {
 	INT32 res;
 
-	res = (k056832Regs[0x1c] >> (bits << 2)) & 0x0f;
+	res = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x1c]) >> (bits << 2)) & 0x0f;
 
 	if (m_uses_tile_banks)   /* Asterix */
 		res |= m_cur_tile_bank << 4;
@@ -193,9 +202,9 @@ static void mark_all_tilemaps_dirty()
 
 static void k056832_change_rambank()
 {
-	INT32 bank = k056832Regs[0x19];
+	INT32 bank = BURN_ENDIAN_SWAP_INT16(k056832Regs[0x19]);
 
-	if (k056832Regs[0] & 0x02)    // external linescroll enable
+	if (BURN_ENDIAN_SWAP_INT16(k056832Regs[0]) & 0x02)    // external linescroll enable
 		m_selected_page = 16;
 	else
 		m_selected_page = ((bank >> 1) & 0xc) | (bank & 3);
@@ -208,7 +217,7 @@ static void k056832_change_rambank()
 #if 0
 static INT32 k056832_get_current_rambank()
 {
-	INT32 bank = k056832Regs[0x19];
+	INT32 bank = BURN_ENDIAN_SWAP_INT16(k056832Regs[0x19]);
 
 	return ((bank >> 1) & 0xc) | (bank & 3);
 }
@@ -219,9 +228,9 @@ static void k056832_change_rombank()
 	INT32 bank;
 
 	if (m_uses_tile_banks)   /* Asterix */
-		bank = (k056832Regs[0x1a] >> 8) | (k056832Regs[0x1b] << 4) | (m_cur_tile_bank << 6);
+		bank = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x1a]) >> 8) | (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x1b]) << 4) | (m_cur_tile_bank << 6);
 	else
-		bank = k056832Regs[0x1a] | (k056832Regs[0x1b] << 16);
+		bank = BURN_ENDIAN_SWAP_INT16(k056832Regs[0x1a]) | (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x1b]) << 16);
 
 	m_cur_gfx_banks = bank % m_num_gfx_banks;
 }
@@ -246,10 +255,10 @@ static void k056832_update_page_layout()
 
 	for (INT32 layer = 0; layer < 4; layer++)
 	{
-		m_y[layer] = (k056832Regs[0x08|layer] & 0x18) >> 3;
-		m_x[layer] = (k056832Regs[0x0c|layer] & 0x18) >> 3;
-		m_h[layer] = (k056832Regs[0x08|layer] & 0x03) >> 0;
-		m_w[layer] = (k056832Regs[0x0c|layer] & 0x03) >> 0;
+		m_y[layer] = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x08|layer]) & 0x18) >> 3;
+		m_x[layer] = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x0c|layer]) & 0x18) >> 3;
+		m_h[layer] = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x08|layer]) & 0x03) >> 0;
+		m_w[layer] = (BURN_ENDIAN_SWAP_INT16(k056832Regs[0x0c|layer]) & 0x03) >> 0;
 
 		if (!m_y[layer] && !m_x[layer] && m_h[layer] == 3 && m_w[layer] == 3)
 		{
@@ -292,7 +301,7 @@ static void k056832_word_write_update(INT32 offset) // (offset/2)&0x1f internall
 {
 	offset = (offset / 2) & 0x1f;
 
-	UINT16 data = k056832Regs[offset];
+	UINT16 data = BURN_ENDIAN_SWAP_INT16(k056832Regs[offset]);
 
 	if (offset >= 0x10/2 && offset <= 0x1e/2)
 	{
@@ -340,7 +349,7 @@ static void k056832_word_write_update(INT32 offset) // (offset/2)&0x1f internall
 
 void K056832WordWrite(INT32 offset, UINT16 data)
 {
-	k056832Regs[(offset / 2) & 0x1f] = data;
+	k056832Regs[(offset / 2) & 0x1f] = BURN_ENDIAN_SWAP_INT16(data);
 	k056832_word_write_update(offset);
 }
 
@@ -363,7 +372,7 @@ UINT16 K056832RomWordRead(UINT16 offset)
 
 void K056832HalfRamWriteWord(UINT32 offset, UINT16 data)
 {
-	K056832VideoRAM[m_selected_page_x4096 + (offset & 0xffe) + 1] = data;
+	K056832VideoRAM[m_selected_page_x4096 + (offset & 0xffe) + 1] = BURN_ENDIAN_SWAP_INT16(data);
 }
 
 void K056832HalfRamWriteByte(UINT32 offset, UINT8 data)
@@ -375,7 +384,7 @@ void K056832HalfRamWriteByte(UINT32 offset, UINT8 data)
 
 UINT16 K056832HalfRamReadWord(UINT32 offset)
 {
-	return K056832VideoRAM[m_selected_page_x4096 + (offset & 0xffe) + (((offset >> 12) ^ 1) & 1)];
+	return BURN_ENDIAN_SWAP_INT16(K056832VideoRAM[m_selected_page_x4096 + (offset & 0xffe) + (((offset >> 12) ^ 1) & 1)]);
 }
 
 UINT8 K056832HalfRamReadByte(UINT32 offset)
@@ -388,7 +397,7 @@ void K056832RamWriteWord(UINT32 offset, UINT16 data)
 {
 	offset = (offset & 0x1fff) / 2;
 
-	K056832VideoRAM[m_selected_page_x4096 + (offset)] = data;
+	K056832VideoRAM[m_selected_page_x4096 + (offset)] = BURN_ENDIAN_SWAP_INT16(data);
 }
 
 void K056832RamWriteByte(UINT32 offset, UINT8 data)
@@ -400,7 +409,7 @@ void K056832RamWriteByte(UINT32 offset, UINT8 data)
 
 UINT16 K056832RamReadWord(UINT32 offset)
 {
-	return K056832VideoRAM[m_selected_page_x4096 + ((offset & 0x1fff) / 2)];
+	return BURN_ENDIAN_SWAP_INT16(K056832VideoRAM[m_selected_page_x4096 + ((offset & 0x1fff) / 2)]);
 }
 
 UINT8 K056832RamReadByte(UINT32 offset)
@@ -421,7 +430,7 @@ UINT16 K056832RomWord8000Read(INT32 offset)
 
 void K056832WritebRegsWord(INT32 offset, UINT16 data)
 {
-	k056832Regsb[(offset & 0x1f)/2] = data;
+	k056832Regsb[(offset & 0x1f)/2] = BURN_ENDIAN_SWAP_INT16(data);
 }
 
 void K056832WritebRegsByte(INT32 offset, UINT8 data)
@@ -436,7 +445,7 @@ UINT16 K056832mwRomWordRead(INT32 address)
 	INT32 offset = (address / 2) & 0x1fff;
 	INT32 bank = (0x800 * m_cur_gfx_banks) * 5;
 
-	if (k056832Regsb[0x02] & 0x08)
+	if (BURN_ENDIAN_SWAP_INT16(k056832Regsb[0x02]) & 0x08)
 	{
 		UINT16 temp = K056832Rom[((offset / 4) * 5) + 4 + bank];
 
@@ -469,7 +478,7 @@ static inline UINT32 alpha_blend(UINT32 d, UINT32 s, UINT32 p)
 		((((s & 0x00ff00) * p) + ((d & 0x00ff00) * a)) & 0x00ff0000)) >> 8;
 }
 
-static void draw_layer_internal(INT32 layer, INT32 pageIndex, INT32 *clip, INT32 scrollx, INT32 scrolly, INT32 flags, INT32 priority)
+static void draw_layer_internal(INT32 layer, INT32 pageIndex, INT32 *clip, INT32 scrollx, INT32 scrolly, INT32 flags, INT32 priority, INT32 linemap_mode)
 {
 	static const struct K056832_SHIFTMASKS
 	{
@@ -492,25 +501,75 @@ static void draw_layer_internal(INT32 layer, INT32 pageIndex, INT32 *clip, INT32
 
 	if (alpha == 255) alpha_enable = 0;
 
+	if (linemap_mode)
+	{
+		for (INT32 y = 0; y < nScreenHeight; y++)
+			for (INT32 x = 0; x < nScreenWidth; x++)
+			{
+				INT32 sx = (x + scrollx + CLIP_MINX) & 0x1ff;
+				INT32 sy = (y + scrolly + CLIP_MINY) & 0xff;
+
+				if (x < (minx - CLIP_MINX) || x > (maxx - CLIP_MINX)) continue;
+				if (y < (miny - CLIP_MINY) || y > (maxy - CLIP_MINY)) continue;
+
+				UINT32   *src = linemap_bitmap + (sy * 512);
+				UINT8 *srcpri = linemap_primap + (sy * 512);
+
+				UINT32 *dst = konami_bitmap32 + (y * nScreenWidth);
+				UINT8  *pri = konami_priority_bitmap + (y * nScreenWidth);
+
+				if (src[sx]) {
+					dst[x] = src[sx];
+					pri[x] = srcpri[sx];
+				}
+
+			}
+
+		return;
+	}
+
+
 	for (INT32 offs = 0; offs < 64 * 32; offs++)
 	{
 		INT32 sx = (offs & 0x3f) * 8;
-		INT32 sy = (offs / 0x40) * 8;
+		INT32 sy = (offs / 0x40) * 8; // sy handling in blitter (down below...)
 
 		sx -= scrollx;
 		if (sx < -7) sx += 512;
-		sy -= scrolly;
-		if (sy < -7) sy += 256;
-
 		if (tilemap_flip & 1) sx = (512 - 8) - sx;
-		if (tilemap_flip & 2) sy = (256 - 8) - sy;
+		if (sx < (minx-7) || sx > maxx) continue;
 
-		if (sy < (miny-7) || sy > maxy || sx < (minx-7) || sx > maxx) continue;
+		{ // speed-up
+			// y is calculated in the tile blitter (see "// blitter" below)
+			// but we need to check clipping here in order to not need 8ghz to
+			// do linescrolling. (see: martial masters, 2nd attract game)
+			// in order to clip, we need to pre-calculate y+top and bottom of
+			// the tile here.
+			//
+			// TOCHECK:  (if anything here is changed!)
+			//   Xexex level 4, watch the top and bottom of the screen while
+			// scrolling up and down in the level.
+			//   Martial Masters, 2nd attract-mode game - watch cpu usage.
+			INT32 syyh;
+			INT32 syyl;
+			if (tilemap_flip & 2) {
+				syyh= (256 - 8) - (sy - 7);
+				syyh= (syyh + scrolly) & 0xff;
+
+				syyl= (256 - 8) - (sy - 0);
+				syyl= (syyl + scrolly) & 0xff;
+			} else {
+				syyh = ((sy + 7) - scrolly) & 0xff;
+				syyl = ((sy + 0) - scrolly) & 0xff;
+			}
+
+			if ( (syyh < (miny-7) || syyh > (maxy+7)) && (syyl < (miny-7) || syyl > (maxy+7)) ) continue;
+		}
 
 		UINT16 *pMem = &K056832VideoRAM[(pageIndex << 12) + (offs << 1)];
 
-		INT32 attr  = pMem[0];
-		INT32 code  = pMem[1];
+		INT32 attr  = BURN_ENDIAN_SWAP_INT16(pMem[0]);
+		INT32 code  = BURN_ENDIAN_SWAP_INT16(pMem[1]);
 
 		if (m_layer_association)
 		{
@@ -521,8 +580,8 @@ static void draw_layer_internal(INT32 layer, INT32 pageIndex, INT32 *clip, INT32
 		else
 			layer = m_active_layer;
 
-		INT32 fbits = (k056832Regs[3] >> 6) & 3;
-		INT32 flip  = (k056832Regs[1] >> (layer << 1)) & 0x3; // tile-flip override (see p.20 3.2.2 "REG2")
+		INT32 fbits = (BURN_ENDIAN_SWAP_INT16(k056832Regs[3]) >> 6) & 3;
+		INT32 flip  = (BURN_ENDIAN_SWAP_INT16(k056832Regs[1]) >> (layer << 1)) & 0x3; // tile-flip override (see p.20 3.2.2 "REG2")
 		smptr = &k056832_shiftmasks[fbits];
 
 		flip &= (attr >> smptr->flips) & 3;
@@ -554,52 +613,118 @@ static void draw_layer_internal(INT32 layer, INT32 pageIndex, INT32 *clip, INT32
 			if (g_flags & 0x01) flip_tile |= 0x07;
 			if (g_flags & 0x02) flip_tile |= 0x38;
 
-			UINT8 *pri = konami_priority_bitmap + ((sy -  CLIP_MINY) * nScreenWidth) - CLIP_MINX;
-			UINT32 *dst = konami_bitmap32 + ((sy -  CLIP_MINY) * nScreenWidth) - CLIP_MINX;
+			{ // blitter
+				for (INT32 iy = 0; iy < 8; iy++) {
+					INT32 yy = sy + iy;
 
-			{
-				if (alpha_enable) {
-					for (INT32 iy = 0; iy < 8; iy++, dst += nScreenWidth, pri += nScreenWidth) {
-						INT32 yy = sy+iy;
-		
-						if (yy < miny || yy > maxy) continue;
-	
-						for (INT32 ix = 0; ix < 8; ix++) {
-							INT32 xx = sx+ix;
-		
-							if (xx < minx || xx > maxx) continue;
-		
-							INT32 pxl = rom[((iy*8)+ix)^flip_tile];
-		
-							if (pxl || opaque) {
-								dst[xx] = alpha_blend(dst[xx], pal[pxl], alpha);
-								pri[xx] = priority;
-							}
-						}
+					if (tilemap_flip & 2) {
+						yy = (256 - 8) - (sy - iy);
+						yy = (yy + scrolly) & 0xff;
+					} else {
+						yy = (yy - scrolly) & 0xff;
 					}
-				} else {
-					for (INT32 iy = 0; iy < 8; iy++, dst += nScreenWidth, pri += nScreenWidth) {
-						INT32 yy = sy+iy;
-		
-						if (yy < miny || yy > maxy) continue;
-			
-						for (INT32 ix = 0; ix < 8; ix++) {
-							INT32 xx = sx+ix;
-		
-							if (xx < minx || xx > maxx) continue;
-		
-							INT32 pxl = rom[((iy*8)+ix)^flip_tile];
-		
-							if (pxl || opaque) {
+
+					UINT32 *dst = konami_bitmap32 + ((yy - CLIP_MINY) * nScreenWidth) - CLIP_MINX;
+					UINT8 *pri = konami_priority_bitmap + ((yy - CLIP_MINY) * nScreenWidth) - CLIP_MINX;
+
+					if (yy < miny || yy > maxy) continue;
+
+					for (INT32 ix = 0; ix < 8; ix++) {
+						INT32 xx = sx+ix;
+
+						if (xx < minx || xx > maxx) continue;
+
+						INT32 pxl = rom[((iy*8)+ix)^flip_tile];
+
+						if (pxl || opaque) {
+							if (alpha_enable) {
+								dst[xx] = alpha_blend(dst[xx], pal[pxl], alpha);
+							} else {
 								dst[xx] = pal[pxl];
-								pri[xx] = priority;
 							}
+							pri[xx] = priority;
 						}
 					}
 				}
 			}
 		}
 	}
+}
+
+void K056832SetLinemap() // just for GIJOE
+{
+	bprintf(0, _T("K056832 - Linemap enabled. (GIJOE)\n"));
+
+	K056832_Linemap_Enabled = 1;
+	linemap_bitmap = (UINT32*)BurnMalloc(512 * 256 * sizeof(UINT32));
+	linemap_primap = (UINT8 *)BurnMalloc(512 * 256 * sizeof(UINT8));
+}
+
+static int update_linemap(INT32 layer, INT32 pageIndex, INT32 flags, INT32 priority)
+{
+	static const struct K056832_SHIFTMASKS
+	{
+		INT32 flips, palm1, pals2, palm2;
+	}
+	k056832_shiftmasks[4] = {{6, 0x3f, 0, 0x00}, {4, 0x0f, 2, 0x30}, {2, 0x03, 2, 0x3c}, {0, 0x00, 2, 0x3f}};
+	const struct K056832_SHIFTMASKS *smptr;
+
+	if (m_page_tile_mode[pageIndex]) return 0; // this is a tilemap, not a linemap!
+	if (!K056832_Linemap_Enabled) return 1; // linemap not enabled? ignore this page.
+	if (~nSpriteEnable & 8) return 0;
+
+	UINT32 *dst = linemap_bitmap;
+	UINT8  *pri = linemap_primap;
+
+	for (INT32 line = 0; line < 256; line++)
+	{
+		UINT16 *pMem = &K056832VideoRAM[(pageIndex << 12) + (line << 1)];
+
+		INT32 attr  = BURN_ENDIAN_SWAP_INT16(pMem[0]);
+		INT32 code  = BURN_ENDIAN_SWAP_INT16(pMem[1]);
+
+		if (m_layer_association)
+		{
+			layer = m_layer_assoc_with_page[pageIndex];
+			if (layer == -1)
+				layer = 0;  // use layer 0's palette info for unmapped pages
+		}
+		else
+			layer = m_active_layer;
+
+		INT32 fbits = (BURN_ENDIAN_SWAP_INT16(k056832Regs[3]) >> 6) & 3;
+		INT32 flip  = (BURN_ENDIAN_SWAP_INT16(k056832Regs[1]) >> (layer << 1)) & 0x3; // tile-flip override (see p.20 3.2.2 "REG2")
+		smptr = &k056832_shiftmasks[fbits];
+
+		flip &= (attr >> smptr->flips) & 3;
+		INT32 color = (attr & smptr->palm1) | (attr >> smptr->pals2 & smptr->palm2);
+		INT32 g_flags = flip & 3;
+
+		m_callback(layer, &code, &color, &g_flags);
+
+		UINT8  *pix = K056832RomExp + ((code & ~7) * 0x40);
+		UINT32 *pal = konami_palette32 + (color * 16); // if > 4 bit, adjust in tilemap callback
+		INT32 flipx = (g_flags & 1) ? 0x1ff : 0;
+
+		for (INT32 x = 0; x < 512; x++)
+		{
+			INT32 pixel = pix[x ^ flipx];
+
+			if (pixel) {
+				dst[x] = pal[pixel];
+				pri[x] = priority;
+			} else {
+				dst[x] = 0;
+				pri[x] = 0;
+			}
+		}
+
+		dst += 512;
+		pri += 512;
+		pix += 512;
+	}
+
+	return 0;
 }
 
 #define K056832_PAGE_COLS 64
@@ -630,14 +755,14 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 
 	INT32 clip_data[4] = {0, 0, 0, 0}; // minx, maxx, miny, maxy
 
-	INT32 rowstart = (m_regs[0x08|layer] & 0x18) >> 3;
-	INT32 colstart = (m_regs[0x0c|layer] & 0x18) >> 3;
-	INT32 rowspan  = ((m_regs[0x08|layer] & 0x03) >> 0) + 1;
-	INT32 colspan  = ((m_regs[0x0c|layer] & 0x03) >> 0) + 1;
-	INT32 dy = (INT16)m_regs[0x10|layer];
-	INT32 dx = (INT16)m_regs[0x14|layer];;
-	INT32 scrollbank = ((m_regs[0x18] >> 1) & 0xc) | (m_regs[0x18] & 3);
-	INT32 scrollmode = m_regs[0x05] >> (m_lsram_page[layer][0] << 1) & 3;
+	INT32 rowstart = (BURN_ENDIAN_SWAP_INT16(m_regs[0x08|layer]) & 0x18) >> 3;
+	INT32 colstart = (BURN_ENDIAN_SWAP_INT16(m_regs[0x0c|layer]) & 0x18) >> 3;
+	INT32 rowspan  = ((BURN_ENDIAN_SWAP_INT16(m_regs[0x08|layer]) & 0x03) >> 0) + 1;
+	INT32 colspan  = ((BURN_ENDIAN_SWAP_INT16(m_regs[0x0c|layer]) & 0x03) >> 0) + 1;
+	INT32 dy = (INT16)BURN_ENDIAN_SWAP_INT16(m_regs[0x10|layer]);
+	INT32 dx = (INT16)BURN_ENDIAN_SWAP_INT16(m_regs[0x14|layer]);
+	INT32 scrollbank = ((BURN_ENDIAN_SWAP_INT16(m_regs[0x18]) >> 1) & 0xc) | (BURN_ENDIAN_SWAP_INT16(m_regs[0x18]) & 3);
+	INT32 scrollmode = BURN_ENDIAN_SWAP_INT16(m_regs[0x05]) >> (m_lsram_page[layer][0] << 1) & 3;
 
 	if (m_use_ext_linescroll)
 	{
@@ -653,10 +778,10 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 	cmaxy = CLIP_MAXY - 1;
 
 	// flip correction registers
-	flipy = m_regs[0] & 0x20;
+	flipy = BURN_ENDIAN_SWAP_INT16(m_regs[0]) & 0x20;
 	if (flipy)
 	{
-		corr = m_regs[0x3c/2];
+		corr = BURN_ENDIAN_SWAP_INT16(m_regs[0x3c/2]);
 		if (corr & 0x400)
 			corr |= 0xfffff800;
 	}
@@ -666,10 +791,10 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 	dy += corr;
 	ay = (UINT32)(dy - m_layer_offs[layer][1]) % height;
 
-	flipx = m_regs[0] & 0x10;
+	flipx = BURN_ENDIAN_SWAP_INT16(m_regs[0]) & 0x10;
 	if (flipx)
 	{
-		corr = m_regs[0x3a/2];
+		corr = BURN_ENDIAN_SWAP_INT16(m_regs[0x3a/2]);
 		if (corr & 0x800)
 			corr |= 0xfffff000;
 	}
@@ -698,7 +823,7 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 			sdat_wrapmask = 0;
 			sdat_adv = 0;
 			ram16[0] = 0;
-			ram16[1] = dx;
+			ram16[1] = BURN_ENDIAN_SWAP_INT16(dx);
 	}
 	if (flipy)
 		sdat_adv = -sdat_adv;
@@ -818,10 +943,12 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 					m_active_layer = 0;
 			}
 
-		//	if (update_linemap(pageIndex, flags)) // unnecessary?
-			//		continue;
+			if (update_linemap(layer, pageIndex, flags, priority)) // for gijoe
+				continue;
 
-			if (!m_page_tile_mode[pageIndex]) continue; // this was hidden in update_linemap()
+			INT32 is_linemap = (!m_page_tile_mode[pageIndex] && K056832_Linemap_Enabled);
+
+//			if (!m_page_tile_mode[pageIndex]) continue; // this was hidden in update_linemap()
 
 			tmap = pageIndex;
 
@@ -845,11 +972,11 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 				clip_data[3] = (dmaxy > cmaxy ) ? cmaxy : dmaxy;
 
 				if ((scrollmode == 2) && (flags & K056832_DRAW_FLAG_MIRROR) && (flipy))
-					dx = ((INT32)p_scroll_data[sdat_offs + 0x1e0 + 14]<<16 | (INT32)p_scroll_data[sdat_offs + 0x1e0 + 15]) + corr;
+					dx = ((INT32)BURN_ENDIAN_SWAP_INT16(p_scroll_data[sdat_offs + 0x1e0 + 14])<<16 | (INT32)BURN_ENDIAN_SWAP_INT16(p_scroll_data[sdat_offs + 0x1e0 + 15])) + corr;
 				else
-					dx = ((INT32)p_scroll_data[sdat_offs]<<16 | (INT32)p_scroll_data[sdat_offs + 1]) + corr;
+					dx = ((INT32)BURN_ENDIAN_SWAP_INT16(p_scroll_data[sdat_offs])<<16 | (INT32)BURN_ENDIAN_SWAP_INT16(p_scroll_data[sdat_offs + 1])) + corr;
 
-				if ((INT32)last_dx == dx) { if (last_visible) draw_layer_internal(layer, tmap, clip_data, tmap_scrollx, tmap_scrolly, flags, priority); continue; }
+				if ((INT32)last_dx == dx) { if (last_visible) draw_layer_internal(layer, tmap, clip_data, tmap_scrollx, tmap_scrolly, flags, priority, is_linemap); continue; }
 				last_dx = dx;
 
 				if (colspan > 1)
@@ -904,7 +1031,7 @@ void K056832Draw(INT32 layer, UINT32 flags, UINT32 priority)
 
 				tmap_scrollx = dx;
 
-				draw_layer_internal(layer, tmap, clip_data, tmap_scrollx, tmap_scrolly, flags, priority);
+				draw_layer_internal(layer, tmap, clip_data, tmap_scrollx, tmap_scrolly, flags, priority, is_linemap);
 			}
 		}
 	}

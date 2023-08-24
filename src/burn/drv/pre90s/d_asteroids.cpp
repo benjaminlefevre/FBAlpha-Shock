@@ -145,7 +145,7 @@ STDINPUTINFO(Llander)
 
 static struct BurnInputInfo LlandertInputList[] = {
 	// correct!
-	
+
 	{"Reset",			BIT_DIGITAL,	&DrvReset,		"reset"		},
 	{"Dip A",			BIT_DIPSWITCH,	DrvDips + 0,	"dip"		},
 };
@@ -515,7 +515,7 @@ static void asteroid_write(UINT16 address, UINT8 data)
 static void astdelux_write(UINT16 address, UINT8 data)
 {
 //	bprintf (0, _T("W: %4.4x, %2.2x\n"), address, data);
-	
+
 	if (address >= 0x2c00 && address <= 0x2c0f) {
 		pokey_write(0, address & 0x0f, data);
 		return;
@@ -587,7 +587,7 @@ static void llander_write(UINT16 address, UINT8 data)
 		case 0x5800:
 		return; // nop
 	}
-	
+
 	bprintf (0, _T("W: %4.4x, %2.2x\n"), address, data); // kill warnings
 }
 
@@ -628,7 +628,7 @@ static UINT8 asteroidb_read(UINT16 address)
 			case 0x2003:
 				return DrvInputs[1] ^ 0x0a;
 		}
-		
+
 	return asteroid_read(address);
 }
 
@@ -653,7 +653,7 @@ static UINT8 asterock_read(UINT16 address)
 static UINT8 astdelux_read(UINT16 address)
 {
 //	bprintf (0, _T("R: %4.4x\n"), address);
-	
+
 	if (address >= 0x2c00 && address <= 0x2c0f) {
 		return pokey_read(0, address & 0x0f);
 	}
@@ -912,7 +912,7 @@ static INT32 LlanderInit()
 	BurnWatchdogInit(DrvDoReset, 180);
 
 	avgdvg_init(USE_DVG, DrvVectorRAM, 0x2000, M6502TotalCycles, 1044, 788);
-	vector_set_offsets(11, 119);
+	vector_set_offsets(11, -8);
 
 	llander_sound_init();
 	llander = 1;
@@ -945,7 +945,7 @@ static INT32 DrvExit()
 static void DrvPaletteInit()
 {
     for (INT32 i = 0; i < 0x20; i++) // color
-	{		
+	{
 		for (INT32 j = 0; j < 256; j++) // intensity
 		{
 			INT32 c = (0xff * j) / 0xff;
@@ -1212,14 +1212,14 @@ STD_ROM_FN(asteroidb)
 static INT32 AsteroidbInit()
 {
 	INT32 nRet = AsteroidInit();
-	
+
 	if (nRet == 0)
 	{
 		M6502Open(0);
 		M6502SetReadHandler(asteroidb_read);
 		M6502Close();
 	}
-	
+
 	return nRet;
 }
 
@@ -1308,14 +1308,14 @@ STD_ROM_FN(asterock)
 static INT32 AsterockInt()
 {
 	INT32 nRet = AsteroidInit();
-	
+
 	if (nRet == 0)
 	{
 		M6502Open(0);
 		M6502SetReadHandler(asterock_read);
 		M6502Close();
 	}
-	
+
 	return nRet;
 }
 
@@ -1506,7 +1506,7 @@ static struct BurnRomInfo astdelux2RomDesc[] = {
 	{ "036431-01.ef1",		0x0800, 0x157a8516, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "036432-01.fh1",		0x0800, 0xfdea913c, 1 | BRF_PRG | BRF_ESS }, //  2
 	{ "036433-02.j1",		0x0800, 0xd8db74e3, 1 | BRF_PRG | BRF_ESS }, //  3
-	
+
 	{ "036800-01.r2",		0x0800, 0x3b597407, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM
 	{ "036799-01.np2",		0x0800, 0x7d511572, 2 | BRF_PRG | BRF_ESS }, //  5 Vector ROM 2/2
 
@@ -1534,7 +1534,7 @@ static struct BurnRomInfo astdelux1RomDesc[] = {
 	{ "036431-01.ef1",		0x0800, 0x157a8516, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "036432-01.fh1",		0x0800, 0xfdea913c, 1 | BRF_PRG | BRF_ESS }, //  2
 	{ "036433-01.j1",		0x0800, 0xef09bac7, 1 | BRF_PRG | BRF_ESS }, //  3
-	
+
 	{ "036800-01.r2",		0x0800, 0x3b597407, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM
 	{ "036799-01.np2",		0x0800, 0x7d511572, 2 | BRF_PRG | BRF_ESS }, //  5 Vector ROM 2/2
 
@@ -1562,8 +1562,8 @@ static struct BurnRomInfo llanderRomDesc[] = {
 	{ "034571-02.de1",		0x0800, 0x77da4b2f, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "034570-01.c1",		0x0800, 0x2724e591, 1 | BRF_PRG | BRF_ESS }, //  2
 	{ "034569-02.b1",		0x0800, 0x72837a4e, 1 | BRF_PRG | BRF_ESS }, //  3
-	
-	{ "034599-01.r3",		0x0800, 0x355a9371, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM 
+
+	{ "034599-01.r3",		0x0800, 0x355a9371, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM
 	{ "034598-01.np3",		0x0800, 0x9c4ffa68, 2 | BRF_PRG | BRF_ESS }, //  5 Vector ROM 2/2
 	{ "034597-01.m3",		0x0800, 0xebb744f2, 2 | BRF_PRG | BRF_ESS }, //  6 Vector ROM 3/3
 
@@ -1591,8 +1591,8 @@ static struct BurnRomInfo llander1RomDesc[] = {
 	{ "034571-01.de1",		0x0800, 0x493e24b7, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "034570-01.c1",		0x0800, 0x2724e591, 1 | BRF_PRG | BRF_ESS }, //  2
 	{ "034569-01.b1",		0x0800, 0xb11a7d01, 1 | BRF_PRG | BRF_ESS }, //  3
-	
-	{ "034599-01.r3",		0x0800, 0x355a9371, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM 
+
+	{ "034599-01.r3",		0x0800, 0x355a9371, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM
 	{ "034598-01.np3",		0x0800, 0x9c4ffa68, 2 | BRF_PRG | BRF_ESS }, //  5 Vector ROM 2/2
 	{ "034597-01.m3",		0x0800, 0xebb744f2, 2 | BRF_PRG | BRF_ESS }, //  6 Vector ROM 3/3
 
@@ -1619,8 +1619,8 @@ static struct BurnRomInfo llandertRomDesc[] = {
 	{ "llprom0.de1",		0x0800, 0xb5302947, 1 | BRF_PRG | BRF_ESS }, //  0 M6502 Code
 	{ "llprom1.c1",			0x0800, 0x761a5b45, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "llprom2.b1",			0x0800, 0x9ec62656, 1 | BRF_PRG | BRF_ESS }, //  2
-	
-	{ "llvrom0.r3",			0x0800, 0xc307b42a, 2 | BRF_PRG | BRF_ESS }, //  3 Vector ROM 
+
+	{ "llvrom0.r3",			0x0800, 0xc307b42a, 2 | BRF_PRG | BRF_ESS }, //  3 Vector ROM
 	{ "llvrom1.np3",		0x0800, 0xace6b2be, 2 | BRF_PRG | BRF_ESS }, //  4 Vector ROM 2/2
 	{ "llvrom2.m3",			0x0800, 0x56c38219, 2 | BRF_PRG | BRF_ESS }, //  5 Vector ROM 3/3
 
