@@ -125,48 +125,46 @@ void StateCredits::RenderPage0( )
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "Development:", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "100 Mega Shock Edition Port Written by and # 2023 JHawkZZ", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "100 Mega Shock Edition Port Written by and # 2023 JHawkZZ.", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "Quality Assurance by Usagi", xPos, yPos, 0xFFFF );
-	yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "Neogeo Turbo hack by BenDk97 (Mvsx France)", xPos, yPos, 0xFFFF );
-                        
+    UIRenderer::DrawText( "Forked and FBNeo integration by BenDK97.", xPos, yPos, 0xFFFF );
+
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "Some text uses the font Upheaval Pro by Brian Kent.", xPos, yPos, 0xFFFF );
 
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "DISCLAIMER:", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "The authors of Final Burn Alpha: 100 Mega Shock Edition do not", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "The authors of Final Burn Neo: 100 Mega Shock Edition do not", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "guarantee its fitness for any purpose, implied or otherwise, and", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "do not accept responsibility for any damages whatsoever that might", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "occur when using Final Burn Alpha: 100 Mega Shock Edition. All games", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "occur when using Final Burn Neo: 100 Mega Shock Edition. All games", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "emulated, including any images and sounds therein, are copyrighted by", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "their respective copyright holders.", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "Final Burn Alpha: 100 Mega Shock Edition DOES NOT INCLUDE any ROM", xPos, yPos, 0xFFFF ); 
+    UIRenderer::DrawText( "Final Burn Neo: 100 Mega Shock Edition DOES NOT INCLUDE any ROM", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "images of emulated games.", xPos, yPos, 0xFFFF ); 
                     
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "License:", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "Final Burn Alpha: 100 Mega Shock Edition is a port of", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "Final Burn Neo: 100 Mega Shock Edition is a port of", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "Final Burn Alpha for the Unico MVSX & ASP, and is subject to the terms of", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "Final Burn Neo for the Unico MVSX & ASP, and is subject to the terms of", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "the Final Burn Alpha license which is as follows:", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "the Final Burn Neo license which is as follows:", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "You may freely use, modify, and distribute both the FB Alpha source", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "You may freely use, modify, and distribute both the FB Neo source", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "code and binary, however the following restrictions apply to the ", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "FB Alpha original material", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "FB Neo original material", xPos, yPos, 0xFFFF );
 }
 
 void StateCredits::RenderPage1( )
@@ -180,7 +178,7 @@ void StateCredits::RenderPage1( )
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "You may not sell, lease, rent or otherwise seek to gain monetary", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
-    UIRenderer::DrawText( "profit from FB Alpha.", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "profit from FB Neo.", xPos, yPos, 0xFFFF );
     
     yPos += UI_ROW_HEIGHT;
     UIRenderer::DrawText( "You must make public any changes you make to the source code.", xPos, yPos, 0xFFFF );
@@ -194,7 +192,7 @@ void StateCredits::RenderPage1( )
     UIRenderer::DrawText( "dates less then three years old.", xPos, yPos, 0xFFFF );
     
     yPos += UI_ROW_HEIGHT;
-    UIRenderer::DrawText( "You may not distribute FB Alpha with ROM images unless you have the", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "You may not distribute FB Neo with ROM images unless you have the", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "legal right to distribute them.", xPos, yPos, 0xFFFF );
     
@@ -228,7 +226,7 @@ void StateCredits::RenderPage2( )
     UIRenderer::DrawText( "to the terms of the MAME license.", xPos, yPos, 0xFFFF );
     
     yPos += UI_ROW_HEIGHT;
-    UIRenderer::DrawText( "FB Alpha is based on Final Burn", xPos, yPos, 0xFFFF );
+    UIRenderer::DrawText( "FB Neo is based on Final Burn Alpha", xPos, yPos, 0xFFFF );
     yPos += UI_ROW_HEIGHT / 2;
     UIRenderer::DrawText( "(formally at http://www.finalburn.com), see additional text below.", xPos, yPos, 0xFFFF );
     

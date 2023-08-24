@@ -7,7 +7,7 @@
 #include "shock/systems.h"
 #include "burner.h"
 
-#define SHOCK_VERSION "1.0.3.neogeo.turbo.fbneo.2019.2"
+#define SHOCK_VERSION "1.0.0_fbneo_2019.beta.1"
 
 #ifdef _WIN64
     #define SHOCK_64BIT

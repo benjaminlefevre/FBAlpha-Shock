@@ -45,8 +45,11 @@ UIState StateLoading::Update( )
 
 void StateLoading::DrawMenu( )
 {
-   // UIRenderer::DrawSprite( gMainBGHeader, 0, 0, BG_HEADER_WIDTH, BG_HEADER_HEIGHT );
-    UIBaseState::RenderTitle( "FBA 100 MEGA SHock - neogeo turbo" );
+
+    char title[ MAX_PATH ] = { 0 };
+
+    snprintf( title, sizeof( title ) - 1, "FBNeo 100 MEGA SHock: version %s", SHOCK_VERSION );
+    UIBaseState::RenderTitle( title );
 
     char loadStr[ MAX_PATH ] = { 0 };
     snprintf( loadStr, sizeof( loadStr ), "LOADING GAME" );
