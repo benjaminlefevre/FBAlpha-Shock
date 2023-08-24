@@ -189,7 +189,7 @@ struct BurnDIPInfo {
 	UINT8 nSetting;
 	char* szText;
 };
-
+#define DIP_OFFSET(x) {x, 0xf0, 0xff, 0xff, NULL},
 
 // ---------------------------------------------------------------------------
 // Common CPU definitions

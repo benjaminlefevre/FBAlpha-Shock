@@ -2460,7 +2460,6 @@ DRV		BurnDrvDevstors;
 DRV		BurnDrvpce_devlcrsh;
 DRV		BurnDrvmd_devlcrsh;
 DRV		BurnDrvDevilfsh;
-DRV		BurnDrvDevilfsg;
 DRV		BurnDrvDevilw;
 DRV		BurnDrvtg_devlcrsh;
 DRV		BurnDrvgg_devilish;
@@ -9087,7 +9086,6 @@ DRV		BurnDrvMSX_spacecmpa;
 DRV		BurnDrvSpacecr;
 DRV		BurnDrvSpacedem;
 DRV		BurnDrvSpcdrag;
-DRV		BurnDrvSpcdraga;
 DRV		BurnDrvSpacduel0;
 DRV		BurnDrvSpacduel1;
 DRV		BurnDrvSpacduel;
@@ -14814,7 +14812,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvpce_devlcrsh,		// Devil Crash - Naxat Pinball
 	&BurnDrvmd_devlcrsh,		// Devil Crash MD (Jpn)
 	&BurnDrvDevilfsh,			// Devil Fish
-	&BurnDrvDevilfsg,			// Devil Fish (Galaxian hardware, bootleg?)
 	&BurnDrvDevilw,				// Devil World
 	&BurnDrvtg_devlcrsh,		// Devil's Crush - Naxat Pinball
 	&BurnDrvgg_devilish,		// Devilish (Euro, Bra)
@@ -21441,7 +21438,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvSpacecr,			// Space Cruiser
 	&BurnDrvSpacedem,			// Space Demon
 	&BurnDrvSpcdrag,			// Space Dragon (Moon Cresta bootleg, set 1)
-	&BurnDrvSpcdraga,			// Space Dragon (Moon Cresta bootleg, set 2)
 	&BurnDrvSpacduel0,			// Space Duel (prototype)
 	&BurnDrvSpacduel1,			// Space Duel (version 1)
 	&BurnDrvSpacduel,			// Space Duel (version 2)
