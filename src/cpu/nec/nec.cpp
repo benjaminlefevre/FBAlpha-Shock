@@ -1,5 +1,3 @@
-// 2023.05.13 THK: don't define DWORD for win32 builds
-
 /****************************************************************************
 
     NEC V20/V30/V33 emulator
@@ -138,10 +136,7 @@ static NEC_INLINE void write_port_word(unsigned int a, unsigned short d)
 typedef UINT8 BOOLEAN;
 typedef UINT8 BYTE;
 typedef UINT16 WORD;
-
-#ifndef _WIN32
 typedef UINT32 DWORD;
-#endif
 
 #include "nec.h"
 #include "necpriv.h"
@@ -300,7 +295,7 @@ static void external_int(nec_state_t *nec_state)
 /*                             OPCODES                                      */
 /****************************************************************************/
 
-#include "necinstr.c" // JHM: Changed to .cc so makefile won't compile it
+#include "necinstr.cc"
 
 /*****************************************************************************/
 

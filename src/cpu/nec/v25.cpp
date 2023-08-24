@@ -1,5 +1,3 @@
-// 2023.05.13 THK: don't define DWORD for win32 builds
-
 /****************************************************************************
 
     NEC V25/V35 emulator
@@ -62,10 +60,7 @@ static inline void write_port_word(unsigned int a, unsigned short d)
 typedef UINT8 BOOLEAN;
 typedef UINT8 BYTE;
 typedef UINT16 WORD;
-
-#ifndef _WIN32
 typedef UINT32 DWORD;
-#endif
 
 #include "v25priv.h"
 
@@ -80,7 +75,7 @@ static void add_timer(v25_state_t *nec_state, int timer, double tmp, int param, 
 	nec_state->timer_cycles_until_trigger[timer]	= (int)cycles;
 }
 
-#include "v25sfr.cc" // JHM: Changed to .cc so makefile won't compile it
+#include "v25sfr.cc"
 
 static v25_state_t sChips[4]; // 4 cpus should be plenty!
 static v25_state_t *sChipsPtr;
@@ -382,8 +377,8 @@ static void external_int(v25_state_t *nec_state)
 /*                             OPCODES                                      */
 /****************************************************************************/
 
-#include "necinstr.c" // JHM: Changed to .cc so makefile won't compile it
-#include "v25instr.c" // JHM: Changed to .cc so makefile won't compile it
+#include "necinstr.cc"
+#include "v25instr.cc"
 
 /*****************************************************************************/
 

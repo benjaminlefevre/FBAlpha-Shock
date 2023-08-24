@@ -26,6 +26,7 @@
 
 extern TCHAR szAppHiscorePath[MAX_PATH];
 extern TCHAR szAppSamplesPath[MAX_PATH];
+extern TCHAR szAppHDDPath[MAX_PATH];
 extern TCHAR szAppBlendPath[MAX_PATH];
 extern TCHAR szAppEEPROMPath[MAX_PATH];
 
@@ -152,6 +153,12 @@ struct BurnSampleInfo {
 	UINT32 nFlags;
 };
 
+struct BurnHDDInfo {
+	char szName[100];
+	UINT32 nLen;
+	UINT32 nCrc;
+};
+
 // Inputs
 
 #define BIT_DIGITAL			(1)
@@ -232,6 +239,7 @@ extern bool bBurnUseBlend;
 extern INT32 nBurnFPS;
 extern INT32 nBurnCPUSpeedAdjust;
 extern INT32 nNeogeoTurboHack;
+extern INT32 bRunPause;
 
 extern UINT32 nBurnDrvCount;			// Count of game drivers
 extern UINT32 nBurnDrvActive;			// Which game driver is selected
@@ -341,6 +349,8 @@ INT32 BurnDrvGetGenreFlags();
 INT32 BurnDrvGetFamilyFlags();
 INT32 BurnDrvGetSampleInfo(struct BurnSampleInfo *pri, UINT32 i);
 INT32 BurnDrvGetSampleName(char** pszName, UINT32 i, INT32 nAka);
+INT32 BurnDrvGetHDDInfo(struct BurnHDDInfo *pri, UINT32 i);
+INT32 BurnDrvGetHDDName(char** pszName, UINT32 i, INT32 nAka);
 
 void Reinitialise();
 
@@ -620,6 +630,12 @@ void IpsApplyPatches(UINT8* base, char* rom_name);
 
 #define HARDWARE_SPECTRUM								(HARDWARE_PREFIX_SPECTRUM)
 
+#define HARDWARE_MIDWAY_KINST							(HARDWARE_PREFIX_MIDWAY | 0x00010000)
+#define HARDWARE_MIDWAY_TUNIT							(HARDWARE_PREFIX_MIDWAY | 0x00020000)
+#define HARDWARE_MIDWAY_WUNIT							(HARDWARE_PREFIX_MIDWAY | 0x00030000)
+#define HARDWARE_MIDWAY_YUNIT							(HARDWARE_PREFIX_MIDWAY | 0x00040000)
+
+
 // flags for the genre member
 #define GBF_HORSHOOT									(1 << 0)
 #define GBF_VERSHOOT									(1 << 1)
@@ -644,6 +660,7 @@ void IpsApplyPatches(UINT8* base, char* rom_name);
 #define GBF_ACTION  									(1 << 20)
 #define GBF_RUNGUN  									(1 << 21)
 #define GBF_STRATEGY									(1 << 22)
+#define GBF_VECTOR                                      (1 << 23)
 
 // flags for the family member
 #define FBF_MSLUG										(1 << 0)

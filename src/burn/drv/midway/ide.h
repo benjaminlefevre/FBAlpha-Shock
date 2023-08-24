@@ -12,18 +12,19 @@ using namespace std;
 class ide_disk
 {
 public:
-    void write(unsigned offset, unsigned value);
+    void reset();
+	void write(unsigned offset, unsigned value);
     void write_alternate(unsigned offset, unsigned value);
     unsigned read(unsigned offset);
     unsigned read_alternate(unsigned offset);
     bool load_disk_image(const string &filename);
+	int load_hdd_image(int idx);
     ide_disk();
 
     void set_irq_callback(void (*irq)(int state));
 
 
 private:
-    void reset();
     void execute();
     void build_identify_buffer();
 

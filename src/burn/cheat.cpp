@@ -306,7 +306,7 @@ void CheatExit()
 		} while ((pCurrentCheat = pNextCheat) != 0);
 	}
 
-	memset (cpus, 0, sizeof(cheat_core));
+	memset (cpus, 0, sizeof(cpus));
 
 	cheat_core_init_pointer = 0;
 

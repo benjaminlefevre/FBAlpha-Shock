@@ -862,7 +862,7 @@ struct BurnDriver BurnDrvTravrusa = {
 	"Traverse USA / Zippy Race\0", NULL, "Irem", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, travrusaRomInfo, travrusaRomName, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
+	NULL, travrusaRomInfo, travrusaRomName, NULL, NULL, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
 	travrusaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -899,7 +899,7 @@ struct BurnDriver BurnDrvTravrusab = {
 	"Traverse USA (bootleg)\0", NULL, "bootleg (I.P.)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, travrusabRomInfo, travrusabRomName, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
+	NULL, travrusabRomInfo, travrusabRomName, NULL, NULL, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
 	travrusaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -936,7 +936,7 @@ struct BurnDriver BurnDrvMotorace = {
 	"MotoRace USA\0", NULL, "Irem (Williams license)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, motoraceRomInfo, motoraceRomName, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
+	NULL, motoraceRomInfo, motoraceRomName, NULL, NULL, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
 	motoraceInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -973,7 +973,7 @@ struct BurnDriver BurnDrvMototour = {
 	"MotoTour / Zippy Race (Tecfri license)\0", NULL, "Irem (Tecfri license)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, mototourRomInfo, mototourRomName, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
+	NULL, mototourRomInfo, mototourRomName, NULL, NULL, NULL, NULL, TravrusaInputInfo, TravrusaDIPInfo,
 	travrusaInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -1011,7 +1011,7 @@ struct BurnDriver BurnDrvShtrider = {
 	"Shot Rider\0", NULL, "Seibu Kaihatsu", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, shtriderRomInfo, shtriderRomName, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
+	NULL, shtriderRomInfo, shtriderRomName, NULL, NULL, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
 	shtriderInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -1049,7 +1049,7 @@ struct BurnDriver BurnDrvShtridera = {
 	"Shot Rider (Sigma license)\0", NULL, "Seibu Kaihatsu (Sigma license)", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, shtrideraRomInfo, shtrideraRomName, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
+	NULL, shtrideraRomInfo, shtrideraRomName, NULL, NULL, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
 	shtrideraInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };
@@ -1086,7 +1086,7 @@ struct BurnDriver BurnDrvShtriderb = {
 	"Shot Rider (bootleg)\0", "Graphics issues", "bootleg", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_NOT_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_MISC_PRE90S, GBF_RACING, 0,
-	NULL, shtriderbRomInfo, shtriderbRomName, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
+	NULL, shtriderbRomInfo, shtriderbRomName, NULL, NULL, NULL, NULL, ShtriderInputInfo, ShtriderDIPInfo,
 	shtriderbInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x100,
 	256, 240, 3, 4
 };

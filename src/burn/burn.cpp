@@ -39,6 +39,7 @@ bool bBurnUseBlend = true;
 INT32 nBurnFPS = 6000;
 INT32 nBurnCPUSpeedAdjust = 0x0100;	// CPU speed adjustment (clock * nBurnCPUSpeedAdjust / 0x0100)
 INT32 nNeogeoTurboHack = 1;
+INT32 bRunPause = 0;
 // Burn Draw:
 UINT8* pBurnDraw = NULL;	// Pointer to correctly sized bitmap
 INT32 nBurnPitch = 0;					// Pitch between each line
@@ -469,6 +470,24 @@ extern "C" INT32 BurnDrvGetSampleInfo(struct BurnSampleInfo* pri, UINT32 i)		// 
 extern "C" INT32 BurnDrvGetSampleName(char** pszName, UINT32 i, INT32 nAka)		// Forward to drivers function
 {
 	return pDriver[nBurnDrvActive]->GetSampleName(pszName, i, nAka);
+}
+
+extern "C" INT32 BurnDrvGetHDDInfo(struct BurnHDDInfo* pri, UINT32 i)		// Forward to drivers function
+{
+	if (pDriver[nBurnDrvActive]->GetHDDInfo) {
+		return pDriver[nBurnDrvActive]->GetHDDInfo(pri, i);
+	} else {
+		return 0;
+	}
+}
+
+extern "C" INT32 BurnDrvGetHDDName(char** pszName, UINT32 i, INT32 nAka)		// Forward to drivers function
+{
+	if (pDriver[nBurnDrvActive]->GetHDDName) {
+		return pDriver[nBurnDrvActive]->GetHDDName(pszName, i, nAka);
+	} else {
+		return 0;
+	}
 }
 
 // Get the screen size

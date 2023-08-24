@@ -1858,10 +1858,12 @@ static void RenderTilePrio(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, IN
 
 	gfx += code * width * height;
 
-	//"m92 is a special case, usually it would need pri |= 1<<31; but not this time! -dink"
+	prio |= 1 << 31; // always on!
 
 	for (INT32 y = 0; y < height; y++, sy++) {
 		if (sy < 0 || sy >= nScreenHeight) continue;
+
+		INT32 row = sy * nScreenWidth;
 
 		for (INT32 x = 0; x < width; x++, sx++) {
 			if (sx < 0 || sx >= nScreenWidth) continue;
@@ -1870,10 +1872,10 @@ static void RenderTilePrio(UINT16 *dest, UINT8 *gfx, INT32 code, INT32 color, IN
 
 			if (pxl == 0) continue;
 
-			if ((prio & (1 << pri[sy * nScreenWidth + sx])) == 0) {
-				dest[sy * nScreenWidth + sx] = pxl | color;
+			if ((prio & (1 << (pri[row + sx] & 0x1f))) == 0) {
+				dest[row + sx] = pxl | color;
 			}
-			pri[sy * nScreenWidth + sx] = 7;
+			pri[row + sx] |= 0x1f;
 		}
 
 		sx -= width;
@@ -1892,7 +1894,7 @@ static void draw_sprites()
 			INT32 x = (BURN_ENDIAN_SWAP_INT16(ram[offs+3]) & 0x1ff) - 96;
 
 			INT32 pri_s  = (BURN_ENDIAN_SWAP_INT16(ram[offs+0]) & 0xe000) >> 13;
-			INT32 pri_b  = (BURN_ENDIAN_SWAP_INT16(ram[offs+2]) & 0x0080) ? 0x80 : 0x82;
+			INT32 pri_b  = (~BURN_ENDIAN_SWAP_INT16(ram[offs+2]) >> 6) & 2;
 			INT32 code   =  BURN_ENDIAN_SWAP_INT16(ram[offs+1]);
 			INT32 color  =  BURN_ENDIAN_SWAP_INT16(ram[offs+2]) & 0x007f;
 
@@ -1943,7 +1945,7 @@ static void draw_layer_byline(INT32 start, INT32 finish, INT32 layer, INT32 forc
 		{ { 0xffff, 0x0000 }, { 0x00ff, 0xff00 }, { 0x0001, 0xfffe } }
 	};
 
-	INT32 priority = 1 << forcelayer;
+	INT32 priority = forcelayer^1;
 
 	for (INT32 sy = start; sy < finish; sy++)
 	{
@@ -1963,10 +1965,10 @@ static void draw_layer_byline(INT32 start, INT32 finish, INT32 layer, INT32 forc
 			INT32 color =(attr & 0x007f) << 4;
 			INT32 flipy = attr & 0x0400;
 			INT32 flipx = attr & 0x0200;
-	
+
 			INT32 group = 0;
 			if (attr & 0x0180) group = (attr & 0x0100) ? 2 : 1;
-		
+
 			{
 				INT32 x_xor = 0;
 				INT32 romoff = romoff_1;
@@ -1974,18 +1976,18 @@ static void draw_layer_byline(INT32 start, INT32 finish, INT32 layer, INT32 forc
 				if (flipx) x_xor = 7;
 
 				UINT8 *rom = DrvGfxROM0 + ((code & graphics_mask[0]) * 0x40) + romoff;
-				INT32 mask = transmask[layer][group][forcelayer];
+				UINT32 mask = transmask[layer][group][forcelayer];
 
 				INT32 xx = sx - (scrollx_1&0x7);
 
 				for (INT32 x = 0; x < 8; x++, xx++) {
 					if (xx < 0 || xx >= nScreenWidth) continue;
 
-					INT32 pxl = rom[x ^ x_xor];
+					INT32 pxl = (rom[x ^ x_xor]&0x0f);
 					if (mask & (1 << pxl)) continue;
 
 					dest[xx] = pxl | color;
-					pri[xx] = priority;
+					pri[xx] |= priority;
 				}
 			}
 		}
@@ -2008,7 +2010,7 @@ static void DrawLayers(INT32 start, INT32 finish)
 	if (nBurnLayer & 2) draw_layer_byline(start, finish, 1, 1);
 	if (nBurnLayer & 2) draw_layer_byline(start, finish, 1, 0);
 	if (nBurnLayer & 4) draw_layer_byline(start, finish, 0, 1);
-	if (nBurnLayer & 4) draw_layer_byline(start, finish, 0, 0);
+	if (nBurnLayer & 8) draw_layer_byline(start, finish, 0, 0);
 }
 
 static INT32 DrvDraw()
@@ -2021,7 +2023,7 @@ static INT32 DrvDraw()
 
 //	DrawLayers(0, nScreenHeight);
 
-	if (nBurnLayer & 8) draw_sprites();
+	if (nSpriteEnable & 1) draw_sprites();
 
 	if (m92_video_reg & 0x80) BurnTransferClear(0x800); // most-likely probably screen disable (fixes bad fades in nbbatman)
 
@@ -2040,7 +2042,7 @@ static INT32 DrvReDraw()
 
 	DrawLayers(0, nScreenHeight);
 
-	if (nBurnLayer & 8) draw_sprites();
+	if (nSpriteEnable & 1) draw_sprites();
 
 	BurnTransferCopy(DrvPalette);
 
@@ -2333,7 +2335,7 @@ struct BurnDriver BurnDrvHook = {
 	"Hook (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, hookRomInfo, hookRomName, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
+	NULL, hookRomInfo, hookRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
 	hookInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2371,7 +2373,7 @@ struct BurnDriver BurnDrvHooku = {
 	"Hook (US)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, hookuRomInfo, hookuRomName, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
+	NULL, hookuRomInfo, hookuRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
 	hookInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2409,7 +2411,7 @@ struct BurnDriver BurnDrvHookj = {
 	"Hook (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, hookjRomInfo, hookjRomName, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
+	NULL, hookjRomInfo, hookjRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
 	hookInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2492,7 +2494,7 @@ struct BurnDriver BurnDrvPpan = {
 	"Peter Pan (bootleg of Hook)\0", NULL, "bootleg", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, ppanRomInfo, ppanRomName, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
+	NULL, ppanRomInfo, ppanRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, HookDIPInfo,
 	PpanInit, DrvExit, PpanFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2540,7 +2542,7 @@ struct BurnDriver BurnDrvInthunt = {
 	"In The Hunt (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, inthuntRomInfo, inthuntRomName, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
+	NULL, inthuntRomInfo, inthuntRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
 	inthuntInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2578,7 +2580,7 @@ struct BurnDriver BurnDrvInthuntu = {
 	"In The Hunt (US)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, inthuntuRomInfo, inthuntuRomName, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
+	NULL, inthuntuRomInfo, inthuntuRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
 	inthuntInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2616,7 +2618,7 @@ struct BurnDriver BurnDrvKaiteids = {
 	"Kaitei Daisensou (Japan)\0", NULL, "Irem", "Irem M92",
 	L"Kaitei Daisensou (Japan)\0\u776D\u955E\u2759\u2662\u894E\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, kaiteidsRomInfo, kaiteidsRomName, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
+	NULL, kaiteidsRomInfo, kaiteidsRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, InthuntDIPInfo,
 	inthuntInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2667,7 +2669,7 @@ struct BurnDriver BurnDrvRtypeleo = {
 	"R-Type Leo (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, rtypeleoRomInfo, rtypeleoRomName, NULL, NULL, p2CommonInputInfo, RtypeleoDIPInfo,
+	NULL, rtypeleoRomInfo, rtypeleoRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, RtypeleoDIPInfo,
 	rtypeleoInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2705,7 +2707,7 @@ struct BurnDriver BurnDrvRtypelej = {
 	"R-Type Leo (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, rtypelejRomInfo, rtypelejRomName, NULL, NULL, p2CommonInputInfo, RtypeleoDIPInfo,
+	NULL, rtypelejRomInfo, rtypelejRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, RtypeleoDIPInfo,
 	rtypeleoInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2753,7 +2755,7 @@ struct BurnDriver BurnDrvBmaster = {
 	"Blade Master (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, bmasterRomInfo, bmasterRomName, NULL, NULL, p2CommonInputInfo, BmasterDIPInfo,
+	NULL, bmasterRomInfo, bmasterRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, BmasterDIPInfo,
 	bmasterInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2791,7 +2793,7 @@ struct BurnDriver BurnDrvCrossbld = {
 	"Cross Blades! (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, crossbldRomInfo, crossbldRomName, NULL, NULL, p2CommonInputInfo, BmasterDIPInfo,
+	NULL, crossbldRomInfo, crossbldRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, BmasterDIPInfo,
 	bmasterInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2834,7 +2836,7 @@ struct BurnDriver BurnDrvMysticri = {
 	"Mystic Riders (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, mysticriRomInfo, mysticriRomName, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
+	NULL, mysticriRomInfo, mysticriRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
 	mysticriInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2872,7 +2874,7 @@ struct BurnDriver BurnDrvGunhohki = {
 	"Gun Hohki (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, gunhohkiRomInfo, gunhohkiRomName, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
+	NULL, gunhohkiRomInfo, gunhohkiRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
 	mysticriInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2910,7 +2912,7 @@ struct BurnDriver BurnDrvMysticrib = {
 	"Mystic Riders (bootleg?)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_HORSHOOT, 0,
-	NULL, mysticribRomInfo, mysticribRomName, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
+	NULL, mysticribRomInfo, mysticribRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, MysticriDIPInfo,
 	mysticriInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2958,7 +2960,7 @@ struct BurnDriver BurnDrvGunforce = {
 	"Gunforce - Battle Fire Engulfed Terror Island (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_RUNGUN, 0,
-	NULL, gunforceRomInfo, gunforceRomName, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
+	NULL, gunforceRomInfo, gunforceRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
 	gunforceInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -2996,7 +2998,7 @@ struct BurnDriver BurnDrvGunforcej = {
 	"Gunforce - Battle Fire Engulfed Terror Island (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_RUNGUN, 0,
-	NULL, gunforcejRomInfo, gunforcejRomName, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
+	NULL, gunforcejRomInfo, gunforcejRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
 	gunforceInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3034,7 +3036,7 @@ struct BurnDriver BurnDrvGunforceu = {
 	"Gunforce - Battle Fire Engulfed Terror Island (US)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_RUNGUN, 0,
-	NULL, gunforceuRomInfo, gunforceuRomName, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
+	NULL, gunforceuRomInfo, gunforceuRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, GunforceDIPInfo,
 	gunforceInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3082,7 +3084,7 @@ struct BurnDriver BurnDrvUccops = {
 	"Undercover Cops (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 3, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, uccopsRomInfo, uccopsRomName, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
+	NULL, uccopsRomInfo, uccopsRomName, NULL, NULL, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
 	uccopsInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3120,7 +3122,7 @@ struct BurnDriver BurnDrvUccopsu = {
 	"Undercover Cops (US)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, uccopsuRomInfo, uccopsuRomName, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
+	NULL, uccopsuRomInfo, uccopsuRomName, NULL, NULL, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
 	uccopsInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3158,7 +3160,7 @@ struct BurnDriver BurnDrvUccopsar = {
 	"Undercover Cops (Alpha Renewal Version)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, uccopsarRomInfo, uccopsarRomName, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
+	NULL, uccopsarRomInfo, uccopsarRomName, NULL, NULL, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
 	uccopsInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3196,7 +3198,7 @@ struct BurnDriver BurnDrvUccopsj = {
 	"Undercover Cops (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, uccopsjRomInfo, uccopsjRomName, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
+	NULL, uccopsjRomInfo, uccopsjRomName, NULL, NULL, NULL, NULL, p3CommonInputInfo, UccopsDIPInfo,
 	uccopsInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3252,7 +3254,7 @@ struct BurnDriver BurnDrvGunforc2 = {
 	"Gunforce 2 (US)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_RUNGUN, 0,
-	NULL, gunforc2RomInfo, gunforc2RomName, NULL, NULL, p2CommonInputInfo, Gunforc2DIPInfo,
+	NULL, gunforc2RomInfo, gunforc2RomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, Gunforc2DIPInfo,
 	gunforc2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3290,7 +3292,7 @@ struct BurnDriver BurnDrvGeostorm = {
 	"Geostorm (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_RUNGUN, 0,
-	NULL, geostormRomInfo, geostormRomName, NULL, NULL, p2CommonInputInfo, Gunforc2DIPInfo,
+	NULL, geostormRomInfo, geostormRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, Gunforc2DIPInfo,
 	gunforc2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3347,7 +3349,7 @@ struct BurnDriver BurnDrvNbbatman = {
 	"Ninja Baseball Batman (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, nbbatmanRomInfo, nbbatmanRomName, NULL, NULL, nbbatmanInputInfo, NbbatmanDIPInfo,
+	NULL, nbbatmanRomInfo, nbbatmanRomName, NULL, NULL, NULL, NULL, nbbatmanInputInfo, NbbatmanDIPInfo,
 	nbbatmanInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3385,7 +3387,7 @@ struct BurnDriver BurnDrvNbbatmanu = {
 	"Ninja Baseball Batman (US)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, nbbatmanuRomInfo, nbbatmanuRomName, NULL, NULL, p4CommonInputInfo, NbbatmanDIPInfo,
+	NULL, nbbatmanuRomInfo, nbbatmanuRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, NbbatmanDIPInfo,
 	nbbatmanInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3423,7 +3425,7 @@ struct BurnDriver BurnDrvLeaguemn = {
 	"Yakyuu Kakutou League-Man (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IREM_M92, GBF_SCRFIGHT, 0,
-	NULL, leaguemnRomInfo, leaguemnRomName, NULL, NULL, p4CommonInputInfo, NbbatmanDIPInfo,
+	NULL, leaguemnRomInfo, leaguemnRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, NbbatmanDIPInfo,
 	nbbatmanInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3472,7 +3474,7 @@ struct BurnDriver BurnDrvLethalth = {
 	"Lethal Thunder (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_IREM_M92, GBF_VERSHOOT, 0,
-	NULL, lethalthRomInfo, lethalthRomName, NULL, NULL, p2CommonInputInfo, LethalthDIPInfo,
+	NULL, lethalthRomInfo, lethalthRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, LethalthDIPInfo,
 	lethalthInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	240, 320, 3, 4
 };
@@ -3510,7 +3512,7 @@ struct BurnDriver BurnDrvThndblst = {
 	"Thunder Blaster (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_IREM_M92, GBF_VERSHOOT, 0,
-	NULL, thndblstRomInfo, thndblstRomName, NULL, NULL, p2CommonInputInfo, LethalthDIPInfo,
+	NULL, thndblstRomInfo, thndblstRomName, NULL, NULL, NULL, NULL, p2CommonInputInfo, LethalthDIPInfo,
 	lethalthInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	240, 320, 3, 4
 };
@@ -3562,7 +3564,7 @@ struct BurnDriver BurnDrvDsoccr94j = {
 	"Dream Soccer '94 (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IREM_M92, GBF_SPORTSFOOTBALL, 0,
-	NULL, dsoccr94jRomInfo, dsoccr94jRomName, NULL, NULL, p4CommonInputInfo, Dsoccr94jDIPInfo,
+	NULL, dsoccr94jRomInfo, dsoccr94jRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Dsoccr94jDIPInfo,
 	dsoccr94jInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3616,7 +3618,7 @@ struct BurnDriver BurnDrvSsoldier = {
 	"Superior Soldiers (US)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_VSFIGHT, 0,
-	NULL, ssoldierRomInfo, ssoldierRomName, NULL, NULL, PsoldierInputInfo, PsoldierDIPInfo,
+	NULL, ssoldierRomInfo, ssoldierRomName, NULL, NULL, NULL, NULL, PsoldierInputInfo, PsoldierDIPInfo,
 	ssoldierInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3658,7 +3660,7 @@ struct BurnDriver BurnDrvPsoldier = {
 	"Perfect Soldiers (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_VSFIGHT, 0,
-	NULL, psoldierRomInfo, psoldierRomName, NULL, NULL, PsoldierInputInfo, PsoldierDIPInfo,
+	NULL, psoldierRomInfo, psoldierRomName, NULL, NULL, NULL, NULL, PsoldierInputInfo, PsoldierDIPInfo,
 	ssoldierInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3715,7 +3717,7 @@ struct BurnDriver BurnDrvMajtitl2 = {
 	"Major Title 2 (World)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, majtitl2RomInfo, majtitl2RomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, majtitl2RomInfo, majtitl2RomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3761,7 +3763,7 @@ struct BurnDriver BurnDrvMajtitl2b = {
 	"Major Title 2 (World, set 2)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, majtitl2bRomInfo, majtitl2bRomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, majtitl2bRomInfo, majtitl2bRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3814,7 +3816,7 @@ struct BurnDriver BurnDrvMajtitl2a = {
 	"Major Title 2 (World, set 1, alt sound CPU)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, majtitl2aRomInfo, majtitl2aRomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, majtitl2aRomInfo, majtitl2aRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2aInit, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3860,7 +3862,7 @@ struct BurnDriver BurnDrvMajtitl2j = {
 	"Major Title 2 (Japan)\0", NULL, "Irem", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, majtitl2jRomInfo, majtitl2jRomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, majtitl2jRomInfo, majtitl2jRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3906,7 +3908,7 @@ struct BurnDriver BurnDrvSkingame = {
 	"The Irem Skins Game (US set 1)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, skingameRomInfo, skingameRomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, skingameRomInfo, skingameRomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
@@ -3952,7 +3954,7 @@ struct BurnDriver BurnDrvSkingame2 = {
 	"The Irem Skins Game (US set 2)\0", NULL, "Irem America", "Irem M92",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_IREM_M92, GBF_SPORTSMISC, 0,
-	NULL, skingame2RomInfo, skingame2RomName, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
+	NULL, skingame2RomInfo, skingame2RomName, NULL, NULL, NULL, NULL, p4CommonInputInfo, Majtitl2DIPInfo,
 	majtitl2Init, DrvExit, DrvFrame, DrvReDraw, DrvScan, &bRecalcPalette, 0x800,
 	320, 240, 4, 3
 };
