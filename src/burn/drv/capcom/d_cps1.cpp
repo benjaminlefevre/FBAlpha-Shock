@@ -1160,6 +1160,56 @@ static struct BurnInputInfo SlammastInputList[] =
 
 STDINPUTINFO(Slammast)
 
+static struct BurnInputInfo MbombrdInputList[] =
+{
+ 	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
+ 	{"P1 Start"         , BIT_DIGITAL  , CpsInp018+4, "p1 start"  },
+ 	{"P1 Up"            , BIT_DIGITAL  , CpsInp001+3, "p1 up"     },
+ 	{"P1 Down"          , BIT_DIGITAL  , CpsInp001+2, "p1 down"   },
+ 	{"P1 Left"          , BIT_DIGITAL  , CpsInp001+1, "p1 left"   },
+ 	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0, "p1 right"  },
+ 	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+5, "p1 fire 1" },
+ 	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+6, "p1 fire 2" },
+ 	{"P1 Pin"           , BIT_DIGITAL  , CpsInp001+4, "p1 fire 3" },
+
+ 	{"P2 Coin"          , BIT_DIGITAL  , CpsInp018+1, "p2 coin"   },
+ 	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start"  },
+ 	{"P2 Up"            , BIT_DIGITAL  , CpsInp000+3, "p2 up"     },
+ 	{"P2 Down"          , BIT_DIGITAL  , CpsInp000+2, "p2 down"   },
+ 	{"P2 Left"          , BIT_DIGITAL  , CpsInp000+1, "p2 left"   },
+ 	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0, "p2 right"  },
+ 	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+5, "p2 fire 1" },
+ 	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+6, "p2 fire 2" },
+ 	{"P2 Pin"           , BIT_DIGITAL  , CpsInp000+4, "p2 fire 3" },
+
+ 	{"P3 Coin"          , BIT_DIGITAL  , CpsInpc001+6, "p3 coin"  },
+ 	{"P3 Start"         , BIT_DIGITAL  , CpsInpc001+7, "p3 start" },
+ 	{"P3 Up"            , BIT_DIGITAL  , CpsInpc001+3, "p3 up"    },
+ 	{"P3 Down"          , BIT_DIGITAL  , CpsInpc001+2, "p3 down"  },
+ 	{"P3 Left"          , BIT_DIGITAL  , CpsInpc001+1, "p3 left"  },
+ 	{"P3 Right"         , BIT_DIGITAL  , CpsInpc001+0, "p3 right" },
+ 	{"P3 Attack"        , BIT_DIGITAL  , CpsInpc001+5, "p3 fire 1"},
+ 	{"P3 Jump"          , BIT_DIGITAL  , CpsInp001+7 , "p3 fire 2"},
+ 	{"P3 Pin"           , BIT_DIGITAL  , CpsInpc001+4, "p3 fire 3"},
+
+ 	{"P4 Coin"          , BIT_DIGITAL  , CpsInpc003+6, "p4 coin"  },
+ 	{"P4 Start"         , BIT_DIGITAL  , CpsInpc003+7, "p4 start" },
+ 	{"P4 Up"            , BIT_DIGITAL  , CpsInpc003+3, "p4 up"    },
+ 	{"P4 Down"          , BIT_DIGITAL  , CpsInpc003+2, "p4 down"  },
+ 	{"P4 Left"          , BIT_DIGITAL  , CpsInpc003+1, "p4 left"  },
+ 	{"P4 Right"         , BIT_DIGITAL  , CpsInpc003+0, "p4 right" },
+ 	{"P4 Attack"        , BIT_DIGITAL  , CpsInpc003+5, "p4 fire 1"},
+ 	{"P4 Jump"          , BIT_DIGITAL  , CpsInp000+7 , "p4 fire 2"},
+ 	{"P4 Pin"           , BIT_DIGITAL  , CpsInpc003+4, "p4 fire 3"},
+
+ 	{"Reset"            , BIT_DIGITAL  , &CpsReset   , "reset"    },
+ 	{"Diagnostic"       , BIT_DIGITAL  , CpsInp018+6 , "diag"     },
+ 	{"Service"          , BIT_DIGITAL  , CpsInp018+2 , "service"  },
+ 	{"Dip C"            , BIT_DIPSWITCH, &Cpi01E     , "dip"      },
+};
+
+STDINPUTINFO(Mbombrd)
+
 static struct BurnInputInfo StriderInputList[] =
 {
  	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
@@ -1336,6 +1386,9 @@ static struct BurnInputInfo WofchInputList[] =
  	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4, "p1 fire 1" },
  	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5, "p1 fire 2" },
  	{"P1 Fire"          , BIT_DIGITAL  , CpsInp001+6, "p1 fire 3" },
+ 	{"P1 Fire 4"        , BIT_DIGITAL  , CpsInp001+7, "p1 fire 4" },
+ 	{"P1 Fire 5"        , BIT_DIGITAL  , CpsInp018+0, "p1 fire 5" },
+ 	{"P1 Fire 6"        , BIT_DIGITAL  , CpsInp018+6, "p1 fire 6" },
 
 	{"P2 Pause"         , BIT_DIGITAL  , CpsInp018+3, "p2 coin"   },
  	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start"  },
@@ -1346,7 +1399,12 @@ static struct BurnInputInfo WofchInputList[] =
  	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4, "p2 fire 1" },
  	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5, "p2 fire 2" },
  	{"P2 Fire"          , BIT_DIGITAL  , CpsInp000+6, "p2 fire 3" },
+ 	{"P2 Fire 4"        , BIT_DIGITAL  , CpsInp000+7, "p2 fire 4" },
+ 	{"P2 Fire 5"        , BIT_DIGITAL  , CpsInp018+1, "p2 fire 5" },
+ 	{"P2 Fire 6"        , BIT_DIGITAL  , CpsInp018+7, "p2 fire 6" },
 
+#if 0
+	// wofch only 2p?
  	{"P3 Start"         , BIT_DIGITAL  , CpsInpc001+7, "p3 start" },
  	{"P3 Up"            , BIT_DIGITAL  , CpsInpc001+3, "p3 up"    },
  	{"P3 Down"          , BIT_DIGITAL  , CpsInpc001+2, "p3 down"  },
@@ -1355,7 +1413,7 @@ static struct BurnInputInfo WofchInputList[] =
  	{"P3 Attack"        , BIT_DIGITAL  , CpsInpc001+4, "p3 fire 1"},
  	{"P3 Jump"          , BIT_DIGITAL  , CpsInpc001+5, "p3 fire 2"},
  	{"P3 Fire"          , BIT_DIGITAL  , CpsInpc001+6, "p3 fire 3"},
-
+#endif
  	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
 };
 
@@ -1632,7 +1690,7 @@ static struct BurnDIPInfo NTFODIPList[]=
 	{0x13, 0x01, 0x60, 0x40, "Fast"                   },
 	{0x13, 0x01, 0x60, 0x60, "Very Fast"              },
 
-	{0   , 0xfe, 0   , 2   , "Initital Vitality"      },
+	{0   , 0xfe, 0   , 2   , "Initial Vitality"       },
 	{0x13, 0x01, 0x80, 0x00, "3 bars"                 },
 	{0x13, 0x01, 0x80, 0x80, "4 bars"                 },
 	
@@ -11958,24 +12016,25 @@ STD_ROM_PICK(Sf2m8)
 STD_ROM_FN(Sf2m8)
 
 static struct BurnRomInfo Sf2cems6aRomDesc[] = {
-	{ "ms6.u196",       0x0100000, 0x596609d4, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
-	{ "ms6.u10",        0x0080000, 0xed4186bd, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "ms6.u196",          0x0100000, 0x596609d4, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "ms6.u10",           0x0080000, 0xed4186bd, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
-	{ "ms6.u70",     	0x0100000, 0xbaa0f81f, BRF_GRA | CPS1_TILES },
-	{ "ms6.u68",  	    0x0100000, 0x8edff95a, BRF_GRA | CPS1_TILES },
-	{ "ms6.u69",  	    0x0100000, 0x468962b1, BRF_GRA | CPS1_TILES },
-	{ "ms6.u64",       	0x0100000, 0x8165f536, BRF_GRA | CPS1_TILES },
-	{ "ms6.u19",     	0x0100000, 0x39d763d3, BRF_GRA | CPS1_TILES },
-	{ "ms6.u18",  	    0x0100000, 0x2ddfe46e, BRF_GRA | CPS1_TILES },
+	{ "ms6.u70",           0x0100000, 0xbaa0f81f, BRF_GRA | CPS1_TILES },
+	{ "ms6.u68",           0x0100000, 0x8edff95a, BRF_GRA | CPS1_TILES },
+	{ "ms6.u69",           0x0100000, 0x468962b1, BRF_GRA | CPS1_TILES },
+	{ "ms6.u64",           0x0100000, 0x8165f536, BRF_GRA | CPS1_TILES },
+	{ "ms6.u19",           0x0100000, 0x39d763d3, BRF_GRA | CPS1_TILES },
+	{ "ms6.u18",           0x0100000, 0x2ddfe46e, BRF_GRA | CPS1_TILES },
 
-	{ "ms6.u191",       0x0010000, 0x08f6b60e, BRF_PRG | CPS1_Z80_PROGRAM },
+	{ "ms6.u191",          0x0010000, 0x08f6b60e, BRF_PRG | CPS1_Z80_PROGRAM },
 
-	{ "ms6.u210",       0x0040000, 0x6cfffb11, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	{ "ms6.u210",          0x0040000, 0x6cfffb11, BRF_SND | CPS1_OKIM6295_SAMPLES },
 	
-	{ "ms6.u31",        0x0040000, 0x35486f2d, BRF_GRA | CPS1_EXTRA_TILES_SF2KORYU_400000 }, 
-	{ "ms6.u29",        0x0040000, 0xe4eca601, BRF_GRA | CPS1_EXTRA_TILES_SF2KORYU_400000 },
-	
-	{ "ms6.u133",       0x0010000, 0x13ea1c44, BRF_OPT }, // unknown
+	{ "ms6.u31",           0x0040000, 0x35486f2d, BRF_GRA | CPS1_EXTRA_TILES_SF2KORYU_400000 }, 
+	{ "ms6.u29",           0x0040000, 0xe4eca601, BRF_GRA | CPS1_EXTRA_TILES_SF2KORYU_400000 },
+
+	{ "ms6.u133",          0x0010000, 0x13ea1c44, BRF_OPT }, // unknown
+	{ "ms6_gal20v8a.u104", 0x0000157, 0x67b56d29, BRF_OPT }, // pld devices
 };
 
 STD_ROM_PICK(Sf2cems6a)
@@ -15972,7 +16031,7 @@ static INT32 KodbInit()
 	Cps1ObjGetCallbackFunction = KodbObjGet;
 	Cps1ObjDrawCallbackFunction = FcrashObjDraw;
 	
-	nRet = DrvInit();
+	nRet = Cps1RasterInit();
 	
 	CpsBootlegSpriteRam = (UINT8*)BurnMalloc(0x4000);
 	
@@ -15995,7 +16054,7 @@ static INT32 KodhInit()
 {
 	Kodh = 1;
 	
-	return DrvInit();
+	return Cps1RasterInit();
 }
 
 static INT32 MercsInit()
@@ -19654,7 +19713,7 @@ struct BurnDriver BurnDrvCpsKod = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, KodRomInfo, KodRomName, NULL, NULL, NULL, NULL, KodInputInfo, KodDIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19664,7 +19723,7 @@ struct BurnDriver BurnDrvCpsKodr1 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, Kodr1RomInfo, Kodr1RomName, NULL, NULL, NULL, NULL, KodInputInfo, Kodr1DIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19674,7 +19733,7 @@ struct BurnDriver BurnDrvCpsKodr2 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, Kodr2RomInfo, Kodr2RomName, NULL, NULL, NULL, NULL, KodInputInfo, Kodr1DIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19684,7 +19743,7 @@ struct BurnDriver BurnDrvCpsKodu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, KoduRomInfo, KoduRomName, NULL, NULL, NULL, NULL, KodInputInfo, KodDIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19694,7 +19753,7 @@ struct BurnDriver BurnDrvCpsKodj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, KodjRomInfo, KodjRomName, NULL, NULL, NULL, NULL, KodInputInfo, KodDIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19704,7 +19763,7 @@ struct BurnDriver BurnDrvCpsKodja = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, KodjaRomInfo, KodjaRomName, NULL, NULL, NULL, NULL, KodInputInfo, KodDIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -19734,7 +19793,7 @@ struct BurnDriver BurnDrvCpsKodda = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, KoddaRomInfo, KoddaRomName, NULL, NULL, NULL, NULL, KodInputInfo, KodDIPInfo,
-	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -21353,7 +21412,7 @@ struct BurnDriver BurnDrvCpsMbombrd = {
 	"Muscle Bomber Duo - ultimate team battle (931206 World)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombrdRomInfo, MbombrdRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombrdRomInfo, MbombrdRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -21363,7 +21422,7 @@ struct BurnDriver BurnDrvCpsMbombrdj = {
 	"Muscle Bomber Duo - heat up warriors (931206 Japan)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombrdjRomInfo, MbombrdjRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombrdjRomInfo, MbombrdjRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -22008,7 +22067,7 @@ struct BurnDriverX BurnDrvCpsMbombdje = {
 	"Muscle Bomber Duo - heat up warriors (931206 Japan E)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombdjeRomInfo, MbombdjeRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombdjeRomInfo, MbombdjeRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -22060,7 +22119,7 @@ struct BurnDriverX BurnDrvCpsMbombrda = {
 	"Muscle Bomber Duo - ultimate team battle (931206 Asia)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombrdaRomInfo, MbombrdaRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombrdaRomInfo, MbombrdaRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -22112,7 +22171,7 @@ struct BurnDriverX BurnDrvCpsMbombrdh = {
 	"Muscle Bomber Duo - ultimate team battle (931206 Hispanic)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombrdhRomInfo, MbombrdhRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombrdhRomInfo, MbombrdhRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -22164,7 +22223,7 @@ struct BurnDriverX BurnDrvCpsMbombrdu = {
 	"Muscle Bomber Duo - ultimate team battle (931206 USA)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, 0,
-	NULL, MbombrduRomInfo, MbombrduRomName, NULL, NULL, NULL, NULL, SlammastInputInfo, SlammastDIPInfo,
+	NULL, MbombrduRomInfo, MbombrduRomName, NULL, NULL, NULL, NULL, MbombrdInputInfo, SlammastDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };

@@ -197,7 +197,7 @@ extern "C" TCHAR* BurnDrvGetText(UINT32 i)
 
 	if (!(i & DRV_ASCIIONLY)) {
 		switch (i & 0xFF) {
-#ifndef __LIBRETRO__
+#if !defined(__LIBRETRO__) && !defined(BUILD_SDL) && !defined(BUILD_MACOS)
 			case DRV_FULLNAME:
 				pszStringW = pDriver[nBurnDrvActive]->szFullNameW;
 				
@@ -237,7 +237,7 @@ extern "C" TCHAR* BurnDrvGetText(UINT32 i)
 
 				}
 				break;
-#endif // __LIBRETRO__
+#endif // !defined(__LIBRETRO__) && !defined(BUILD_SDL)
 			case DRV_COMMENT:
 				pszStringW = pDriver[nBurnDrvActive]->szCommentW;
 				break;
@@ -803,6 +803,11 @@ INT32 BurnSetRefreshRate(double dFrameRate)
 {
 	if (!bForce60Hz) {
 		nBurnFPS = (INT32)(100.0 * dFrameRate);
+#ifdef __LIBRETRO__
+		// By design, libretro dislike having nBurnSoundRate > nBurnFPS * 10
+		if (nBurnSoundRate > nBurnFPS * 10)
+			nBurnSoundRate = nBurnFPS * 10;
+#endif
 	}
 
 	nBurnSoundLen = (nBurnSoundRate * 100 + (nBurnFPS >> 1)) / nBurnFPS;
@@ -926,7 +931,11 @@ struct MovieExtInfo
 	UINT32 hour, minute, second;
 };
 
+#if !defined(BUILD_SDL) && !defined(BUILD_MACOS)
 extern struct MovieExtInfo MovieInfo; // from replay.cpp
+#else
+struct MovieExtInfo MovieInfo = { 0, 0, 0, 0, 0, 0 };
+#endif
 
 void BurnGetLocalTime(tm *nTime)
 {
