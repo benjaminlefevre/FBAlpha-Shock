@@ -3,6 +3,7 @@
 
 #include "tiles_generic.h"
 #include "z80_intf.h"
+#include "burn_gun.h"
 #include "burn_ym2203.h"
 #include "burn_ym2151.h"
 #include "tnzs_prot.h"
@@ -795,16 +796,15 @@ UINT8 __fastcall tnzs_cpu1_read(UINT16 address)
 			return DrvDips[1];
 
 		case 0xf000:
-			return (~nAnalogAxis[0] >> 12) & 0xff;
-
 		case 0xf001:
-			return (~nAnalogAxis[0] >> 20) & 0x0f;
-
 		case 0xf002:
-			return (~nAnalogAxis[1] >> 12) & 0xff;
-
-		case 0xf003:
-			return (~nAnalogAxis[1] >> 20) & 0x0f;
+		case 0xf003: {
+			UINT32 t = BurnTrackballReadWord(0, (address & 3) >> 1) & 0xfff;
+			if (address & 1)
+				return (t >> 8) & 0xff;
+			else
+				return t & 0xff;
+		}
 	}
 
 	return 0;
@@ -1364,6 +1364,8 @@ static INT32 Type1Init(INT32 mcutype)
 	DACInit(0, 0, 1, ZetTotalCycles, 6000000); // kabukiz
 	DACSetRoute(0, 0.10, BURN_SND_ROUTE_BOTH);
 
+	BurnTrackballInit(2);
+
 	GenericTilesInit();
 
 	DrvDoReset();
@@ -1481,6 +1483,8 @@ static INT32 Type2Init()
 
 	GenericTilesInit();
 
+	BurnTrackballInit(2); // not on this hw
+
 	DrvDoReset();
 
 	return 0;
@@ -1497,6 +1501,8 @@ static INT32 DrvExit()
 	DACExit();
 
 	BurnFree (AllMem);
+
+	BurnTrackballExit();
 
 	if (tnzs_mcu_type() == MCU_NONE_KAGEKI) {
 		kageki_sample_exit();
@@ -1759,8 +1765,9 @@ static void assemble_inputs()
 		DrvInputs[2] ^= DrvJoy3[i] << i;
 	}
 
-	nAnalogAxis[0] -= DrvAxis[0] << 7;
-	nAnalogAxis[1] -= DrvAxis[1] << 7;
+	BurnTrackballConfig(0, AXIS_NORMAL, AXIS_NORMAL);
+	BurnTrackballFrame(0, DrvAxis[0], DrvAxis[1], 0x6, 0x2f);
+	BurnTrackballUpdate(0);
 }
 
 static INT32 DrvFrame()
@@ -1894,12 +1901,12 @@ static INT32 DrvScan(INT32 nAction,INT32 *pnMin)
 
 		DACScan(nAction, pnMin);
 
+		BurnTrackballScan();
+
 		tnzs_mcu_scan();
 
 		SCAN_VAR(tnzs_banks);
 		SCAN_VAR(cpu1_reset);
-
-		SCAN_VAR(nAnalogAxis);
 
 		SCAN_VAR(kageki_csport_sel);
 		SCAN_VAR(kageki_sample_pos);
