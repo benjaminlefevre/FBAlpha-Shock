@@ -1960,8 +1960,8 @@ STDDIPINFO(Choppera)
 
 static struct BurnDIPInfo BermudatDIPList[]=
 {
-	{0x19, 0xff, 0xff, 0x3a, NULL		},
-	{0x1a, 0xff, 0xff, 0x8a, NULL		},
+	{0x19, 0xff, 0xff, 0x3b, NULL		},
+	{0x1a, 0xff, 0xff, 0x8b, NULL		},
 	{0x1b, 0xff, 0xff, 0x34, NULL		},
 
 	{0   , 0xfe, 0   ,    2, "Flip Screen"		},
@@ -4315,6 +4315,16 @@ static INT32 BermudatInit()
 	DrvDoReset();
 
 	return 0;
+}
+
+static INT32 BermudatwwInit()
+{
+	INT32 nRet = BermudatInit();
+	if (!nRet) {
+		RotateSetGunPosRAM(&DrvSprRAM[0x041], &DrvSprRAM[0x049], 1);
+	}
+
+	return nRet;
 }
 
 static INT32 GwarInit()
@@ -7295,7 +7305,7 @@ struct BurnDriver BurnDrvWorldwar = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
 	NULL, worldwarRomInfo, worldwarRomName, NULL, NULL, NULL, NULL, BermudatInputInfo, BermudatDIPInfo,
-	BermudatInit, DrvExit, GwarFrame, GwarDraw, DrvScan, &DrvRecalc, 0x400,
+	BermudatwwInit, DrvExit, GwarFrame, GwarDraw, DrvScan, &DrvRecalc, 0x400,
 	224, 400, 3, 4
 };
 
@@ -7349,7 +7359,7 @@ struct BurnDriver BurnDrvBermudata = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_ORIENTATION_VERTICAL | BDF_HISCORE_SUPPORTED, 2, HARDWARE_MISC_PRE90S, GBF_VERSHOOT, 0,
 	NULL, bermudataRomInfo, bermudataRomName, NULL, NULL, NULL, NULL, BermudatInputInfo, BermudatDIPInfo,
-	BermudatInit, DrvExit, GwarFrame, GwarDraw, DrvScan, &DrvRecalc, 0x400,
+	BermudatwwInit, DrvExit, GwarFrame, GwarDraw, DrvScan, &DrvRecalc, 0x400,
 	224, 400, 3, 4
 };
 
@@ -8989,11 +8999,11 @@ static struct BurnRomInfo tdfever2bRomDesc[] = {
 	{ "fa-22.c11",		0x10000, 0x34b4bce9, 15 | BRF_SND },          // 23
 	{ "fa-21.c10",		0x10000, 0x1b52357b, 15 | BRF_SND },          // 24
 
-	{ "pal1618a.c1",	0x00104, 0x9282d039, 0 | BRF_OPT },		  	  // 25 PLDs
-	{ "pal1618a.h3",	0x00104, 0x4ae59346, 0 | BRF_OPT },		  	  // 26
+	{ "pal16l8a.c1",	0x00104, 0x9282d039, 0 | BRF_OPT },		  	  // 25 PLDs
+	{ "pal16l8a.h3",	0x00104, 0x4ae59346, 0 | BRF_OPT },		  	  // 26
 	{ "pal16r8a.f2",	0x00104, 0x311e5ae6, 0 | BRF_OPT },		  	  // 27
 	{ "pal16l8a.e7",	0x00104, 0x4c2d02b3, 0 | BRF_OPT },		  	  // 28
-	{ "pal1618a.h11",	0x00104, 0xe9a0efca, 0 | BRF_OPT },		  	  // 29
+	{ "pal16l8a.h11",	0x00104, 0xe9a0efca, 0 | BRF_OPT },		  	  // 29
 };
 
 STD_ROM_PICK(tdfever2b)

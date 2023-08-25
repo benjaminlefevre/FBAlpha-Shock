@@ -701,7 +701,7 @@ UINT8 __fastcall MooncrstZ80Read(UINT16 a)
 		}
 
 		default: {
-			bprintf(PRINT_NORMAL, _T("Z80 #1 Read => %04X\n"), a);
+			//bprintf(PRINT_NORMAL, _T("Z80 #1 Read => %04X\n"), a);
 		}
 	}
 
@@ -861,10 +861,12 @@ UINT8 __fastcall JumpbugZ80Read(UINT16 a)
 		}
 
 		case 0x6800: {
+			//bprintf(0, _T("in1: %X\n"), GalInput[1] | GalDip[1]);
 			return GalInput[1] | GalDip[1];
 		}
 
 		case 0x7000: {
+			//bprintf(0, _T("in2: %X\n"), GalInput[2] | GalDip[2]);
 			return GalInput[2] | GalDip[2];
 		}
 
