@@ -32,7 +32,8 @@ end
 
 function set_links()
    linkoptions { "-static",
-   "-mfloat-abi=hard"
+   "-mfloat-abi=hard",
+   "-mfpu=neon-vfpv4"
      }
 
    links {
@@ -47,6 +48,7 @@ function set_buildoptions()
    {
       "-static",
       "-mfloat-abi=hard",
+         "-mfpu=neon-vfpv4",
        "-s",
       "-fsigned-char",
       "-fsigned-char",
