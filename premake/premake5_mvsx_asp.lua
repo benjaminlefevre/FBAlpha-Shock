@@ -1,8 +1,8 @@
 makesettings [[
-BINPATH  := ../../../fba-toolchains/linux-host/arm-2011.09/bin
-CC       := ${BINPATH}/arm-none-linux-gnueabi-gcc -mfloat-abi=softfp
-CXX      := ${BINPATH}/arm-none-linux-gnueabi-g++ -mfloat-abi=softfp
-STRIP    := ${BINPATH}/arm-none-linux-gnueabi-strip -s
+BINPATH  := ../../../fba-toolchains/linux-host/arm-none-linux-gnueabihf/bin
+CC       := ${BINPATH}/arm-none-linux-gnueabihf-gcc
+CXX      := ${BINPATH}/arm-none-linux-gnueabihf-g++
+STRIP    := ${BINPATH}/arm-none-linux-gnueabihf-strip -s
 ]]
 
 function set_location()
@@ -31,7 +31,9 @@ function set_system()
 end
 
 function set_links()
-   linkoptions { "-static" }
+   linkoptions { "-static",
+   "-mfloat-abi=hard"
+     }
 
    links {
       "m",
@@ -44,7 +46,8 @@ function set_buildoptions()
    buildoptions
    {
       "-static",
-      "-s",
+      "-mfloat-abi=hard",
+       "-s",
       "-fsigned-char",
       "-fsigned-char",
       "-Wno-write-strings",
