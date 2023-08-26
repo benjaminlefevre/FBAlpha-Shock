@@ -31,7 +31,9 @@ function set_system()
 end
 
 function set_links()
-   linkoptions { "-static",     "-mfloat-abi=hard"}
+   linkoptions { "-static",
+   "-mfloat-abi=hard"
+     }
 
    links {
       "m",
@@ -45,7 +47,7 @@ function set_buildoptions()
    {
       "-static",
       "-mfloat-abi=hard",
-      "-s",
+       "-s",
       "-fsigned-char",
       "-fsigned-char",
       "-Wno-write-strings",
