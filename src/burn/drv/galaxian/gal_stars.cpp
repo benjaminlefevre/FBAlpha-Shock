@@ -188,8 +188,8 @@ void MarinerRenderStarLayer()
 
 void RescueRenderStarLayer()
 {
-	if (GalCheckStarsBlinkState()) GalStarsBlinkState++;
-	
+	GalStarsScrollPos++;
+
 	for (INT32 Offs = 0; Offs < 252; Offs++) {
 		INT32 x, y;
 		

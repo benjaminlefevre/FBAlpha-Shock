@@ -1091,7 +1091,9 @@ INT32 cps3Init()
 {
 	INT32 nRet, ii, offset;
 	struct BurnRomInfo pri;
-	
+
+	BurnSetRefreshRate(59.59949);
+
 	// calc graphic and sound roms size
 	ii = 0; cps3_data_rom_size = 0;
 	while (BurnDrvGetRomInfo(&pri, ii) == 0) {
@@ -1961,11 +1963,15 @@ INT32 DrvCps3Draw()
 		// bank select? (sfiii2 intro)
 		INT32 bank = (ss_bank_base & 0x01000000) ? 0x0000 : 0x0800;
 
+	  INT32 prev_rowscroll = 0;
 		for (INT32 line = 0; line < 224; line++) {
 			INT32 y = line / 8;
 			INT32 count = (y * 64) + bank;
 			// 'combo meter' in JoJo games uses rowscroll
 			INT32 rowscroll = RamSS[((line - 1) & 0x1ff) + 0x4000 / 4] >> 16;
+	    // if neither rowscroll nor count are varying from previous loop, skipping directly to next loop should be fine
+			if (rowscroll == prev_rowscroll && (y*8 != line)) continue;
+			prev_rowscroll = rowscroll;
 
 			for (INT32 x = 0; x < 64; x++, count++) {
 				UINT32 data = RamSS[count]; // +0x800 = 2nd bank, used on sfiii2 intro..

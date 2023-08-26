@@ -26,6 +26,7 @@ static UINT8 *DrvZ80Ram           = NULL;
 static UINT8 *DrvProms            = NULL;
 static UINT8 *DrvSpritePalBank    = NULL;
 static UINT8 *DrvSpriteRam        = NULL;
+static UINT8 *DrvSpriteRamBuffer  = NULL;
 static UINT8 *DrvBgVideoRam       = NULL;
 static UINT8 *DrvFgVideoRam       = NULL;
 static UINT8 *DrvChars            = NULL;
@@ -37,6 +38,7 @@ static UINT32 *DrvPalette         = NULL;
 static UINT8 DrvRecalcPal         = 0;
 static UINT16 DrvScrollX          = 0;
 static UINT16 DrvScrollY          = 0;
+static UINT16 DrvDisableFg        = 0;
 static UINT16 DrvDisableBg        = 0;
 static UINT16 DrvFlipScreen       = 0;
 static UINT8 DrvSoundLatch        = 0;
@@ -700,6 +702,7 @@ static INT32 MemIndex()
 	
 	Drv68KRam              = Next; Next += 0x001000;
 	DrvSpriteRam           = Next; Next += 0x002000;
+	DrvSpriteRamBuffer     = Next; Next += 0x002000;
 	DrvBgVideoRam          = Next; Next += 0x001000;
 	DrvFgVideoRam          = Next; Next += 0x001000;
 	DrvZ80Ram              = Next; Next += 0x001000;
@@ -735,6 +738,7 @@ static INT32 DrvDoReset()
 	
 	DrvScrollX = 0;
 	DrvScrollY = 0;
+	DrvDisableFg = 0;
 	DrvDisableBg = 0;
 	DrvFlipScreen = 0;
 	DrvSoundLatch = 0;
@@ -803,6 +807,7 @@ void __fastcall Terracre68KWriteWord(UINT32 a, UINT16 d)
 		
 		case 0x026002: {
 			DrvScrollX = d & 0x3ff;
+			DrvDisableFg = (d & 0x1000) ? 1 : 0;
 			DrvDisableBg = (d & 0x2000) ? 1 : 0;
 			return;
 		}
@@ -924,6 +929,7 @@ void __fastcall Amazon68KWriteWord(UINT32 a, UINT16 d)
 		
 		case 0x046002: {
 			DrvScrollX = d & 0x3ff;
+			DrvDisableFg = (d & 0x1000) ? 1 : 0;
 			DrvDisableBg = (d & 0x2000) ? 1 : 0;
 			return;
 		}
@@ -1497,6 +1503,7 @@ static INT32 DrvExit()
 	
 	DrvScrollX = 0;
 	DrvScrollY = 0;
+	DrvDisableFg = 0;
 	DrvDisableBg = 0;
 	DrvFlipScreen = 0;
 	DrvSoundLatch = 0;
@@ -1648,7 +1655,7 @@ static void DrvRenderFgLayer()
 
 static void DrawSprites()
 {
-	UINT16 *pSource = (UINT16*)DrvSpriteRam;
+	UINT16 *pSource = (UINT16*)DrvSpriteRamBuffer;
 	INT32 TransparentPen = 0x00;
 	if (DrvIsHorekid) TransparentPen = 0x0f;
 
@@ -1729,7 +1736,7 @@ static INT32 DrvDraw()
 	if (DrvRecalcPal) DrvCalcPalette();
 	if (nBurnLayer & 0x01 && !DrvDisableBg) DrvRenderBgLayer();
 	if (nSpriteEnable & 0x01) DrawSprites();
-	if (nBurnLayer & 0x02) DrvRenderFgLayer();
+	if (nBurnLayer & 0x02 && !DrvDisableFg) DrvRenderFgLayer();
 	BurnTransferCopy(DrvPalette);
 
 	return 0;
@@ -1739,7 +1746,8 @@ static INT32 DrvFrame()
 {
 	INT32 nCyclesTotal[2] = { 8000000 / 60, 4000000 / 60 };
 	INT32 nCyclesDone[2] = { 0, 0 };
-	INT32 nInterleave = 17*8; // 136
+	// INT32 nInterleave = 17*8; // 136 // BGM too fast at this value
+	INT32 nInterleave = 130;
 	
 	if (DrvReset) DrvDoReset();
 
@@ -1791,6 +1799,7 @@ static INT32 DrvFrame()
 	ZetClose();
 	
 	if (pBurnDraw) DrvDraw();
+	memcpy(DrvSpriteRamBuffer, DrvSpriteRam, 0x002000);
 
 	return 0;
 }
@@ -1825,6 +1834,7 @@ static INT32 DrvScan(INT32 nAction, INT32 *pnMin)
 		
 		SCAN_VAR(DrvScrollX);
 		SCAN_VAR(DrvScrollY);
+		SCAN_VAR(DrvDisableFg);
 		SCAN_VAR(DrvDisableBg);
 		SCAN_VAR(DrvFlipScreen);
 		SCAN_VAR(DrvSoundLatch);
