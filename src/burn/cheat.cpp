@@ -406,10 +406,13 @@ void CheatSearchStart()
 	INT32 nActiveCPU = 0;
 	cheat_ptr = &cpus[nActiveCPU];
 	cheat_subptr = cheat_ptr->cpuconfig;
-	cheat_subptr->open(cheat_ptr->nCPU);
 
 	nActiveCPU = cheat_subptr->active();
-	if (nActiveCPU >= 0) cheat_subptr->close();
+	if (nActiveCPU >= 0) {
+		// cpu was already open, close it.
+		// note: it shouldn't be - cpu's are closed between frames. -dink
+		cheat_subptr->close();
+	}
 	cheat_subptr->open(cheat_ptr->nCPU);
 	nMemorySize = cheat_subptr->nMemorySize;
 
@@ -426,7 +429,11 @@ void CheatSearchStart()
 	}
 	
 	cheat_subptr->close();
-	if (nActiveCPU >= 0) cheat_subptr->open(nActiveCPU);
+
+	if (nActiveCPU >= 0) {
+		// re-open cpu which was open when cheatsearch started.
+		cheat_subptr->open(nActiveCPU);
+	}
 }
 
 static void CheatSearchGetResults()

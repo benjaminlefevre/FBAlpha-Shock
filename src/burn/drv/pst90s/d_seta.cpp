@@ -345,7 +345,7 @@ static struct BurnInputInfo WrofaeroInputList[] = {
 	{"P1 Right",		BIT_DIGITAL,	DrvJoy1 + 1,	"p1 right"	},
 	{"P1 Button 1",		BIT_DIGITAL,	DrvJoy1 + 4,	"p1 fire 1"	},
 	{"P1 Button 2",		BIT_DIGITAL,	DrvJoy1 + 5,	"p1 fire 2"	},
-	{"P1 Button 3",		BIT_DIGITAL,	DrvJoy1 + 5,	"p1 fire 3"	},
+	{"P1 Button 3",		BIT_DIGITAL,	DrvJoy1 + 6,	"p1 fire 3"	},
 
 	{"P2 Coin",		BIT_DIGITAL,	DrvJoy3 + 1,	"p2 coin"	},
 	{"P2 Start",		BIT_DIGITAL,	DrvJoy2 + 7,	"p2 start"	},
@@ -355,7 +355,7 @@ static struct BurnInputInfo WrofaeroInputList[] = {
 	{"P2 Right",		BIT_DIGITAL,	DrvJoy2 + 1,	"p2 right"	},
 	{"P2 Button 1",		BIT_DIGITAL,	DrvJoy2 + 4,	"p2 fire 1"	},
 	{"P2 Button 2",		BIT_DIGITAL,	DrvJoy2 + 5,	"p2 fire 2"	},
-	{"P2 Button 3",		BIT_DIGITAL,	DrvJoy2 + 5,	"p2 fire 3"	},
+	{"P2 Button 3",		BIT_DIGITAL,	DrvJoy2 + 6,	"p2 fire 3"	},
 
 	{"Reset",		BIT_DIGITAL,	&DrvReset,	"reset"		},
 	{"Service",		BIT_DIGITAL,	DrvJoy3 + 2,	"service"	},
@@ -3933,21 +3933,6 @@ static void __fastcall setaSoundRegWriteByte8bit(UINT32 sekAddress, UINT8 byteVa
 		x1_010_chip->env_offset[channel] = 0;
 	}
 	x1_010_chip->reg[offset] = byteValue;
-}
-
-void x1010Reset()
-{
-	x1_010_chip->sound_enable = 1; // enabled by default?
-	memset (x1_010_chip->reg,         0, 0x2000);
-	memset (x1_010_chip->HI_WORD_BUF, 0, 0x2000);
-	memset (x1_010_chip->smp_offset,  0, SETA_NUM_CHANNELS * sizeof(INT32));
-	memset (x1_010_chip->env_offset,  0, SETA_NUM_CHANNELS * sizeof(INT32));
-	memset (x1_010_chip->sound_banks, 0, SETA_NUM_BANKS * sizeof(INT32));
-}
-
-void x1010Enable(INT32 data)
-{
-	x1_010_chip->sound_enable = data;
 }
 
 static void set_pcm_bank(INT32 data)

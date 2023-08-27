@@ -5730,7 +5730,7 @@ void DrawGfxTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX, IN
 
 	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
 
-	DrawCustomTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, gfx->gfxbase);
+	DrawCustomTile(bitmap, gfx->width, gfx->height, nTileNumber % gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, gfx->gfxbase);
 
 	if (nBitmap != 0)
 	{
@@ -5756,7 +5756,7 @@ void DrawGfxMaskTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX
 
 	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
 
-	DrawCustomMaskTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, gfx->gfxbase);
+	DrawCustomMaskTile(bitmap, gfx->width, gfx->height, nTileNumber % gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, gfx->gfxbase);
 
 	if (nBitmap != 0)
 	{
@@ -5783,7 +5783,7 @@ void DrawGfxPrioTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nStartX
 
 	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
 
-	DrawCustomPrioTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, nPriority, gfx->gfxbase);
+	DrawCustomPrioTile(bitmap, gfx->width, gfx->height, nTileNumber % gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, gfx->color_offset, nPriority, gfx->gfxbase);
 
 	if (nBitmap != 0)
 	{
@@ -5811,7 +5811,7 @@ void DrawGfxPrioMaskTile(INT32 nBitmap, INT32 nGfx, INT32 nTileNumber, INT32 nSt
 
 	GenericTilesGfx *gfx = &GenericGfxData[nGfx];
 
-	DrawCustomPrioMaskTile(bitmap, gfx->width, gfx->height, nTileNumber & gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, nPriority, gfx->gfxbase);
+	DrawCustomPrioMaskTile(bitmap, gfx->width, gfx->height, nTileNumber % gfx->code_mask, nStartX, nStartY, nFlipx, nFlipy, nTilePalette & gfx->color_mask, gfx->depth, nMaskColor, gfx->color_offset, nPriority, gfx->gfxbase);
 
 	if (nBitmap != 0)
 	{
