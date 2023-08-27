@@ -1004,8 +1004,8 @@ static void DrvMCUReset(); // forward
 
 static void DrvMCUInit()
 {
-	mcs51_program_data = DrvMCURom;
-	mcs51_init ();
+	mcs51_init();
+	mcs51_set_program_data(DrvMCURom);
 	mcs51_set_write_handler(mcu_write_port);
 	mcs51_set_read_handler(mcu_read_port);
 
@@ -1554,8 +1554,9 @@ static void draw_bg_layer(UINT8 *ram, UINT8 *ctrl, UINT8 *gfx, INT32 coff, INT32
 	{
 		INT32 xscroll[256];
 
+		scrollx = 0;
 		for (INT32 i = 0; i < 256; i++) {
-			xscroll[i] = ((DrvRowRAM[i*2]<<8)+DrvRowRAM[i*2+1])&0x1ff;
+			xscroll[i] = (((ctrl[0x10] << 8) | ctrl[0x11]) + ((DrvRowRAM[i*2]<<8)+DrvRowRAM[i*2+1]))&0x1ff;
 		}
 
 		for (INT32 offs = 0; offs < 32 * 32; offs++)
@@ -1655,6 +1656,8 @@ static INT32 DrvDraw()
 			DrvPalette[i] = BurnHighCol(d >> 16, (d >> 8) & 0xff, d & 0xff, 0);
 		}
 	}
+
+	BurnTransferClear();
 
 	draw_bg_layer(DrvPf0RAM, DrvPf0Ctrl, DrvGfxROM2, 0x200, 0x0f, 0x7ff, 0, 0);
 	draw_sprites1(0);
@@ -2209,7 +2212,7 @@ static INT32 CobraInit()
 	MemIndex();
 
 	{
-		if (!strcmp(BurnDrvGetTextA(DRV_NAME), "cobracomb")) {
+		if (!strcmp(BurnDrvGetTextA(DRV_NAME), "cobracomib")) {
 			if (BurnLoadRom(DrvMainROM + 0x08000,  0, 1)) return 1;
 			if (BurnLoadRom(DrvMainROM + 0x10000,  1, 1)) return 1;
 			if (BurnLoadRom(DrvMainROM + 0x20000,  2, 1)) return 1;
@@ -2519,26 +2522,30 @@ static INT32 CobraFrame()
 // Cobra-Command (World/US revision 5)
 
 static struct BurnRomInfo cobracomRomDesc[] = {
-	{ "el11-5.bin",	0x08000, 0xaf0a8b05, 1 }, //  0 maincpu
-	{ "el12-4.bin",	0x10000, 0x7a44ef38, 1 }, //  1
-	{ "el13.bin",	0x10000, 0x04505acb, 1 }, //  2
+	{ "el11-5.5j",	0x08000, 0xaf0a8b05, 1 }, //  0 maincpu
+	{ "el12-4.7j",	0x10000, 0x7a44ef38, 1 }, //  1
+	{ "el13.9j",	0x10000, 0x04505acb, 1 }, //  2
 
-	{ "el10-4.bin",	0x08000, 0xedfad118, 2 }, //  3 audiocpu
+	{ "el10-4.1f",	0x08000, 0xedfad118, 2 }, //  3 audiocpu
 
-	{ "el14.bin",	0x08000, 0x47246177, 3 }, //  4 gfx1
+	{ "el14.14j",	0x08000, 0x47246177, 3 }, //  4 gfx1
 
-	{ "el00-4.bin",	0x10000, 0x122da2a8, 4 }, //  5 gfx2
-	{ "el01-4.bin",	0x10000, 0x27bf705b, 4 }, //  6
-	{ "el02-4.bin",	0x10000, 0xc86fede6, 4 }, //  7
-	{ "el03-4.bin",	0x10000, 0x1d8a855b, 4 }, //  8
+	{ "el00-4.2a",	0x10000, 0x122da2a8, 4 }, //  5 gfx2
+	{ "el01-4.3a",	0x10000, 0x27bf705b, 4 }, //  6
+	{ "el02-4.5a",	0x10000, 0xc86fede6, 4 }, //  7
+	{ "el03-4.6a",	0x10000, 0x1d8a855b, 4 }, //  8
 
-	{ "el08.bin",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
-	{ "el09.bin",	0x10000, 0x1fae5be7, 5 }, // 10
+	{ "el08.7d",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
+	{ "el09.9d",	0x10000, 0x1fae5be7, 5 }, // 10
 
-	{ "el05.bin",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
-	{ "el06.bin",	0x10000, 0xd24ba794, 6 }, // 12
-	{ "el04.bin",	0x10000, 0xd80a49ce, 6 }, // 13
-	{ "el07.bin",	0x10000, 0x6d771fc3, 6 }, // 14
+	{ "el05.15a",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
+	{ "el06.16a",	0x10000, 0xd24ba794, 6 }, // 12
+	{ "el04.13a",	0x10000, 0xd80a49ce, 6 }, // 13
+	{ "el07.18a",	0x10000, 0x6d771fc3, 6 }, // 14
+	
+	{ "eh15.12f",	0x00200, 0x279e540c, 7 }, // 15 proms
+	
+	{ "pt-0.16h",	0x00117, 0xadd5074f, 8 }, // 16 plds
 };
 
 STD_ROM_PICK(cobracom)
@@ -2582,26 +2589,30 @@ struct BurnDriver BurnDrvCobracom = {
 // Cobra-Command (World/US revision 4)
 
 static struct BurnRomInfo cobracomaRomDesc[] = {
-	{ "el11-4.bin",	0x08000, 0x6dca6734, 1 }, //  0 maincpu
-	{ "el12-4.bin",	0x10000, 0x7a44ef38, 1 }, //  1
-	{ "el13.bin",	0x10000, 0x04505acb, 1 }, //  2
+	{ "el11-4.5j",	0x08000, 0x6dca6734, 1 }, //  0 maincpu
+	{ "el12-4.7j",	0x10000, 0x7a44ef38, 1 }, //  1
+	{ "el13.9j",	0x10000, 0x04505acb, 1 }, //  2
 
-	{ "el10-4.bin",	0x08000, 0xedfad118, 2 }, //  3 audiocpu
+	{ "el10-4.1f",	0x08000, 0xedfad118, 2 }, //  3 audiocpu
 
-	{ "el14.bin",	0x08000, 0x47246177, 3 }, //  4 gfx1
+	{ "el14.14j",	0x08000, 0x47246177, 3 }, //  4 gfx1
 
-	{ "el00-4.bin",	0x10000, 0x122da2a8, 4 }, //  5 gfx2
-	{ "el01-4.bin",	0x10000, 0x27bf705b, 4 }, //  6
-	{ "el02-4.bin",	0x10000, 0xc86fede6, 4 }, //  7
-	{ "el03-4.bin",	0x10000, 0x1d8a855b, 4 }, //  8
+	{ "el00-4.2a",	0x10000, 0x122da2a8, 4 }, //  5 gfx2
+	{ "el01-4.3a",	0x10000, 0x27bf705b, 4 }, //  6
+	{ "el02-4.5a",	0x10000, 0xc86fede6, 4 }, //  7
+	{ "el03-4.6a",	0x10000, 0x1d8a855b, 4 }, //  8
 
-	{ "el08.bin",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
-	{ "el09.bin",	0x10000, 0x1fae5be7, 5 }, // 10
+	{ "el08.7d",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
+	{ "el09.9d",	0x10000, 0x1fae5be7, 5 }, // 10
 
-	{ "el05.bin",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
-	{ "el06.bin",	0x10000, 0xd24ba794, 6 }, // 12
-	{ "el04.bin",	0x10000, 0xd80a49ce, 6 }, // 13
-	{ "el07.bin",	0x10000, 0x6d771fc3, 6 }, // 14
+	{ "el05.15a",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
+	{ "el06.16a",	0x10000, 0xd24ba794, 6 }, // 12
+	{ "el04.13a",	0x10000, 0xd80a49ce, 6 }, // 13
+	{ "el07.18a",	0x10000, 0x6d771fc3, 6 }, // 14
+	
+	{ "eh15.12f",	0x00200, 0x279e540c, 7 }, // 15 proms
+	
+	{ "pt-0.16h",	0x00117, 0xadd5074f, 8 }, // 16 plds
 };
 
 STD_ROM_PICK(cobracoma)
@@ -2618,29 +2629,76 @@ struct BurnDriver BurnDrvCobracoma = {
 };
 
 
+// Cobra-Command (World/US)
+
+static struct BurnRomInfo cobracombRomDesc[] = {
+	{ "el11.5j",	0x08000, 0xc6a102e3, 1 }, //  0 maincpu
+	{ "el12.7j",	0x10000, 0x72b2dab4, 1 }, //  1
+	{ "el13.9j",	0x10000, 0x04505acb, 1 }, //  2
+
+	{ "el10.1f",	0x08000, 0x62ca5e89, 2 }, //  3 audiocpu
+
+	{ "el14.14j",	0x08000, 0x47246177, 3 }, //  4 gfx1
+
+	{ "el00.2a",	0x10000, 0xd96b6797, 4 }, //  5 gfx2
+	{ "el01.3a",	0x10000, 0x3fef9c02, 4 }, //  6
+	{ "el02.5a",	0x10000, 0xbfae6c34, 4 }, //  7
+	{ "el03.6a",	0x10000, 0xd56790f8, 4 }, //  8
+
+	{ "el08.7d",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
+	{ "el09.9d",	0x10000, 0x1fae5be7, 5 }, // 10
+
+	{ "el05.15a",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
+	{ "el06.16a",	0x10000, 0xd24ba794, 6 }, // 12
+	{ "el04.13a",	0x10000, 0xd80a49ce, 6 }, // 13
+	{ "el07.18a",	0x10000, 0x6d771fc3, 6 }, // 14
+	
+	{ "eh15.12f",	0x00200, 0x279e540c, 7 }, // 15 proms
+	
+	{ "pt-0.16h",	0x00117, 0xadd5074f, 8 }, // 16 plds
+};
+
+STD_ROM_PICK(cobracomb)
+STD_ROM_FN(cobracomb)
+
+struct BurnDriver BurnDrvCobracomb = {
+	"cobracomb", "cobracom", NULL, NULL, "1988",
+	"Cobra-Command (World/US)\0", NULL, "Data East Corporation", "DEC8",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_PREFIX_DATAEAST, GBF_HORSHOOT, 0,
+	NULL, cobracombRomInfo, cobracombRomName, NULL, NULL, NULL, NULL, CobracomInputInfo, CobracomDIPInfo,
+	CobraInit, CobraExit, CobraFrame, CobraDraw, CobraScan, &DrvRecalc, 0x100,
+	256, 240, 4, 3
+};
+
+
 // Cobra-Command (Japan)
 
 static struct BurnRomInfo cobracmjRomDesc[] = {
-	{ "eh-11.rom",	0x08000, 0x868637e1, 1 }, //  0 maincpu
-	{ "eh-12.rom",	0x10000, 0x7c878a83, 1 }, //  1
-	{ "el13.bin",	0x10000, 0x04505acb, 1 }, //  2
+	{ "eh11.5j",	0x08000, 0x868637e1, 1 }, //  0 maincpu
+	{ "eh12.7j",	0x10000, 0x7c878a83, 1 }, //  1
+	{ "el13.9j",	0x10000, 0x04505acb, 1 }, //  2
 
-	{ "eh-10.rom",	0x08000, 0x62ca5e89, 2 }, //  3 audiocpu
+	{ "eh10.1f",	0x08000, 0x62ca5e89, 2 }, //  3 audiocpu
 
-	{ "el14.bin",	0x08000, 0x47246177, 3 }, //  4 gfx1
+	{ "eh14.14j",	0x08000, 0x47246177, 3 }, //  4 gfx1
 
-	{ "eh-00.rom",	0x10000, 0xd96b6797, 4 }, //  5 gfx2
-	{ "eh-01.rom",	0x10000, 0x3fef9c02, 4 }, //  6
-	{ "eh-02.rom",	0x10000, 0xbfae6c34, 4 }, //  7
-	{ "eh-03.rom",	0x10000, 0xd56790f8, 4 }, //  8
+	{ "eh00.2a",	0x10000, 0xd96b6797, 4 }, //  5 gfx2
+	{ "eh01.3a",	0x10000, 0x3fef9c02, 4 }, //  6
+	{ "eh02.5a",	0x10000, 0xbfae6c34, 4 }, //  7
+	{ "eh03.6a",	0x10000, 0xd56790f8, 4 }, //  8
 
-	{ "el08.bin",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
-	{ "el09.bin",	0x10000, 0x1fae5be7, 5 }, // 10
+	{ "eh08.7d",	0x10000, 0xcb0dcf4c, 5 }, //  9 gfx4
+	{ "eh09.9d",	0x10000, 0x1fae5be7, 5 }, // 10
 
-	{ "el05.bin",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
-	{ "el06.bin",	0x10000, 0xd24ba794, 6 }, // 12
-	{ "el04.bin",	0x10000, 0xd80a49ce, 6 }, // 13
-	{ "el07.bin",	0x10000, 0x6d771fc3, 6 }, // 14
+	{ "eh05.15a",	0x10000, 0x1c4f6033, 6 }, // 11 gfx3
+	{ "eh06.16a",	0x10000, 0xd24ba794, 6 }, // 12
+	{ "eh04.13a",	0x10000, 0xd80a49ce, 6 }, // 13
+	{ "eh07.18a",	0x10000, 0x6d771fc3, 6 }, // 14
+	
+	{ "eh15.12f",	0x00200, 0x279e540c, 7 }, // 15 proms
+	
+	{ "pt-0.16h",	0x00117, 0xadd5074f, 8 }, // 16 plds
 };
 
 STD_ROM_PICK(cobracmj)
@@ -2699,7 +2757,7 @@ struct BurnDriver BurnDrvCobracmja = {
 // Cobra-Command (Italian bootleg)
 // f205v id 835
 
-static struct BurnRomInfo cobracombRomDesc[] = {
+static struct BurnRomInfo cobracomibRomDesc[] = {
 	{ "a1.bin",		0x08000, 0xbb38b64c, 1 }, //  0 maincpu
 	{ "a2.bin",		0x10000, 0x7c878a83, 1 }, //  1
 	{ "a3.bin",		0x10000, 0x04505acb, 1 }, //  2
@@ -2724,46 +2782,55 @@ static struct BurnRomInfo cobracombRomDesc[] = {
 	{ "4.bin",		0x10000, 0x6d771fc3, 6 }, // 16
 };
 
-STD_ROM_PICK(cobracomb)
-STD_ROM_FN(cobracomb)
+STD_ROM_PICK(cobracomib)
+STD_ROM_FN(cobracomib)
 
-struct BurnDriver BurnDrvCobracomb = {
-	"cobracomb", "cobracom", NULL, NULL, "1988",
+struct BurnDriver BurnDrvCobracomib = {
+	"cobracomib", "cobracom", NULL, NULL, "1988",
 	"Cobra-Command (Italian bootleg)\0", NULL, "bootleg", "DEC8",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_PREFIX_DATAEAST, GBF_HORSHOOT, 0,
-	NULL, cobracombRomInfo, cobracombRomName, NULL, NULL, NULL, NULL, CobracomInputInfo, CobracomDIPInfo,
+	NULL, cobracomibRomInfo, cobracomibRomName, NULL, NULL, NULL, NULL, CobracomInputInfo, CobracomDIPInfo,
 	CobraInit, CobraExit, CobraFrame, CobraDraw, CobraScan, &DrvRecalc, 0x100,
 	256, 240, 4, 3
 };
 
 // Cobra-Command (Japan, bootleg)
 // f205v id 375
-// This PCB has been manufactured in Italy, roms are the same as "Cobra-Command (Japan)" already in MAME,  but divided into different size eprom chips //
+// bootleg of the Japanese release manufactured in Italy. Contents are the same but for PROMs and PAL
+// main PCB is marked: "LC" on component side ("LC" is the Italian for "Lato Componenti" which translates to "Components Side")
+// main PCB is marked: "LS" on solder side ("LS" is the Italian for "Lato Saldature" which translates to "Solders Side") 
 
 static struct BurnRomInfo cobracomjbRomDesc[] = {
-	{ "4.bin",		0x08000, 0x868637e1, 1 }, //  0 maincpu
-	{ "3.bin",		0x10000, 0x7c878a83, 1 }, //  1
-	{ "2.bin",		0x10000, 0x04505acb, 1 }, //  2
+	{ "cobra4.bin",			0x08000, 0x868637e1, 1 }, //  0 maincpu
+	{ "cobra3.bin",			0x10000, 0x7c878a83, 1 }, //  1
+	{ "cobra2.bin",			0x10000, 0x04505acb, 1 }, //  2
 
-	{ "5.bin",		0x08000, 0x62ca5e89, 2 }, //  3 audiocpu
+	{ "cobra5.bin",			0x08000, 0x62ca5e89, 2 }, //  3 audiocpu
 
-	{ "1.bin",	    0x08000, 0x47246177, 3 }, //  4 gfx1
+	{ "cobra1.bin",	    	0x08000, 0x47246177, 3 }, //  4 gfx1
 
-	{ "13.bin",		0x10000, 0xd96b6797, 4 }, //  5 gfx2
-	{ "12.bin",		0x10000, 0x3fef9c02, 4 }, //  6
-	{ "11.bin",		0x10000, 0xbfae6c34, 4 }, //  7
-	{ "10.bin",		0x10000, 0xd56790f8, 4 }, //  8
+	{ "cob17.bin",			0x10000, 0xd96b6797, 4 }, //  5 gfx2
+	{ "cob16.bin",			0x10000, 0x3fef9c02, 4 }, //  6
+	{ "cob15.bin",			0x10000, 0xbfae6c34, 4 }, //  7
+	{ "cob14.bin",			0x10000, 0xd56790f8, 4 }, //  8
 
-	{ "6.bin",		0x08000, 0xc991298f, 5 }, //  9 gfx4
-	{ "7.bin",		0x08000, 0xf5e267e5, 5 }, // 10
-	{ "8.bin",		0x08000, 0x6bcc5982, 5 }, // 11
-	{ "9.bin",		0x08000, 0xc90443b5, 5 }, // 12
+	{ "cobra6.bin",			0x08000, 0xc991298f, 5 }, //  9 gfx4
+	{ "cobra7.bin",			0x08000, 0xf5e267e5, 5 }, // 10
+	{ "cobra8.bin",			0x08000, 0x6bcc5982, 5 }, // 11
+	{ "cobra9.bin",			0x08000, 0xc90443b5, 5 }, // 12
 
-	{ "17.bin",		0x10000, 0x1c4f6033, 6 }, // 13 gfx3
-	{ "16.bin",		0x10000, 0xd24ba794, 6 }, // 14
-	{ "15.bin",		0x10000, 0xd80a49ce, 6 }, // 15
-	{ "14.bin",		0x10000, 0x6d771fc3, 6 }, // 16
+	{ "cob13.bin",			0x10000, 0x1c4f6033, 6 }, // 13 gfx3
+	{ "cob12.bin",			0x10000, 0xd24ba794, 6 }, // 14
+	{ "cob11.bin",			0x10000, 0xd80a49ce, 6 }, // 15
+	{ "cob10.bin",			0x10000, 0x6d771fc3, 6 }, // 16
+	
+	{ "63s481n.3",			0x00200, 0x279e540c, 7 }, // 17 proms
+	{ "am27s21pc.1",		0x00100, 0x9f6aa3e5, 7 }, // 18
+	{ "am27s21pc.2",		0x00100, 0xaf46d1ee, 7 }, // 19
+	{ "am27s21pc.3",		0x00100, 0x1e4189e8, 7 }, // 20
+	
+	{ "pal1618a-2cn.bin",	0x00104, 0x3ef8cf68, 8 }, // 21 plds
 };
 
 STD_ROM_PICK(cobracomjb)
@@ -3228,26 +3295,26 @@ static INT32 SrdarwinFrame()
 // Super Real Darwin (World)
 
 static struct BurnRomInfo srdarwinRomDesc[] = {
-	{ "dy01-e.b14",		0x10000, 0x176e9299, 1 }, //  0 maincpu
-	{ "dy00.b16",		0x10000, 0x2bf6b461, 1 }, //  1
+	{ "dy_01-e.b14",	0x10000, 0x176e9299, 1 }, //  0 maincpu
+	{ "dy_00.b16",		0x10000, 0x2bf6b461, 1 }, //  1
 
-	{ "dy04.d7",		0x08000, 0x2ae3591c, 2 }, //  2 audiocpu
+	{ "dy_04.d7",		0x08000, 0x2ae3591c, 2 }, //  2 audiocpu
 
-	{ "dy05.b6",		0x04000, 0x8780e8a3, 3 }, //  3 gfx1
+	{ "dy_05.b6",		0x04000, 0x8780e8a3, 3 }, //  3 gfx1
 
-	{ "dy07.h16",		0x08000, 0x97eaba60, 4 }, //  4 gfx2
-	{ "dy06.h14",		0x08000, 0xc279541b, 4 }, //  5
-	{ "dy09.k13",		0x08000, 0xd30d1745, 4 }, //  6
-	{ "dy08.k11",		0x08000, 0x71d645fd, 4 }, //  7
-	{ "dy11.k16",		0x08000, 0xfd9ccc5b, 4 }, //  8
-	{ "dy10.k14",		0x08000, 0x88770ab8, 4 }, //  9
+	{ "dy_07.h16",		0x08000, 0x97eaba60, 4 }, //  4 gfx2
+	{ "dy_06.h14",		0x08000, 0xc279541b, 4 }, //  5
+	{ "dy_09.k13",		0x08000, 0xd30d1745, 4 }, //  6
+	{ "dy_08.k11",		0x08000, 0x71d645fd, 4 }, //  7
+	{ "dy_11.k16",		0x08000, 0xfd9ccc5b, 4 }, //  8
+	{ "dy_10.k14",		0x08000, 0x88770ab8, 4 }, //  9
 
-	{ "dy03.b4",		0x10000, 0x44f2a4f9, 5 }, // 10 gfx3
-	{ "dy02.b5",		0x10000, 0x522d9a9e, 5 }, // 11
+	{ "dy_03.b4",		0x10000, 0x44f2a4f9, 5 }, // 10 gfx3
+	{ "dy_02.b5",		0x10000, 0x522d9a9e, 5 }, // 11
 
-	{ "id8751h.mcu",	0x01000, 0x11cd6ca4, 6 }, // 12 i8751 microcontroller
+	{ "dy-e.d11",		0x01000, 0x11cd6ca4, 6 }, // 12 i8751 microcontroller
 
-	{ "dy12.f4",		0x00100, 0xebfaaed9, 7 }, // 13 proms
+	{ "dy_12.f4",		0x00100, 0xebfaaed9, 7 }, // 13 proms
 };
 
 STD_ROM_PICK(srdarwin)
@@ -3267,26 +3334,26 @@ struct BurnDriver BurnDrvSrdarwin = {
 // Super Real Darwin (Japan)
 
 static struct BurnRomInfo srdarwnjRomDesc[] = {
-	{ "dy_01.rom",			0x10000, 0x1eeee4ff, 1 }, //  0 maincpu
-	{ "dy00.b16",			0x10000, 0x2bf6b461, 1 }, //  1
+	{ "dy_01.b14",			0x10000, 0x1eeee4ff, 1 }, //  0 maincpu
+	{ "dy_00.b16",			0x10000, 0x2bf6b461, 1 }, //  1
 
-	{ "dy04.d7",			0x08000, 0x2ae3591c, 2 }, //  2 audiocpu
+	{ "dy_04.d7",			0x08000, 0x2ae3591c, 2 }, //  2 audiocpu
 
-	{ "dy05.b6",			0x04000, 0x8780e8a3, 3 }, //  3 gfx1
+	{ "dy_05.b6",			0x04000, 0x8780e8a3, 3 }, //  3 gfx1
 
-	{ "dy07.h16",			0x08000, 0x97eaba60, 4 }, //  4 gfx2
-	{ "dy06.h14",			0x08000, 0xc279541b, 4 }, //  5
-	{ "dy09.k13",			0x08000, 0xd30d1745, 4 }, //  6
-	{ "dy08.k11",			0x08000, 0x71d645fd, 4 }, //  7
-	{ "dy11.k16",			0x08000, 0xfd9ccc5b, 4 }, //  8
-	{ "dy10.k14",			0x08000, 0x88770ab8, 4 }, //  9
+	{ "dy_07.h16",			0x08000, 0x97eaba60, 4 }, //  4 gfx2
+	{ "dy_06.h14",			0x08000, 0xc279541b, 4 }, //  5
+	{ "dy_09.k13",			0x08000, 0xd30d1745, 4 }, //  6
+	{ "dy_08.k11",			0x08000, 0x71d645fd, 4 }, //  7
+	{ "dy_11.k16",			0x08000, 0xfd9ccc5b, 4 }, //  8
+	{ "dy_10.k14",			0x08000, 0x88770ab8, 4 }, //  9
 
-	{ "dy03.b4",			0x10000, 0x44f2a4f9, 5 }, // 10 gfx3
-	{ "dy02.b5",			0x10000, 0x522d9a9e, 5 }, // 11
+	{ "dy_03.b4",			0x10000, 0x44f2a4f9, 5 }, // 10 gfx3
+	{ "dy_02.b5",			0x10000, 0x522d9a9e, 5 }, // 11
 
-	{ "id8751h_japan.mcu",	0x01000, 0x4ac2ca9d, 6  }, // 12 mcu
+	{ "dy.d11",				0x01000, 0x4ac2ca9d, 6 }, // 12 mcu
 
-	{ "dy12.f4",			0x00100, 0xebfaaed9, 7 }, // 13 proms
+	{ "dy_12.f4",			0x00100, 0xebfaaed9, 7 }, // 13 proms
 };
 
 STD_ROM_PICK(srdarwnj)

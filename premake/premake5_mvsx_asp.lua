@@ -34,7 +34,7 @@ function set_links()
    linkoptions { "-static",
    "-mfloat-abi=hard",
    "-mfpu=neon-vfpv4"
-     }
+   }
 
    links {
       "m",
@@ -61,7 +61,7 @@ function set_buildoptions()
    filter {"configurations:Debug"}
       buildoptions { "-O0", "-g" }
    filter {"configurations:Release"}
-      buildoptions { "-O3" }
+      buildoptions { "-O3", "-fomit-frame-pointer" }
    filter {}
 end
 
