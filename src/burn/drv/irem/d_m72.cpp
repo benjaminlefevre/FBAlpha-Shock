@@ -2458,7 +2458,7 @@ struct BurnDriver BurnDrvRtypeb = {
 };
 
 
-// X Multiply (World, M81 PCB version)
+// X Multiply (World, M81 hardware)
 
 static struct BurnRomInfo xmultiplRomDesc[] = {
 	{ "xm-a-h1-.ic58",	0x20000, 0x449048cf, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -2503,7 +2503,7 @@ static INT32 xmultiplInit()
 
 struct BurnDriver BurnDrvXmultipl = {
 	"xmultipl", NULL, NULL, NULL, "1989",
-	"X Multiply (World, M81 PCB version)\0", NULL, "Irem", "Irem M81",
+	"X Multiply (World, M81 hardware)\0", NULL, "Irem", "Irem M81",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, xmultiplRomInfo, xmultiplRomName, NULL, NULL, NULL, NULL, CommonInputInfo, XmultiplDIPInfo,
@@ -2512,13 +2512,13 @@ struct BurnDriver BurnDrvXmultipl = {
 };
 
 
-// X Multiply (Japan, M72 PCB version)
+// X Multiply (Japan, M72 hardware)
 
 static struct BurnRomInfo xmultiplm72RomDesc[] = {
 	{ "xm_c-h3-.ic43",	0x20000, 0x20685021, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
 	{ "xm_c-l3-.ic34",	0x20000, 0x93fdd200, 0x01 | BRF_PRG | BRF_ESS }, //  1
 	{ "xm_c-h0-.ic40",	0x10000, 0x9438dd8a, 0x01 | BRF_PRG | BRF_ESS }, //  2
-	{ "xm_c-10-.ic37",	0x10000, 0x06a9e213, 0x01 | BRF_PRG | BRF_ESS }, //  3
+	{ "xm_c-l0-.ic37",	0x10000, 0x06a9e213, 0x01 | BRF_PRG | BRF_ESS }, //  3
 
 	{ "t44.00.ic53",	0x20000, 0xdb45186e, 0x02 | BRF_GRA },           //  4 Sprites
 	{ "t45.01.ic52",	0x20000, 0x4d0764d4, 0x02 | BRF_GRA },           //  5
@@ -2541,7 +2541,7 @@ static struct BurnRomInfo xmultiplm72RomDesc[] = {
 
 	{ "t52.v0.ic44",	0x20000, 0x2db1bd80, 0x05 | BRF_SND },           // 20 DAC Samples
 
-	{ "xm_c-pr-.mcu",	0x01000, 0xc8ceb3cd, 0x00 | BRF_OPT }, 	 	 // 21 i8751 microcontroller
+	{ "xm_c-pr-.ic1",	0x01000, 0xc8ceb3cd, 0x00 | BRF_OPT }, 	 	 // 21 i8751 microcontroller
 };
 
 STD_ROM_PICK(xmultiplm72)
@@ -2556,7 +2556,7 @@ static INT32 xmultiplm72Init()
 
 struct BurnDriver BurnDrvXmultiplm72 = {
 	"xmultiplm72", "xmultipl", NULL, NULL, "1989",
-	"X Multiply (Japan, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"X Multiply (Japan, M72 hardware)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, xmultiplm72RomInfo, xmultiplm72RomName, NULL, NULL, NULL, NULL, CommonInputInfo, XmultiplDIPInfo,
@@ -2565,7 +2565,7 @@ struct BurnDriver BurnDrvXmultiplm72 = {
 };
 
 
-// Dragon Breed (World, M81 PCB version)
+// Dragon Breed (World, M81 hardware)
 
 static struct BurnRomInfo dbreedRomDesc[] = {
 	{ "db-a-h0-.59",	0x20000, 0xe1177267, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -2603,7 +2603,7 @@ static INT32 dbreedInit()
 
 struct BurnDriver BurnDrvDbreed = {
 	"dbreed", NULL, NULL, NULL, "1989",
-	"Dragon Breed (World, M81 PCB version)\0", NULL, "Irem", "Irem M81",
+	"Dragon Breed (World, M81 hardware)\0", NULL, "Irem", "Irem M81",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, dbreedRomInfo, dbreedRomName, NULL, NULL, NULL, NULL, CommonInputInfo, DbreedDIPInfo,
@@ -2612,7 +2612,7 @@ struct BurnDriver BurnDrvDbreed = {
 };
 
 
-// Dragon Breed (World, M72 PCB version)
+// Dragon Breed (World, M72 hardware)
 
 static struct BurnRomInfo dbreedm72RomDesc[] = {
 	{ "db_c-h3-b.ic43",	0x20000, 0x4bf3063c, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -2660,7 +2660,7 @@ static INT32 dbreedm72Init()
 
 struct BurnDriver BurnDrvDbreedm72 = {
 	"dbreedm72", "dbreed", NULL, NULL, "1989",
-	"Dragon Breed (World, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"Dragon Breed (World, M72 hardware)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, dbreedm72RomInfo, dbreedm72RomName, NULL, NULL, NULL, NULL, CommonInputInfo, DbreedDIPInfo,
@@ -2669,7 +2669,7 @@ struct BurnDriver BurnDrvDbreedm72 = {
 };
 
 
-// Dragon Breed (Japan, M72 PCB version)
+// Dragon Breed (Japan, M72 harware)
 // with matching i8751 this set boots with a Japanese warning screen
 
 static struct BurnRomInfo dbreedm72jRomDesc[] = {
@@ -2703,7 +2703,7 @@ STD_ROM_FN(dbreedm72j)
 
 struct BurnDriver BurnDrvDbreedm72j = {
 	"dbreedm72j", "dbreed", NULL, NULL, "1989",
-	"Dragon Breed (Japan, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"Dragon Breed (Japan, M72 hardwaref)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, dbreedm72jRomInfo, dbreedm72jRomName, NULL, NULL, NULL, NULL, CommonInputInfo, DbreedDIPInfo,
@@ -3033,7 +3033,7 @@ struct BurnDriver BurnDrvImgfightj = {
 };
 
 
-// Air Duel (World, M82-A-A + M82-B-A)
+// Air Duel (World, M82 hardware)
 
 static struct BurnRomInfo airduelRomDesc[] = {
 	{ "ad_=m82=_a-h0-d.ic52",	0x20000, 0xdbecc726, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3053,10 +3053,10 @@ static struct BurnRomInfo airduelRomDesc[] = {
 	{ "ad_=m82=_a-c2-d.ic57",	0x20000, 0x6a94c1b9, 0x03 | BRF_GRA },           // 11
 	{ "ad_=m82=_a-c3-d.ic56",	0x20000, 0x6637c349, 0x03 | BRF_GRA },           // 12
 
-	{ "mt_f0.bin",				0x20000, 0x2d5e05d5, 0x0e | BRF_GRA },           // 17 Sprites 2
-	{ "mt_f1.bin",				0x20000, 0xc68cd65f, 0x0e | BRF_GRA },           // 18
-	{ "mt_f2.bin",				0x20000, 0xa71feb2d, 0x0e | BRF_GRA },           // 19
-	{ "mt_f3.bin",				0x20000, 0x179f7562, 0x0e | BRF_GRA },           // 20
+	{ "mt_f0.ic38",				0x20000, 0x2d5e05d5, 0x0e | BRF_GRA },           // 17 Sprites 2
+	{ "mt_f1.ic39",				0x20000, 0xc68cd65f, 0x0e | BRF_GRA },           // 18
+	{ "mt_f2.ic40",				0x20000, 0xa71feb2d, 0x0e | BRF_GRA },           // 19
+	{ "mt_f3.ic41",				0x20000, 0x179f7562, 0x0e | BRF_GRA },           // 20
 
 	{ "ad_=m82=_a-v0-d.ic12",	0x20000, 0x339f474d, 0x05 | BRF_SND },           // 21 DAC Samples
 };
@@ -3071,7 +3071,7 @@ static INT32 airduelInit()
 
 struct BurnDriver BurnDrvAirduel = {
 	"airduel", NULL, NULL, NULL, "1990",
-	"Air Duel (World, M82-A-A + M82-B-A)\0", NULL, "Irem", "Irem M82",
+	"Air Duel (World, M82 hardware)\0", NULL, "Irem", "Irem M82",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_IREM_M72, GBF_VERSHOOT, 0,
 	NULL, airduelRomInfo, airduelRomName, NULL, NULL, NULL, NULL, CommonInputInfo, AirduelDIPInfo,
@@ -3080,7 +3080,49 @@ struct BurnDriver BurnDrvAirduel = {
 };
 
 
-// Air Duel (Japan, M72 PCB version)
+// Air Duel (US location test, M82 hardware)
+
+static struct BurnRomInfo airdueluRomDesc[] = {
+	{ "r10-m82a-h0.ic52",	0x20000, 0x17f19965, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
+	{ "r10-m82a-l0.ic60",	0x20000, 0xf8b54d6c, 0x01 | BRF_PRG | BRF_ESS }, //  1
+	{ "r10-m82-h1.ic51",	0x20000, 0xbafc152a, 0x01 | BRF_PRG | BRF_ESS }, //  2
+	{ "r10-m82-l1.ic59",	0x20000, 0x9e2b1ae7, 0x01 | BRF_PRG | BRF_ESS }, //  3
+	
+	{ "r10-bgm.ic15",		0x10000, 0x16a858a3, 0x06 | BRF_PRG | BRF_ESS }, //  4 Z80 Code
+
+	{ "r10-obj0.ic44",		0x20000, 0x2f0d599b, 0x02 | BRF_GRA },           //  5 Sprites
+	{ "r10-obj1.ic45",		0x20000, 0x9865856b, 0x02 | BRF_GRA },           //  6
+	{ "r10-obj2.ic46",		0x20000, 0xd392aef2, 0x02 | BRF_GRA },           //  7
+	{ "r10-obj3.ic36",		0x20000, 0x923240c3, 0x02 | BRF_GRA },           //  8
+
+	{ "r10-chr0.ic49",		0x20000, 0xce134b47, 0x03 | BRF_GRA },           //  9 Foreground Tiles
+	{ "r10-chr1.ic48",		0x20000, 0x097fd853, 0x03 | BRF_GRA },           // 10
+	{ "r10-chr2.ic57",		0x20000, 0x6a94c1b9, 0x03 | BRF_GRA },           // 11
+	{ "r10-chr3.ic56",		0x20000, 0x6637c349, 0x03 | BRF_GRA },           // 12
+
+	{ "mt_f0.bin",			0x20000, 0x2d5e05d5, 0x0e | BRF_GRA },           // 17 Sprites 2
+	{ "mt_f1.bin",			0x20000, 0xc68cd65f, 0x0e | BRF_GRA },           // 18
+	{ "mt_f2.bin",			0x20000, 0xa71feb2d, 0x0e | BRF_GRA },           // 19
+	{ "mt_f3.bin",			0x20000, 0x179f7562, 0x0e | BRF_GRA },           // 20
+
+	{ "r10-voice.ic12",		0x20000, 0x339f474d, 0x05 | BRF_SND },           // 21 DAC Samples
+};
+
+STD_ROM_PICK(airduelu)
+STD_ROM_FN(airduelu)
+
+struct BurnDriver BurnDrvAirduelu = {
+	"airduelu", "airduel", NULL, NULL, "1990",
+	"Air Duel (US location test, M82 hardware)\0", NULL, "Irem", "Irem M82",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED | BDF_ORIENTATION_VERTICAL, 2, HARDWARE_IREM_M72, GBF_VERSHOOT, 0,
+	NULL, airdueluRomInfo, airdueluRomName, NULL, NULL, NULL, NULL, CommonInputInfo, AirduelDIPInfo,
+	airduelInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x200,
+	256, 384, 3, 4
+};
+
+
+// Air Duel (Japan, M72 hardware)
 
 static struct BurnRomInfo airduelm72RomDesc[] = {
 	{ "ad-c-h0.ic40",	0x20000, 0x12140276, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3122,7 +3164,7 @@ static INT32 airduelm72Init()
 
 struct BurnDriver BurnDrvAirduelm72 = {
 	"airduelm72", "airduel", NULL, NULL, "1990",
-	"Air Duel (Japan, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"Air Duel (Japan, M72 hardware)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_ORIENTATION_VERTICAL | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_VERSHOOT, 0,
 	NULL, airduelm72RomInfo, airduelm72RomName, NULL, NULL, NULL, NULL, CommonInputInfo, AirduelDIPInfo,
@@ -3267,7 +3309,7 @@ struct BurnDriver BurnDrvRtype2jc = {
 };
 
 
-// Hammerin' Harry (World, M81 PCB version)
+// Hammerin' Harry (World, M81 hardware)
 
 static struct BurnRomInfo hharryRomDesc[] = {
 	{ "a-h0-v.rom",		0x20000, 0xc52802a5, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3300,7 +3342,7 @@ static INT32 hharryInit()
 
 struct BurnDriver BurnDrvHharry = {
 	"hharry", NULL, NULL, NULL, "1990",
-	"Hammerin' Harry (World, M81 PCB version))\0", NULL, "Irem", "Irem M82",
+	"Hammerin' Harry (World, M81 hardware))\0", NULL, "Irem", "Irem M82",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED, 2, HARDWARE_IREM_M72, GBF_SCRFIGHT | GBF_PLATFORM, 0,
 	NULL, hharryRomInfo, hharryRomName, NULL, NULL, NULL, NULL, CommonInputInfo, HharryDIPInfo,
@@ -3309,7 +3351,7 @@ struct BurnDriver BurnDrvHharry = {
 };
 
 
-// Hammerin' Harry (US, M84 PCB version)
+// Hammerin' Harry (US, M84 hardware)
 
 static struct BurnRomInfo hharryuRomDesc[] = {
 	{ "a-ho-u.8d",		0x20000, 0xede7f755, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3342,7 +3384,7 @@ static INT32 hharryuInit()
 
 struct BurnDriver BurnDrvHharryu = {
 	"hharryu", "hharry", NULL, NULL, "1990",
-	"Hammerin' Harry (US, M84 PCB version)\0", NULL, "Irem America", "Irem M82",
+	"Hammerin' Harry (US, M84 hardware)\0", NULL, "Irem America", "Irem M82",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_SCRFIGHT | GBF_PLATFORM, 0,
 	NULL, hharryuRomInfo, hharryuRomName, NULL, NULL, NULL, NULL, CommonInputInfo, HharryDIPInfo,
@@ -3351,7 +3393,7 @@ struct BurnDriver BurnDrvHharryu = {
 };
 
 
-// Daiku no Gensan (Japan, M84 PCB version)
+// Daiku no Gensan (Japan, M84 hardware)
 
 static struct BurnRomInfo dkgensanRomDesc[] = {
 	{ "gen-a-h0.bin",	0x20000, 0x07a45f6d, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3379,7 +3421,7 @@ STD_ROM_FN(dkgensan)
 
 struct BurnDriver BurnDrvDkgensan = {
 	"dkgensan", "hharry", NULL, NULL, "1990",
-	"Daiku no Gensan (Japan, M84 PCB version)\0", NULL, "Irem", "Irem M82",
+	"Daiku no Gensan (Japan, M84 hardware)\0", NULL, "Irem", "Irem M82",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_SCRFIGHT | GBF_PLATFORM, 0,
 	NULL, dkgensanRomInfo, dkgensanRomName, NULL, NULL, NULL, NULL, CommonInputInfo, HharryDIPInfo,
@@ -3388,7 +3430,7 @@ struct BurnDriver BurnDrvDkgensan = {
 };
 
 
-// Daiku no Gensan (Japan, M72 PCB version)
+// Daiku no Gensan (Japan, M72 hardware)
 
 static struct BurnRomInfo dkgensanm72RomDesc[] = {
 	{ "ge72-h0.bin",	0x20000, 0xa0ad992c, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3428,7 +3470,7 @@ static INT32 dkgensanm72Init()
 
 struct BurnDriver BurnDrvDkgensanm72 = {
 	"dkgensanm72", "hharry", NULL, NULL, "1990",
-	"Daiku no Gensan (Japan, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"Daiku no Gensan (Japan, M72 hardware)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_SCRFIGHT | GBF_PLATFORM, 0,
 	NULL, dkgensanm72RomInfo, dkgensanm72RomName, NULL, NULL, NULL, NULL, CommonInputInfo, HharryDIPInfo,
@@ -3607,7 +3649,7 @@ struct BurnDriver BurnDrvCosmccop = {
 };
 
 
-// Gallop - Armed police Unit (Japan, M72 PCB version)
+// Gallop - Armed police Unit (Japan, M72 hardware)
 
 static struct BurnRomInfo gallopRomDesc[] = {
 	{ "cc-c-h0.ic40",	0x20000, 0x2217dcd0, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -3648,7 +3690,7 @@ static INT32 gallopInit()
 
 struct BurnDriver BurnDrvGallop = {
 	"gallop", "cosmccop", NULL, NULL, "1991",
-	"Gallop - Armed police Unit (Japan, M72 PCB version)\0", NULL, "Irem", "Irem M72",
+	"Gallop - Armed police Unit (Japan, M72 hardware)\0", NULL, "Irem", "Irem M72",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_HISCORE_SUPPORTED | BDF_CLONE, 2, HARDWARE_IREM_M72, GBF_HORSHOOT, 0,
 	NULL, gallopRomInfo, gallopRomName, NULL, NULL, NULL, NULL, CommonInputInfo, GallopDIPInfo,

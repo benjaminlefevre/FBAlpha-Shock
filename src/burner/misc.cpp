@@ -256,7 +256,7 @@ TCHAR* DecorateGenreInfo()
 		}
 		
 		if (nGenre & GBF_PLATFORM) {
-				_stprintf(szDecoratedGenre + _tcslen(szDecoratedGenre), FBALoadStringEx(hAppInst, IDS_GENRE_PLATFORM, true));
+			_stprintf(szDecoratedGenre + _tcslen(szDecoratedGenre), FBALoadStringEx(hAppInst, IDS_GENRE_PLATFORM, true));
 			_stprintf(szDecoratedGenre + _tcslen(szDecoratedGenre), _T(", "));
 		}
 		
