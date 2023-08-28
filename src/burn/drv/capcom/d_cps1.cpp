@@ -259,6 +259,45 @@ static struct BurnInputInfo DinohInputList[] =
 
 STDINPUTINFO(Dinoh)
 
+static struct BurnInputInfo Jurassic99InputList[] =
+{
+	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0 , "p1 coin"  },
+	{"P1 Start"         , BIT_DIGITAL  , CpsInp018+4 , "p1 start" },
+	{"P1 Up"            , BIT_DIGITAL  , CpsInp001+3 , "p1 up"    },
+	{"P1 Down"          , BIT_DIGITAL  , CpsInp001+2 , "p1 down"  },
+	{"P1 Left"          , BIT_DIGITAL  , CpsInp001+1 , "p1 left"  },
+	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0 , "p1 right" },
+	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4 , "p1 fire 1"},
+	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5 , "p1 fire 2"},
+	{"P1 Bomb"          , BIT_DIGITAL  , CpsInp001+6 , "p1 fire 3"},
+
+	{"P2 Coin"          , BIT_DIGITAL  , CpsInp018+1 , "p2 coin"  },
+	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5 , "p2 start" },
+	{"P2 Up"            , BIT_DIGITAL  , CpsInp000+3 , "p2 up"    },
+	{"P2 Down"          , BIT_DIGITAL  , CpsInp000+2 , "p2 down"  },
+	{"P2 Left"          , BIT_DIGITAL  , CpsInp000+1 , "p2 left"  },
+	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0 , "p2 right" },
+	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4 , "p2 fire 1"},
+	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5 , "p2 fire 2"},
+	{"P2 Bomb"          , BIT_DIGITAL  , CpsInp000+6 , "p2 fire 3"},
+
+	{"P3 Coin"          , BIT_DIGITAL  , CpsInpc001+6, "p3 coin"  },
+	{"P3 Start"         , BIT_DIGITAL  , CpsInpc001+7, "p3 start" },
+	{"P3 Up"            , BIT_DIGITAL  , CpsInpc001+3, "p3 up"    },
+	{"P3 Down"          , BIT_DIGITAL  , CpsInpc001+2, "p3 down"  },
+	{"P3 Left"          , BIT_DIGITAL  , CpsInpc001+1, "p3 left"  },
+	{"P3 Right"         , BIT_DIGITAL  , CpsInpc001+0, "p3 right" },
+	{"P3 Attack"        , BIT_DIGITAL  , CpsInpc001+4, "p3 fire 1"},
+	{"P3 Jump"          , BIT_DIGITAL  , CpsInpc001+5, "p3 fire 2"},
+
+	{"Reset"            , BIT_DIGITAL  , &CpsReset   ,  "reset"   },
+	{"Diagnostic"       , BIT_DIGITAL  , CpsInp018+6 ,  "diag"    },
+	{"Service"          , BIT_DIGITAL  , CpsInp018+2 ,  "service" },
+	{"Dip C"            , BIT_DIPSWITCH, &Cpi01E     ,  "dip"     },
+};
+
+STDINPUTINFO(Jurassic99)
+
 static struct BurnInputInfo DynwarInputList[] =
 {
 	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
@@ -1488,21 +1527,51 @@ static struct BurnInputInfo WofchInputList[] =
  	{"P2 Fire 5"        , BIT_DIGITAL  , CpsInp018+1, "p2 fire 5" },
  	{"P2 Fire 6"        , BIT_DIGITAL  , CpsInp018+7, "p2 fire 6" },
 
-#if 0
-	// wofch only 2p?
- 	{"P3 Start"         , BIT_DIGITAL  , CpsInpc001+7, "p3 start" },
+ 	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
+};
+
+STDINPUTINFO(Wofch)
+
+static struct BurnInputInfo WofchpInputList[] =
+{
+	{"P1 Pause"         , BIT_DIGITAL  , CpsInp018+2, "p1 coin"   },  // Pressing with the Start key will enter config
+ 	{"P1 Start"         , BIT_DIGITAL  , CpsInp018+4, "p1 start"  },
+ 	{"P1 Up"            , BIT_DIGITAL  , CpsInp001+3, "p1 up"     },
+ 	{"P1 Down"          , BIT_DIGITAL  , CpsInp001+2, "p1 down"   },
+ 	{"P1 Left"          , BIT_DIGITAL  , CpsInp001+1, "p1 left"   },
+ 	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0, "p1 right"  },
+ 	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4, "p1 fire 1" },  // Adjustable in config (6 keys)
+ 	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5, "p1 fire 2" },
+ 	{"P1 Fire"          , BIT_DIGITAL  , CpsInp001+6, "p1 fire 3" },
+ 	{"P1 Fire 4"        , BIT_DIGITAL  , CpsInp001+7, "p1 fire 4" },
+ 	{"P1 Fire 5"        , BIT_DIGITAL  , CpsInp018+0, "p1 fire 5" },
+ 	{"P1 Fire 6"        , BIT_DIGITAL  , CpsInp018+6, "p1 fire 6" },
+
+	{"P2 Pause"         , BIT_DIGITAL  , CpsInp018+3, "p2 coin"   },
+ 	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start"  },
+ 	{"P2 Up"            , BIT_DIGITAL  , CpsInp000+3, "p2 up"     },
+ 	{"P2 Down"          , BIT_DIGITAL  , CpsInp000+2, "p2 down"   },
+ 	{"P2 Left"          , BIT_DIGITAL  , CpsInp000+1, "p2 left"   },
+ 	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0, "p2 right"  },
+ 	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4, "p2 fire 1" },  // Adjustable in config (6 keys)
+ 	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5, "p2 fire 2" },
+ 	{"P2 Fire"          , BIT_DIGITAL  , CpsInp000+6, "p2 fire 3" },
+ 	{"P2 Fire 4"        , BIT_DIGITAL  , CpsInp000+7, "p2 fire 4" },
+ 	{"P2 Fire 5"        , BIT_DIGITAL  , CpsInp018+1, "p2 fire 5" },
+ 	{"P2 Fire 6"        , BIT_DIGITAL  , CpsInp018+7, "p2 fire 6" },
+
+ 	{"P3 Start"         , BIT_DIGITAL  , CpsInpc001+7, "p3 start" },  // There are no options for P3
  	{"P3 Up"            , BIT_DIGITAL  , CpsInpc001+3, "p3 up"    },
  	{"P3 Down"          , BIT_DIGITAL  , CpsInpc001+2, "p3 down"  },
  	{"P3 Left"          , BIT_DIGITAL  , CpsInpc001+1, "p3 left"  },
  	{"P3 Right"         , BIT_DIGITAL  , CpsInpc001+0, "p3 right" },
  	{"P3 Attack"        , BIT_DIGITAL  , CpsInpc001+4, "p3 fire 1"},
  	{"P3 Jump"          , BIT_DIGITAL  , CpsInpc001+5, "p3 fire 2"},
- 	{"P3 Fire"          , BIT_DIGITAL  , CpsInpc001+6, "p3 fire 3"},
-#endif
+
  	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
 };
 
-STDINPUTINFO(Wofch)
+STDINPUTINFO(Wofchp)
 
 static struct BurnInputInfo WofhfhInputList[] =
 {
@@ -8562,7 +8631,7 @@ static struct BurnRomInfo Pang3b2RomDesc[] = {
 	
 	{ "buf1",          0x000117, 0xeb122de7, BRF_OPT }, // a-board PLDs
 	{ "ioa1",          0x000117, 0x59c7ee3b, BRF_OPT },
-	{ "prg2",          0x000117, 0x4386879a, BRF_OPT },
+	{ "prg1",          0x000117, 0xf1129744, BRF_OPT },
 	{ "rom1",          0x000117, 0x41dc73b9, BRF_OPT },
 	{ "sou1",          0x000117, 0x84f4b2fe, BRF_OPT },
 };
@@ -13650,7 +13719,7 @@ static struct BurnRomInfo StriderucRomDesc[] = {
 	
 	{ "buf1",          0x000117, 0xeb122de7, BRF_OPT }, // a-board PLDs
 	{ "ioa1",          0x000117, 0x59c7ee3b, BRF_OPT },
-	{ "prg2",          0x000117, 0x4386879a, BRF_OPT },
+	{ "prg1",          0x000117, 0xf1129744, BRF_OPT },
 	{ "rom1",          0x000117, 0x41dc73b9, BRF_OPT },
 	{ "sou1",          0x000117, 0x84f4b2fe, BRF_OPT },
 	
@@ -20058,7 +20127,7 @@ struct BurnDriver BurnDrvCpsJurassic99 = {
 	"Jurassic 99 (Cadillacs and Dinosaurs bootleg with EM78P447AP, 930201 ?)\0", "No sound", "bootleg", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
-	NULL, Jurassic99RomInfo, Jurassic99RomName, NULL, NULL, NULL, NULL, DinohInputInfo, DinoDIPInfo,
+	NULL, Jurassic99RomInfo, Jurassic99RomName, NULL, NULL, NULL, NULL, Jurassic99InputInfo, DinoDIPInfo,
 	Jurassic99Init, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -22644,11 +22713,11 @@ struct BurnDriver BurnDrvCpsWofch = {
 };
 
 struct BurnDriver BurnDrvCpsWofchdx = {
-	"wofchdx", "wofch", NULL, NULL, "2010",
-	"Sangokushi III Gaiden: Kakou-On's Revenge DX (hack)\0", NULL, "Capcom", "CPS Changer",
+	"wofchdx", "wofch", NULL, NULL, "2018",
+	"Sangokushi III Gaiden: Kakou-On's Revenge DX (hack)\0", NULL, "Hack", "CPS Changer",
 	L"\u4E09\u56FD\u5FD7 III \u5916\u4F20: \u590F\u4FAF\u6069\u7684\u590D\u4EC7\0Sangokushi III Gaiden: Kakou-On's Revenge DX (hack)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_CAPCOM_CPSCHANGER, GBF_SCRFIGHT, 0,
-	NULL, WofchdxRomInfo, WofchdxRomName, NULL, NULL, NULL, NULL, WofchInputInfo, NULL,
+	NULL, WofchdxRomInfo, WofchdxRomName, NULL, NULL, NULL, NULL, WofchpInputInfo, NULL,
 	WofchInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -23580,7 +23649,7 @@ struct BurnDriver BurnDrvCpswofchp = {
 	"Tenchi wo Kurau II - Sekiheki no Tatakai (PS/SS Version)\0", NULL, "hack", "CPS Changer",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 3, HARDWARE_CAPCOM_CPSCHANGER, GBF_SCRFIGHT, 0,
-	NULL, wofchpRomInfo, wofchpRomName, NULL, NULL, NULL, NULL, WofchInputInfo, NULL,
+	NULL, wofchpRomInfo, wofchpRomName, NULL, NULL, NULL, NULL, WofchpInputInfo, NULL,
 	WofchInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -23748,21 +23817,21 @@ struct BurnDriver BurnDrvCpsDinods = {
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
-// 天地を喰らう II - 赤壁の戦い (達人 バージョン, ハック) / Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)
+// Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)
 // Hacked by Bindi
-// GOTVG Last update 2020-03-26
+// GOTVG 20200811
 
 static struct BurnRomInfo WofjdrRomDesc[] = {
-	{ "wofjdr.bin",		0x200000, 0x3fc42adb, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "wofjdr.bin",		0x200000, 0x88c9dbb8, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
-	{ "tk2-1m.3a",		0x080000, 0x0d9cb9bf, BRF_GRA | CPS1_TILES },
-	{ "tk2-3m.5a",		0x080000, 0x45227027, BRF_GRA | CPS1_TILES },
-	{ "tk2-2m.4a",		0x080000, 0xc5ca2460, BRF_GRA | CPS1_TILES },
-	{ "tk2-4m.6a",		0x080000, 0xe349551c, BRF_GRA | CPS1_TILES },
-	{ "wofjdr-5m.7a",	0x080000, 0xe3c8c198, BRF_GRA | CPS1_TILES },
-	{ "wofjdr-6m.8a",	0x080000, 0x5e3c0642, BRF_GRA | CPS1_TILES },
-	{ "wofjdr-7m.9a",	0x080000, 0xd65a91d9, BRF_GRA | CPS1_TILES },
-	{ "wofjdr-8m.10a",	0x080000, 0x675d490e, BRF_GRA | CPS1_TILES },
+	{ "tk2_01.3a",		0x080000, 0x0d9cb9bf, BRF_GRA | CPS1_TILES },
+	{ "tk2_02.4a",		0x080000, 0x45227027, BRF_GRA | CPS1_TILES },
+	{ "tk2_03.5a",		0x080000, 0xc5ca2460, BRF_GRA | CPS1_TILES },
+	{ "tk2_04.6a",		0x080000, 0xe349551c, BRF_GRA | CPS1_TILES },
+	{ "wofjdr_05.7a",	0x080000, 0xe3c8c198, BRF_GRA | CPS1_TILES },
+	{ "wofjdr_06.8a",	0x080000, 0x5e3c0642, BRF_GRA | CPS1_TILES },
+	{ "wofjdr_07.9a",	0x080000, 0xd65a91d9, BRF_GRA | CPS1_TILES },
+	{ "wofjdr_08.10a",	0x080000, 0x675d490e, BRF_GRA | CPS1_TILES },
 
 	{ "tk2_qa.5k",		0x020000, 0xc9183a0d, BRF_PRG | CPS1_Z80_PROGRAM },
 
@@ -23778,9 +23847,9 @@ STD_ROM_PICK(Wofjdr)
 STD_ROM_FN(Wofjdr)
 
 struct BurnDriver BurnDrvCpsWofjdr = {
-	"wofjdr", "wof", NULL, NULL, "2020-03-26",
+	"wofjdr", "wof", NULL, NULL, "2020-08-11",
 	"Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0", NULL, "Hack", "CPS1 / QSound",
-	L"\u5929\u5730\u3092\u55b0\u3089\u3046 II - \u8d64\u58c1\u306e\u6226\u3044 (\u9054\u4eba \u30d0\u30fc\u30b8\u30e7\u30f3, \u30cf\u30c3\u30af)\0Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0", NULL, NULL, NULL,
+	L"\u5929\u5730\u3092\u55b0\u3089\u3046 II - \u8d64\u58c1\u306e\u6226\u3044 (\u9054\u4eba \u30d0\u30fc\u30b8\u30e7\u30f3, \u30cf\u30c3\u30af)\0Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0 ", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1_QSOUND, GBF_SCRFIGHT, 0,
 	NULL, WofjdrRomInfo, WofjdrRomName, NULL, NULL, NULL, NULL, WofInputInfo, WofDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,

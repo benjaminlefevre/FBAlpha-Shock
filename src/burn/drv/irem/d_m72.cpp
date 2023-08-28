@@ -2933,7 +2933,6 @@ struct BurnDriver BurnDrvNspiritj = {
 
 
 // Image Fight (World)
-// doesn't wait / check for japan warning string.. fails rom check if used with japanese mcu rom (World version?)
 
 static struct BurnRomInfo imgfightRomDesc[] = {
 	{ "if-c-h0-a.ic40",	0x10000, 0xf5c94464, 0x01 | BRF_PRG | BRF_ESS }, //  0 V30 Code
@@ -2959,7 +2958,7 @@ static struct BurnRomInfo imgfightRomDesc[] = {
 	{ "if-c-v0.ic44",	0x10000, 0xcb64a194, 0x05 | BRF_SND },           // 16 DAC Samples
 	{ "if-c-v1.ic45",	0x10000, 0x45b68bf5, 0x05 | BRF_SND },           // 17
 
-	{ "if_c-pr-a.ic1",  0x01000, 0x00000000, 0x00 | BRF_OPT | BRF_NODUMP }, // 18 i8751 microcontroller
+	{ "if_c-pr-a.ic1",  0x01000, 0x55f10458, 0x00 | BRF_OPT },           // 18 i8751 microcontroller
 };
 
 STD_ROM_PICK(imgfight)
@@ -3416,7 +3415,7 @@ static struct BurnRomInfo hharrybRomDesc[] = {
 	{ "1-a-27c010a.bin",	0x20000, 0xfaaacaff, 0x05 | BRF_SND },           // 13 DAC Samples
 	
 	{ "19-c-82s129.bin",	0x00100, 0xb460c438, 0x00 | BRF_OPT },           // 14 Proms
-	{ "18-c-82s129.bin",	0x00100, 0x526f10ca, 0x00 | BRF_OPT },           // 15
+	{ "18-c-82s129.bin",	0x00100, 0xa4f2c4bc, 0x00 | BRF_OPT },           // 15
 
 	{ "a-pal16l8.bin",		0x00104, 0x1358c513, 0x00 | BRF_OPT },           // 16
 };
@@ -3767,7 +3766,7 @@ static struct BurnRomInfo lohtRomDesc[] = {
 
 	{ "tom_m44.ic44",	0x10000, 0x3ed51d1f, 0x05 | BRF_SND },           // 16 DAC Samples
 
-	{ "tom_c-pr-b.ic1",	0x10000, 0x00000000, 0x00 | BRF_OPT | BRF_NODUMP }, // 17 i8751 microcontroller
+	{ "tom_c-pr-b.ic1",	0x01000, 0x9c9545f1, 0x00 | BRF_OPT },           // 17 i8751 microcontroller
 };
 
 STD_ROM_PICK(loht)
