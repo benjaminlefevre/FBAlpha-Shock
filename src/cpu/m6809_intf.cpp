@@ -9,28 +9,6 @@ static INT32 nActiveCPU = 0;
 
 static M6809Ext *m6809CPUContext = NULL;
 
-static INT32 nM6809CyclesDone[MAX_CPU];
-INT32 nM6809CyclesTotal;
-
-static void core_set_irq(INT32 cpu, INT32 line, INT32 state)
-{
-	INT32 active = nActiveCPU;
-
-	if (active != cpu)
-	{
-		if (active != -1) M6809Close();
-		M6809Open(cpu);
-	}
-
-	M6809SetIRQLine(line, state);
-
-	if (active != cpu)
-	{
-		M6809Close();
-		if (active != -1) M6809Open(active);
-	}
-}
-
 cpu_core_config M6809Config =
 {
 	"M6809",
@@ -42,7 +20,7 @@ cpu_core_config M6809Config =
 	M6809TotalCycles,
 	M6809NewFrame,
 	M6809Idle,
-	core_set_irq,
+	M6809SetIRQLine,
 	M6809Run,
 	M6809RunEnd,
 	M6809Reset,
@@ -157,9 +135,8 @@ void M6809NewFrame()
 #endif
 
 	for (INT32 i = 0; i < nM6809Count+1; i++) {
-		nM6809CyclesDone[i] = 0;
+		m6809CPUContext[i].nCyclesTotal = 0;
 	}
-	nM6809CyclesTotal = 0;
 }
 
 INT32 M6809TotalCycles()
@@ -168,7 +145,9 @@ INT32 M6809TotalCycles()
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809TotalCycles called without init\n"));
 #endif
 
-	return nM6809CyclesTotal + m6809_get_segmentcycles();
+	if (nActiveCPU == -1) return 0; // prevent crash
+
+	return m6809CPUContext[nActiveCPU].nCyclesTotal + m6809_get_segmentcycles();
 }
 
 INT32 M6809TotalCycles(INT32 nCPU)
@@ -192,7 +171,7 @@ INT32 M6809Idle(INT32 cycles)
 	if (!DebugCPU_M6809Initted) bprintf(PRINT_ERROR, _T("M6809Idle called without init\n"));
 #endif
 
-	nM6809CyclesTotal += cycles;
+	m6809CPUContext[nActiveCPU].nCyclesTotal += cycles;
 
 	return cycles;
 }
@@ -245,7 +224,7 @@ INT32 M6809Init(INT32 cpu)
 			m6809CPUContext[i].WriteByte = M6809WriteByteDummyHandler;
 			m6809CPUContext[i].ReadOp = M6809ReadOpDummyHandler;
 			m6809CPUContext[i].ReadOpArg = M6809ReadOpArgDummyHandler;
-			nM6809CyclesDone[i] = 0;
+			m6809CPUContext[i].nCyclesTotal = 0;
 
 			for (INT32 j = 0; j < (0x0100 * 3); j++) {
 				m6809CPUContext[i].pMemMap[j] = NULL;
@@ -292,8 +271,6 @@ void M6809Open(INT32 num)
 	nActiveCPU = num;
 	
 	m6809_set_context(&m6809CPUContext[nActiveCPU].reg);
-	
-	nM6809CyclesTotal = nM6809CyclesDone[nActiveCPU];
 }
 
 void M6809Close()
@@ -304,8 +281,6 @@ void M6809Close()
 #endif
 
 	m6809_get_context(&m6809CPUContext[nActiveCPU].reg);
-	
-	nM6809CyclesDone[nActiveCPU] = nM6809CyclesTotal;
 	
 	nActiveCPU = -1;
 }
@@ -369,7 +344,7 @@ INT32 M6809Run(INT32 cycles)
 
 	cycles = m6809_execute(cycles);
 	
-	nM6809CyclesTotal += cycles;
+	m6809CPUContext[nActiveCPU].nCyclesTotal += cycles;
 	
 	return cycles;
 }
@@ -609,10 +584,7 @@ INT32 M6809Scan(INT32 nAction)
 		ba.szName = szName;
 		BurnAcb(&ba);
 
-		// necessary?
 		SCAN_VAR(ptr->nCyclesTotal);
-		SCAN_VAR(ptr->nCyclesSegment);
-		SCAN_VAR(ptr->nCyclesLeft);
 	}
 	
 	return 0;
