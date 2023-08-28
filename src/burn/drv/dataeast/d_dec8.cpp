@@ -142,6 +142,46 @@ static struct BurnDIPInfo GhostbDIPList[]=
 
 STDDIPINFO(Ghostb)
 
+static struct BurnDIPInfo MeikyuuDIPList[]=
+{
+	{0x11, 0xff, 0xff, 0xf0, NULL					},
+	{0x12, 0xff, 0xff, 0xff, NULL					},
+
+	{0   , 0xfe, 0   ,    2, "Demo Sounds"			},
+	{0x11, 0x01, 0x20, 0x00, "Off"					},
+	{0x11, 0x01, 0x20, 0x20, "On"					},
+
+	{0   , 0xfe, 0   ,    2, "Flip Screen"			},
+	{0x11, 0x01, 0x40, 0x40, "Off"					},
+	{0x11, 0x01, 0x40, 0x00, "On"					},
+
+	{0   , 0xfe, 0   ,    4, "Lives"				},
+	{0x12, 0x01, 0x03, 0x01, "1"					},
+	{0x12, 0x01, 0x03, 0x03, "3"					},
+	{0x12, 0x01, 0x03, 0x02, "5"					},
+	{0x12, 0x01, 0x03, 0x00, "Infinite (Cheat)"		},
+
+	{0   , 0xfe, 0   ,    4, "Difficulty"			},
+	{0x12, 0x01, 0x0c, 0x08, "Easy"					},
+	{0x12, 0x01, 0x0c, 0x0c, "Normal"				},
+	{0x12, 0x01, 0x0c, 0x04, "Hard"					},
+	{0x12, 0x01, 0x0c, 0x00, "Hardest"				},
+
+	{0   , 0xfe, 0   ,    2, "Allow Continue"		},
+	{0x12, 0x01, 0x40, 0x40, "No"					},
+	{0x12, 0x01, 0x40, 0x00, "Yes"					},
+
+	{0   , 0xfe, 0   ,    2, "Energy Bonus"			},
+	{0x12, 0x01, 0x10, 0x10, "None"					},
+	{0x12, 0x01, 0x10, 0x00, "+50%"					},
+
+	{0   , 0xfe, 0   ,    2, "Freeze"				},
+	{0x12, 0x01, 0x80, 0x80, "Off"					},
+	{0x12, 0x01, 0x80, 0x00, "On"					},
+};
+
+STDDIPINFO(Meikyuu)
+
 static struct BurnInputInfo Ghostb3InputList[] = {
 	{"P1 Coin",			BIT_DIGITAL,	DrvJoy5 + 5,	"p1 coin"	},
 	{"P1 Start",		BIT_DIGITAL,	DrvJoy4 + 0,	"p1 start"	},
@@ -218,46 +258,6 @@ static struct BurnDIPInfo Ghostb3DIPList[]=
 };
 
 STDDIPINFO(Ghostb3)
-
-static struct BurnDIPInfo MeikyuuDIPList[]=
-{
-	{0x19, 0xff, 0xff, 0xf0, NULL					},
-	{0x1a, 0xff, 0xff, 0xff, NULL					},
-
-	{0   , 0xfe, 0   ,    2, "Demo Sounds"			},
-	{0x19, 0x01, 0x20, 0x00, "Off"					},
-	{0x19, 0x01, 0x20, 0x20, "On"					},
-
-	{0   , 0xfe, 0   ,    2, "Flip Screen"			},
-	{0x19, 0x01, 0x40, 0x40, "Off"					},
-	{0x19, 0x01, 0x40, 0x00, "On"					},
-
-	{0   , 0xfe, 0   ,    4, "Lives"				},
-	{0x1a, 0x01, 0x03, 0x01, "1"					},
-	{0x1a, 0x01, 0x03, 0x03, "3"					},
-	{0x1a, 0x01, 0x03, 0x02, "5"					},
-	{0x1a, 0x01, 0x03, 0x00, "Infinite (Cheat)"		},
-
-	{0   , 0xfe, 0   ,    4, "Difficulty"			},
-	{0x1a, 0x01, 0x0c, 0x08, "Easy"					},
-	{0x1a, 0x01, 0x0c, 0x0c, "Normal"				},
-	{0x1a, 0x01, 0x0c, 0x04, "Hard"					},
-	{0x1a, 0x01, 0x0c, 0x00, "Hardest"				},
-
-	{0   , 0xfe, 0   ,    2, "Allow Continue"		},
-	{0x1a, 0x01, 0x40, 0x40, "No"					},
-	{0x1a, 0x01, 0x40, 0x00, "Yes"					},
-
-	{0   , 0xfe, 0   ,    2, "Energy Bonus"			},
-	{0x1a, 0x01, 0x10, 0x10, "None"					},
-	{0x1a, 0x01, 0x10, 0x00, "+50%"					},
-
-	{0   , 0xfe, 0   ,    2, "Freeze"				},
-	{0x1a, 0x01, 0x80, 0x80, "Off"					},
-	{0x1a, 0x01, 0x80, 0x00, "On"					},
-};
-
-STDDIPINFO(Meikyuu)
 
 static struct BurnInputInfo CobracomInputList[] = {
 	{"P1 Coin",			BIT_DIGITAL,	DrvJoy3 + 0,	"p1 coin"	},
@@ -1474,6 +1474,7 @@ static UINT8 ghostb_sound_read(UINT16 address)
 
 inline static INT32 CsilverMSM5205SynchroniseStream(INT32 nSoundRate)
 {
+	if (M6809GetActive() == -1) return 0;
 	return (INT64)((double)M6809TotalCycles() * nSoundRate / (1500000));
 }
 
@@ -2163,7 +2164,7 @@ struct BurnDriver BurnDrvGhostb2a = {
 	"The Real Ghostbusters (US 2 Players)\0", NULL, "Data East USA", "DEC8",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_PREFIX_DATAEAST, GBF_SHOOT, 0,
-	NULL, ghostb2aRomInfo, ghostb2aRomName, NULL, NULL, NULL, NULL, GhostbInputInfo, Ghostb3DIPInfo,
+	NULL, ghostb2aRomInfo, ghostb2aRomName, NULL, NULL, NULL, NULL, GhostbInputInfo, GhostbDIPInfo,
 	DrvInit, GhostbExit, DrvFrame, DrvDraw, GhostbScan, &DrvRecalc, 0x400,
 	256, 240, 4, 3
 };
@@ -5106,6 +5107,7 @@ static INT32 LastmissDoReset()
 
 	M6809Open(0);
 	M6809Reset();
+	BurnYM2203Reset();
 	M6809Close();
 
 	M6809Open(1);
@@ -5116,10 +5118,8 @@ static INT32 LastmissDoReset()
 
 	M6502Open(0);
 	M6502Reset();
-	M6502Close();
-
-	BurnYM2203Reset();
 	BurnYM3526Reset();
+	M6502Close();
 
 	stopsubcpu = 0;
 
@@ -5457,6 +5457,7 @@ static INT32 LastmissFrame()
 
 		M6809Open(0);
 		BurnTimerUpdate((i + 1) * (nCyclesTotal[0] / nInterleave));
+		BurnTimerUpdateYM3526((i + 1) * (nCyclesTotal[2] / nInterleave)); // M6502, but sound syncs to 6809
 		M6809Close();
 
 		M6809Open(1);
@@ -5465,13 +5466,10 @@ static INT32 LastmissFrame()
 		} else {
 			CPU_RUN(1, M6809);
 		}
-		M6809Close();
-
 		if (realMCU) {
 			DrvMCUSync();
 		}
-
-		BurnTimerUpdateYM3526((i + 1) * (nCyclesTotal[2] / nInterleave));
+		M6809Close();
 	}
 
 	M6809Open(0);
@@ -5841,12 +5839,10 @@ static UINT8 csilver_main_read(UINT16 address)
 			return DrvDips[0];
 
 		case 0x1c00:
-			DrvMCUSync();
-			return (i8751_return >> 8) & 0xff;
+			return i8751_hi();
 
 		case 0x1e00:
-			DrvMCUSync();
-			return i8751_return & 0xff;
+			return i8751_lo();
 	}
 
 	return 0x00;
@@ -6056,6 +6052,7 @@ static INT32 CsilverFrame()
 
 		M6809Open(0);
 		BurnTimerUpdate((i + 1) * (nCyclesTotal[0] / nInterleave));
+		BurnTimerUpdateYM3526((i + 1) * (nCyclesTotal[2] / nInterleave)); // M6502, but sound syncs to M6809
 		M6809Close();
 
 		M6809Open(1);
@@ -6065,13 +6062,10 @@ static INT32 CsilverFrame()
 			M6809SetIRQLine(0x20, CPU_IRQSTATUS_AUTO);
 		}
 		MSM5205UpdateScanline(i);
-		M6809Close();
-
 		if (realMCU) {
 			DrvMCUSync();
 		}
-
-		BurnTimerUpdateYM3526((i + 1) * (nCyclesTotal[2] / nInterleave));
+		M6809Close();
 	}
 
 	M6809Open(0);

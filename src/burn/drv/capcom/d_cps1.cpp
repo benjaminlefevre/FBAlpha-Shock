@@ -331,6 +331,7 @@ static struct BurnInputInfo FfightaeInputList[] =
 	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0, "p1 right" },
 	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4, "p1 fire 1"},
 	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5, "p1 fire 2"},
+	{"P1 Special"       , BIT_DIGITAL  , CpsInp001+6, "p1 fire 3"},
 
 	{"P2 Coin"          , BIT_DIGITAL  , CpsInp018+1, "p2 coin"  },
 	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start" },
@@ -340,6 +341,7 @@ static struct BurnInputInfo FfightaeInputList[] =
 	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0, "p2 right" },
 	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4, "p2 fire 1"},
 	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5, "p2 fire 2"},
+	{"P2 Special"       , BIT_DIGITAL  , CpsInp000+6, "p2 fire 3"},
 
 	{"P3 Coin"          , BIT_DIGITAL  , CpsInp177+6, "p3 coin"   },
 	{"P3 Start"         , BIT_DIGITAL  , CpsInp177+7, "p3 start"  },
@@ -351,6 +353,7 @@ static struct BurnInputInfo FfightaeInputList[] =
 	{"P3 Jump"          , BIT_DIGITAL  , CpsInp177+5, "p3 fire 2" },
 
 	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
+	{"Diagnostic"       , BIT_DIGITAL  , CpsInp018+6, "diag"   },
 	{"Service"          , BIT_DIGITAL  , CpsInp018+2, "service"   },
 	{"Dip A"            , BIT_DIPSWITCH, &Cpi01A    , "dip"       },
 	{"Dip B"            , BIT_DIPSWITCH, &Cpi01C    , "dip"       },
@@ -485,6 +488,47 @@ static struct BurnInputInfo KnightsInputList[] =
 
 STDINPUTINFO(Knights)
 
+static struct BurnInputInfo KnightshInputList[] =
+{
+	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
+	{"P1 Start"         , BIT_DIGITAL  , CpsInp018+4, "p1 start"  },
+	{"P1 Up"            , BIT_DIGITAL  , CpsInp001+3, "p1 up"     },
+	{"P1 Down"          , BIT_DIGITAL  , CpsInp001+2, "p1 down"   },
+	{"P1 Left"          , BIT_DIGITAL  , CpsInp001+1, "p1 left"   },
+	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0, "p1 right"  },
+	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4, "p1 fire 1" },
+	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5, "p1 fire 2" },
+	{"P1 Special"       , BIT_DIGITAL  , CpsInp001+6, "p1 fire 3" },
+
+	{"P2 Coin"          , BIT_DIGITAL  , CpsInp018+1, "p2 coin"   },
+	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start"  },
+	{"P2 Up"            , BIT_DIGITAL  , CpsInp000+3, "p2 up"     },
+	{"P2 Down"          , BIT_DIGITAL  , CpsInp000+2, "p2 down"   },
+	{"P2 Left"          , BIT_DIGITAL  , CpsInp000+1, "p2 left"   },
+	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0, "p2 right"  },
+	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4, "p2 fire 1" },
+	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5, "p2 fire 2" },
+	{"P2 Special"       , BIT_DIGITAL  , CpsInp000+6, "p2 fire 3" },
+
+	{"P3 Coin"          , BIT_DIGITAL  , CpsInp177+6, "p3 coin"   },
+	{"P3 Start"         , BIT_DIGITAL  , CpsInp177+7, "p3 start"  },
+	{"P3 Up"            , BIT_DIGITAL  , CpsInp177+3, "p3 up"     },
+	{"P3 Down"          , BIT_DIGITAL  , CpsInp177+2, "p3 down"   },
+	{"P3 Left"          , BIT_DIGITAL  , CpsInp177+1, "p3 left"   },
+	{"P3 Right"         , BIT_DIGITAL  , CpsInp177+0, "p3 right"  },
+	{"P3 Attack"        , BIT_DIGITAL  , CpsInp177+4, "p3 fire 1" },
+	{"P3 Jump"          , BIT_DIGITAL  , CpsInp177+5, "p3 fire 2" },
+
+	{"Reset"            , BIT_DIGITAL  , &CpsReset,   "reset"     },
+	{"Diagnostic"       , BIT_DIGITAL  , CpsInp018+6, "diag"      },
+	{"Service"          , BIT_DIGITAL  , CpsInp018+2, "service"   },
+	{"Dip A"            , BIT_DIPSWITCH, &Cpi01A    , "dip"       },
+	{"Dip B"            , BIT_DIPSWITCH, &Cpi01C    , "dip"       },
+	{"Dip C"            , BIT_DIPSWITCH, &Cpi01E    , "dip"       },
+};
+
+STDINPUTINFO(Knightsh)
+
 static struct BurnInputInfo KodInputList[] =
 {
 	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
@@ -524,6 +568,7 @@ static struct BurnInputInfo KodInputList[] =
 
 STDINPUTINFO(Kod)
 
+// Kodh - only players 1 & 2 have special!
 static struct BurnInputInfo KodhInputList[] =
 {
 	{"P1 Coin"          , BIT_DIGITAL  , CpsInp018+0, "p1 coin"   },
@@ -534,6 +579,7 @@ static struct BurnInputInfo KodhInputList[] =
 	{"P1 Right"         , BIT_DIGITAL  , CpsInp001+0, "p1 right"  },
 	{"P1 Attack"        , BIT_DIGITAL  , CpsInp001+4, "p1 fire 1" },
 	{"P1 Jump"          , BIT_DIGITAL  , CpsInp001+5, "p1 fire 2" },
+	{"P1 Special"       , BIT_DIGITAL  , CpsInp001+6, "p1 fire 3" },
 
 	{"P2 Coin"          , BIT_DIGITAL  , CpsInp018+1, "p2 coin"   },
 	{"P2 Start"         , BIT_DIGITAL  , CpsInp018+5, "p2 start"  },
@@ -543,6 +589,7 @@ static struct BurnInputInfo KodhInputList[] =
 	{"P2 Right"         , BIT_DIGITAL  , CpsInp000+0, "p2 right"  },
 	{"P2 Attack"        , BIT_DIGITAL  , CpsInp000+4, "p2 fire 1" },
 	{"P2 Jump"          , BIT_DIGITAL  , CpsInp000+5, "p2 fire 2" },
+	{"P2 Special"       , BIT_DIGITAL  , CpsInp000+6, "p2 fire 3" },
 
 	{"P3 Coin"          , BIT_DIGITAL  , CpsInpc000+6, "p3 coin"   },
 	{"P3 Start"         , BIT_DIGITAL  , CpsInpc000+7, "p3 start"  },
@@ -2226,63 +2273,65 @@ STDDIPINFO(Ffight)
 
 static struct BurnDIPInfo FfightaeDIPList[]=
 {
+	DIP_OFFSET(0x1d)
+
 	// Defaults
-	{0x1a, 0xff, 0xff, 0x00, NULL                     },
-	{0x1b, 0xff, 0xff, 0x0b, NULL                     },
-	{0x1c, 0xff, 0xff, 0x60, NULL                     },
-		
+	{0x00, 0xff, 0xff, 0x00, NULL                     },
+	{0x01, 0xff, 0xff, 0x0b, NULL                     },
+	{0x02, 0xff, 0xff, 0x60, NULL                     },
+
 	// Dip A
-	CPS1_COINAGE_1(0x1a)
+	CPS1_COINAGE_1(0x00)
 
 	{0   , 0xfe, 0   , 2   , "2C to Start, 1 to Cont" },
-	{0x1a, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1a, 0x01, 0x40, 0x40, "On"                     },
-		
+	{0x00, 0x01, 0x40, 0x00, "Off"                    },
+	{0x00, 0x01, 0x40, 0x40, "On"                     },
+
 	// Dip B
-	CPS1_DIFFICULTY_1(0x1b)
+	CPS1_DIFFICULTY_1(0x01)
 
 	{0   , 0xfe, 0   , 4   , "Difficulty 2"           },
-	{0x1b, 0x01, 0x18, 0x00, "Easy"                   },
-	{0x1b, 0x01, 0x18, 0x08, "Normal"                 },
-	{0x1b, 0x01, 0x18, 0x10, "Hard"                   },
-	{0x1b, 0x01, 0x18, 0x18, "Hardest"                },
+	{0x01, 0x01, 0x18, 0x00, "Easy"                   },
+	{0x01, 0x01, 0x18, 0x08, "Normal"                 },
+	{0x01, 0x01, 0x18, 0x10, "Hard"                   },
+	{0x01, 0x01, 0x18, 0x18, "Hardest"                },
 
 	{0   , 0xfe, 0   , 4   , "Bonus Life"             },
-	{0x1b, 0x01, 0x60, 0x00, "100k"                   },
-	{0x1b, 0x01, 0x60, 0x20, "200k"                   },
-	{0x1b, 0x01, 0x60, 0x40, "100k and every 200k"    },
-	{0x1b, 0x01, 0x60, 0x60, "None"                   },
-	
+	{0x01, 0x01, 0x60, 0x00, "100k"                   },
+	{0x01, 0x01, 0x60, 0x20, "200k"                   },
+	{0x01, 0x01, 0x60, 0x40, "100k and every 200k"    },
+	{0x01, 0x01, 0x60, 0x60, "None"                   },
+
 	// Dip C
 	{0   , 0xfe, 0   , 4   , "Lives"                  },
-	{0x1c, 0x01, 0x03, 0x03, "1"                      },
-	{0x1c, 0x01, 0x03, 0x00, "2"                      },
-	{0x1c, 0x01, 0x03, 0x01, "3"                      },
-	{0x1c, 0x01, 0x03, 0x02, "4"                      },
+	{0x02, 0x01, 0x03, 0x03, "1"                      },
+	{0x02, 0x01, 0x03, 0x00, "2"                      },
+	{0x02, 0x01, 0x03, 0x01, "3"                      },
+	{0x02, 0x01, 0x03, 0x02, "4"                      },
 
 	{0   , 0xfe, 0   , 2   , "Free Play"              },
-	{0x1c, 0x01, 0x04, 0x00, "Off"                    },
-	{0x1c, 0x01, 0x04, 0x04, "On"                     },
+	{0x02, 0x01, 0x04, 0x00, "Off"                    },
+	{0x02, 0x01, 0x04, 0x04, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Freeze"                 },
-	{0x1c, 0x01, 0x08, 0x00, "Off"                    },
-	{0x1c, 0x01, 0x08, 0x08, "On"                     },
+	{0x02, 0x01, 0x08, 0x00, "Off"                    },
+	{0x02, 0x01, 0x08, 0x08, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Flip"                   },
-	{0x1c, 0x01, 0x10, 0x00, "Off"                    },
-	{0x1c, 0x01, 0x10, 0x10, "On"                     },
+	{0x02, 0x01, 0x10, 0x00, "Off"                    },
+	{0x02, 0x01, 0x10, 0x10, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
-	{0x1c, 0x01, 0x20, 0x00, "Off"                    },
-	{0x1c, 0x01, 0x20, 0x20, "On"                     },
+	{0x02, 0x01, 0x20, 0x00, "Off"                    },
+	{0x02, 0x01, 0x20, 0x20, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Allow Continue"         },
-	{0x1c, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1c, 0x01, 0x40, 0x40, "On"                     },
-	
+	{0x02, 0x01, 0x40, 0x00, "Off"                    },
+	{0x02, 0x01, 0x40, 0x40, "On"                     },
+
 	{0   , 0xfe, 0   , 2   , "Game Mode"              },
-	{0x1c, 0x01, 0x80, 0x00, "Game"                   },
-	{0x1c, 0x01, 0x80, 0x80, "Test"                   },
+	{0x02, 0x01, 0x80, 0x00, "Game"                   },
+	{0x02, 0x01, 0x80, 0x80, "Test"                   },
 };
 
 STDDIPINFO(Ffightae)
@@ -2575,149 +2624,303 @@ STDDIPINFO(Gulunpa)
 
 static struct BurnDIPInfo KnightsDIPList[]=
 {
+	DIP_OFFSET(0x1b)
+
 	// Defaults
-	{0x1b, 0xff, 0xff, 0x00, NULL                     },
-	{0x1c, 0xff, 0xff, 0x03, NULL                     },
-	{0x1d, 0xff, 0xff, 0x60, NULL                     },
-	
+	{0x00, 0xff, 0xff, 0x00, NULL                     },
+	{0x01, 0xff, 0xff, 0x03, NULL                     },
+	{0x02, 0xff, 0xff, 0x60, NULL                     },
+
 	// Dip A
-	CPS1_COINAGE_2(0x1b)
+	CPS1_COINAGE_2(0x00)
 
 	{0   , 0xfe, 0   , 2   , "2C to Start, 1 to Cont" },
-	{0x1b, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1b, 0x01, 0x40, 0x40, "On"                     },
+	{0x00, 0x01, 0x40, 0x00, "Off"                    },
+	{0x00, 0x01, 0x40, 0x40, "On"                     },
 
 	// Dip B
 	{0   , 0xfe, 0   , 8   , "Enemys Attack Frequency"},
-	{0x1c, 0x01, 0x07, 0x00, "1 (Easiest)"            },
-	{0x1c, 0x01, 0x07, 0x01, "2"                      },
-	{0x1c, 0x01, 0x07, 0x02, "3"                      },
-	{0x1c, 0x01, 0x07, 0x03, "4 (Normal)"             },
-	{0x1c, 0x01, 0x07, 0x04, "5"                      },
-	{0x1c, 0x01, 0x07, 0x05, "6"                      },
-	{0x1c, 0x01, 0x07, 0x06, "7"                      },
-	{0x1c, 0x01, 0x07, 0x07, "8 (Hardest)"            },
+	{0x01, 0x01, 0x07, 0x00, "1 (Easiest)"            },
+	{0x01, 0x01, 0x07, 0x01, "2"                      },
+	{0x01, 0x01, 0x07, 0x02, "3"                      },
+	{0x01, 0x01, 0x07, 0x03, "4 (Normal)"             },
+	{0x01, 0x01, 0x07, 0x04, "5"                      },
+	{0x01, 0x01, 0x07, 0x05, "6"                      },
+	{0x01, 0x01, 0x07, 0x06, "7"                      },
+	{0x01, 0x01, 0x07, 0x07, "8 (Hardest)"            },
 
 	{0   , 0xfe, 0   , 8   , "Enemys Attack Power"    },
-	{0x1c, 0x01, 0x38, 0x38, "1 (Easiest)"            },
-	{0x1c, 0x01, 0x38, 0x30, "2"                      },
-	{0x1c, 0x01, 0x38, 0x28, "3"                      },
-	{0x1c, 0x01, 0x38, 0x00, "4 (Normal)"             },
-	{0x1c, 0x01, 0x38, 0x08, "5"                      },
-	{0x1c, 0x01, 0x38, 0x10, "6"                      },
-	{0x1c, 0x01, 0x38, 0x18, "7"                      },
-	{0x1c, 0x01, 0x38, 0x20, "8 (Hardest)"            },
+	{0x01, 0x01, 0x38, 0x38, "1 (Easiest)"            },
+	{0x01, 0x01, 0x38, 0x30, "2"                      },
+	{0x01, 0x01, 0x38, 0x28, "3"                      },
+	{0x01, 0x01, 0x38, 0x00, "4 (Normal)"             },
+	{0x01, 0x01, 0x38, 0x08, "5"                      },
+	{0x01, 0x01, 0x38, 0x10, "6"                      },
+	{0x01, 0x01, 0x38, 0x18, "7"                      },
+	{0x01, 0x01, 0x38, 0x20, "8 (Hardest)"            },
 
 	{0   , 0xfe, 0   , 2   , "Coin Slots"             },
-	{0x1c, 0x01, 0x40, 0x40, "1"                      },
-	{0x1c, 0x01, 0x40, 0x00, "3"                      },
+	{0x01, 0x01, 0x40, 0x40, "1"                      },
+	{0x01, 0x01, 0x40, 0x00, "3"                      },
 
 	{0   , 0xfe, 0   , 2   , "Play Mode"              },
-	{0x1c, 0x01, 0x80, 0x80, "2P"                     },
-	{0x1c, 0x01, 0x80, 0x00, "3P"                     },
+	{0x01, 0x01, 0x80, 0x80, "2P"                     },
+	{0x01, 0x01, 0x80, 0x00, "3P"                     },
 
 	// Dip C
 	{0   , 0xfe, 0   , 4   , "Lives"                  },
-	{0x1d, 0x01, 0x03, 0x03, "1"                      },
-	{0x1d, 0x01, 0x03, 0x00, "2"                      },
-	{0x1d, 0x01, 0x03, 0x01, "3"                      },
-	{0x1d, 0x01, 0x03, 0x02, "4"                      },
+	{0x02, 0x01, 0x03, 0x03, "1"                      },
+	{0x02, 0x01, 0x03, 0x00, "2"                      },
+	{0x02, 0x01, 0x03, 0x01, "3"                      },
+	{0x02, 0x01, 0x03, 0x02, "4"                      },
 
 	{0   , 0xfe, 0   , 2   , "Free Play"              },
-	{0x1d, 0x01, 0x04, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x04, 0x04, "On"                     },
+	{0x02, 0x01, 0x04, 0x00, "Off"                    },
+	{0x02, 0x01, 0x04, 0x04, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Freeze"                 },
-	{0x1d, 0x01, 0x08, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x08, 0x08, "On"                     },
+	{0x02, 0x01, 0x08, 0x00, "Off"                    },
+	{0x02, 0x01, 0x08, 0x08, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Flip"                   },
-	{0x1d, 0x01, 0x10, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x10, 0x10, "On"                     },
+	{0x02, 0x01, 0x10, 0x00, "Off"                    },
+	{0x02, 0x01, 0x10, 0x10, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
-	{0x1d, 0x01, 0x20, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x20, 0x20, "On"                     },
+	{0x02, 0x01, 0x20, 0x00, "Off"                    },
+	{0x02, 0x01, 0x20, 0x20, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Allow Continue"         },
-	{0x1d, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x40, 0x40, "On"                     },
-	
+	{0x02, 0x01, 0x40, 0x00, "Off"                    },
+	{0x02, 0x01, 0x40, 0x40, "On"                     },
+
 	{0   , 0xfe, 0   , 2   , "Game Mode"              },
-	{0x1d, 0x01, 0x80, 0x00, "Game"                   },
-	{0x1d, 0x01, 0x80, 0x80, "Test"                   },
+	{0x02, 0x01, 0x80, 0x00, "Game"                   },
+	{0x02, 0x01, 0x80, 0x80, "Test"                   },
 };
 
 STDDIPINFO(Knights)
 
-static struct BurnDIPInfo KodDIPList[]=
+static struct BurnDIPInfo KnightshDIPList[]=
 {
+	DIP_OFFSET(0x1d)
+
 	// Defaults
-	{0x1b, 0xff, 0xff, 0x00, NULL                     },
-	{0x1c, 0xff, 0xff, 0x03, NULL                     },
-	{0x1d, 0xff, 0xff, 0x60, NULL                     },
-	
+	{0x00, 0xff, 0xff, 0x00, NULL                     },
+	{0x01, 0xff, 0xff, 0x03, NULL                     },
+	{0x02, 0xff, 0xff, 0x60, NULL                     },
+
 	// Dip A
-	CPS1_COINAGE_2(0x1b)
-
-	{0   , 0xfe, 0   , 2   , "Coin Slots"             },
-	{0x1b, 0x01, 0x08, 0x08, "1"                      },
-	{0x1b, 0x01, 0x08, 0x00, "3"                      },
-
-	{0   , 0xfe, 0   , 2   , "Play Mode"              },
-	{0x1b, 0x01, 0x10, 0x10, "2 Players"              },
-	{0x1b, 0x01, 0x10, 0x00, "3 Players"              },
+	CPS1_COINAGE_2(0x00)
 
 	{0   , 0xfe, 0   , 2   , "2C to Start, 1 to Cont" },
-	{0x1b, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1b, 0x01, 0x40, 0x40, "On"                     },
+	{0x00, 0x01, 0x40, 0x00, "Off"                    },
+	{0x00, 0x01, 0x40, 0x40, "On"                     },
 
 	// Dip B
-	CPS1_DIFFICULTY_1(0x1c)
+	{0   , 0xfe, 0   , 8   , "Enemys Attack Frequency"},
+	{0x01, 0x01, 0x07, 0x00, "1 (Easiest)"            },
+	{0x01, 0x01, 0x07, 0x01, "2"                      },
+	{0x01, 0x01, 0x07, 0x02, "3"                      },
+	{0x01, 0x01, 0x07, 0x03, "4 (Normal)"             },
+	{0x01, 0x01, 0x07, 0x04, "5"                      },
+	{0x01, 0x01, 0x07, 0x05, "6"                      },
+	{0x01, 0x01, 0x07, 0x06, "7"                      },
+	{0x01, 0x01, 0x07, 0x07, "8 (Hardest)"            },
+
+	{0   , 0xfe, 0   , 8   , "Enemys Attack Power"    },
+	{0x01, 0x01, 0x38, 0x38, "1 (Easiest)"            },
+	{0x01, 0x01, 0x38, 0x30, "2"                      },
+	{0x01, 0x01, 0x38, 0x28, "3"                      },
+	{0x01, 0x01, 0x38, 0x00, "4 (Normal)"             },
+	{0x01, 0x01, 0x38, 0x08, "5"                      },
+	{0x01, 0x01, 0x38, 0x10, "6"                      },
+	{0x01, 0x01, 0x38, 0x18, "7"                      },
+	{0x01, 0x01, 0x38, 0x20, "8 (Hardest)"            },
+
+	{0   , 0xfe, 0   , 2   , "Coin Slots"             },
+	{0x01, 0x01, 0x40, 0x40, "1"                      },
+	{0x01, 0x01, 0x40, 0x00, "3"                      },
+
+	{0   , 0xfe, 0   , 2   , "Play Mode"              },
+	{0x01, 0x01, 0x80, 0x80, "2P"                     },
+	{0x01, 0x01, 0x80, 0x00, "3P"                     },
+
+	// Dip C
+	{0   , 0xfe, 0   , 4   , "Lives"                  },
+	{0x02, 0x01, 0x03, 0x03, "1"                      },
+	{0x02, 0x01, 0x03, 0x00, "2"                      },
+	{0x02, 0x01, 0x03, 0x01, "3"                      },
+	{0x02, 0x01, 0x03, 0x02, "4"                      },
+
+	{0   , 0xfe, 0   , 2   , "Free Play"              },
+	{0x02, 0x01, 0x04, 0x00, "Off"                    },
+	{0x02, 0x01, 0x04, 0x04, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Freeze"                 },
+	{0x02, 0x01, 0x08, 0x00, "Off"                    },
+	{0x02, 0x01, 0x08, 0x08, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Flip"                   },
+	{0x02, 0x01, 0x10, 0x00, "Off"                    },
+	{0x02, 0x01, 0x10, 0x10, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
+	{0x02, 0x01, 0x20, 0x00, "Off"                    },
+	{0x02, 0x01, 0x20, 0x20, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Allow Continue"         },
+	{0x02, 0x01, 0x40, 0x00, "Off"                    },
+	{0x02, 0x01, 0x40, 0x40, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Game Mode"              },
+	{0x02, 0x01, 0x80, 0x00, "Game"                   },
+	{0x02, 0x01, 0x80, 0x80, "Test"                   },
+};
+
+STDDIPINFO(Knightsh)
+
+static struct BurnDIPInfo KodDIPList[]=
+{
+	DIP_OFFSET(0x1b)
+
+	// Defaults
+	{0x00, 0xff, 0xff, 0x00, NULL                     },
+	{0x01, 0xff, 0xff, 0x03, NULL                     },
+	{0x02, 0xff, 0xff, 0x60, NULL                     },
+	
+	// Dip A
+	CPS1_COINAGE_2(0x00)
+
+	{0   , 0xfe, 0   , 2   , "Coin Slots"             },
+	{0x00, 0x01, 0x08, 0x08, "1"                      },
+	{0x00, 0x01, 0x08, 0x00, "3"                      },
+
+	{0   , 0xfe, 0   , 2   , "Play Mode"              },
+	{0x00, 0x01, 0x10, 0x10, "2 Players"              },
+	{0x00, 0x01, 0x10, 0x00, "3 Players"              },
+
+	{0   , 0xfe, 0   , 2   , "2C to Start, 1 to Cont" },
+	{0x00, 0x01, 0x40, 0x00, "Off"                    },
+	{0x00, 0x01, 0x40, 0x40, "On"                     },
+
+	// Dip B
+	CPS1_DIFFICULTY_1(0x01)
 
 	{0   , 0xfe, 0   , 8   , "Lives"                  },
-	{0x1c, 0x01, 0x38, 0x08, "1"                      },
-	{0x1c, 0x01, 0x38, 0x00, "2"                      },
-	{0x1c, 0x01, 0x38, 0x10, "3"                      },
-	{0x1c, 0x01, 0x38, 0x18, "4"                      },
-	{0x1c, 0x01, 0x38, 0x20, "5"                      },
-	{0x1c, 0x01, 0x38, 0x28, "6"                      },
-	{0x1c, 0x01, 0x38, 0x30, "7"                      },
-	{0x1c, 0x01, 0x38, 0x38, "8"                      },
+	{0x01, 0x01, 0x38, 0x08, "1"                      },
+	{0x01, 0x01, 0x38, 0x00, "2"                      },
+	{0x01, 0x01, 0x38, 0x10, "3"                      },
+	{0x01, 0x01, 0x38, 0x18, "4"                      },
+	{0x01, 0x01, 0x38, 0x20, "5"                      },
+	{0x01, 0x01, 0x38, 0x28, "6"                      },
+	{0x01, 0x01, 0x38, 0x30, "7"                      },
+	{0x01, 0x01, 0x38, 0x38, "8"                      },
 
 	{0   , 0xfe, 0   , 4   , "Bonus Life"             },
-	{0x1c, 0x01, 0xc0, 0x40, "80k and every 400k"     },
-	{0x1c, 0x01, 0xc0, 0x80, "160k and every 450k"    },
-	{0x1c, 0x01, 0xc0, 0x00, "200k and every 450k"    },
-	{0x1c, 0x01, 0xc0, 0xc0, "None"                   },
+	{0x01, 0x01, 0xc0, 0x40, "80k and every 400k"     },
+	{0x01, 0x01, 0xc0, 0x80, "160k and every 450k"    },
+	{0x01, 0x01, 0xc0, 0x00, "200k and every 450k"    },
+	{0x01, 0x01, 0xc0, 0xc0, "None"                   },
 
 	// Dip C
 	{0   , 0xfe, 0   , 2   , "Free Play"              },
-	{0x1d, 0x01, 0x04, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x04, 0x04, "On"                     },
+	{0x02, 0x01, 0x04, 0x00, "Off"                    },
+	{0x02, 0x01, 0x04, 0x04, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Freeze"                 },
-	{0x1d, 0x01, 0x08, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x08, 0x08, "On"                     },
+	{0x02, 0x01, 0x08, 0x00, "Off"                    },
+	{0x02, 0x01, 0x08, 0x08, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Flip Screen"            },
-	{0x1d, 0x01, 0x10, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x10, 0x10, "On"                     },
+	{0x02, 0x01, 0x10, 0x00, "Off"                    },
+	{0x02, 0x01, 0x10, 0x10, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
-	{0x1d, 0x01, 0x20, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x20, 0x20, "On"                     },
+	{0x02, 0x01, 0x20, 0x00, "Off"                    },
+	{0x02, 0x01, 0x20, 0x20, "On"                     },
 
 	{0   , 0xfe, 0   , 2   , "Allow Continue"         },
-	{0x1d, 0x01, 0x40, 0x00, "Off"                    },
-	{0x1d, 0x01, 0x40, 0x40, "On"                     },
+	{0x02, 0x01, 0x40, 0x00, "Off"                    },
+	{0x02, 0x01, 0x40, 0x40, "On"                     },
 	
 	{0   , 0xfe, 0   , 2   , "Game Mode"              },
-	{0x1d, 0x01, 0x80, 0x00, "Game"                   },
-	{0x1d, 0x01, 0x80, 0x80, "Test"                   },
+	{0x02, 0x01, 0x80, 0x00, "Game"                   },
+	{0x02, 0x01, 0x80, 0x80, "Test"                   },
 };
 
 STDDIPINFO(Kod)
+
+static struct BurnDIPInfo KodhDIPList[]=
+{
+	DIP_OFFSET(0x1d)
+
+	// Defaults
+	{0x00, 0xff, 0xff, 0x00, NULL                     },
+	{0x01, 0xff, 0xff, 0x03, NULL                     },
+	{0x02, 0xff, 0xff, 0x60, NULL                     },
+
+	// Dip A
+	CPS1_COINAGE_2(0x00)
+
+	{0   , 0xfe, 0   , 2   , "Coin Slots"             },
+	{0x00, 0x01, 0x08, 0x08, "1"                      },
+	{0x00, 0x01, 0x08, 0x00, "3"                      },
+
+	{0   , 0xfe, 0   , 2   , "Play Mode"              },
+	{0x00, 0x01, 0x10, 0x10, "2 Players"              },
+	{0x00, 0x01, 0x10, 0x00, "3 Players"              },
+
+	{0   , 0xfe, 0   , 2   , "2C to Start, 1 to Cont" },
+	{0x00, 0x01, 0x40, 0x00, "Off"                    },
+	{0x00, 0x01, 0x40, 0x40, "On"                     },
+
+	// Dip B
+	CPS1_DIFFICULTY_1(0x01)
+
+	{0   , 0xfe, 0   , 8   , "Lives"                  },
+	{0x01, 0x01, 0x38, 0x08, "1"                      },
+	{0x01, 0x01, 0x38, 0x00, "2"                      },
+	{0x01, 0x01, 0x38, 0x10, "3"                      },
+	{0x01, 0x01, 0x38, 0x18, "4"                      },
+	{0x01, 0x01, 0x38, 0x20, "5"                      },
+	{0x01, 0x01, 0x38, 0x28, "6"                      },
+	{0x01, 0x01, 0x38, 0x30, "7"                      },
+	{0x01, 0x01, 0x38, 0x38, "8"                      },
+
+	{0   , 0xfe, 0   , 4   , "Bonus Life"             },
+	{0x01, 0x01, 0xc0, 0x40, "80k and every 400k"     },
+	{0x01, 0x01, 0xc0, 0x80, "160k and every 450k"    },
+	{0x01, 0x01, 0xc0, 0x00, "200k and every 450k"    },
+	{0x01, 0x01, 0xc0, 0xc0, "None"                   },
+
+	// Dip C
+	{0   , 0xfe, 0   , 2   , "Free Play"              },
+	{0x02, 0x01, 0x04, 0x00, "Off"                    },
+	{0x02, 0x01, 0x04, 0x04, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Freeze"                 },
+	{0x02, 0x01, 0x08, 0x00, "Off"                    },
+	{0x02, 0x01, 0x08, 0x08, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Flip Screen"            },
+	{0x02, 0x01, 0x10, 0x00, "Off"                    },
+	{0x02, 0x01, 0x10, 0x10, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
+	{0x02, 0x01, 0x20, 0x00, "Off"                    },
+	{0x02, 0x01, 0x20, 0x20, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Allow Continue"         },
+	{0x02, 0x01, 0x40, 0x00, "Off"                    },
+	{0x02, 0x01, 0x40, 0x40, "On"                     },
+
+	{0   , 0xfe, 0   , 2   , "Game Mode"              },
+	{0x02, 0x01, 0x80, 0x00, "Game"                   },
+	{0x02, 0x01, 0x80, 0x80, "Test"                   },
+};
+
+STDDIPINFO(Kodh)
 
 static struct BurnDIPInfo Kodr1DIPList[]=
 {
@@ -4753,10 +4956,12 @@ STD_ROM_PICK(Wonder3h)
 STD_ROM_FN(Wonder3h)
 
 static struct BurnRomInfo Wonder3haRomDesc[] = {
-	{ "22.bin",        0x040000, 0x8eb6b675, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
-	{ "26.bin",        0x040000, 0xab2d0699, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
-	{ "23.bin",        0x040000, 0x74db820f, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
-	{ "27.bin",        0x040000, 0xc75e807b, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	// same as 3wondersh except for program roms
+	// 3wondersb01 in HBMAME
+	{ "b01.22",        0x040000, 0x8eb6b675, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "b01.26",        0x040000, 0xab2d0699, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "b01.23",        0x040000, 0x74db820f, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "b01.27",        0x040000, 0xc75e807b, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
 
 	{ "16.bin",        0x040000, 0xc997bca2, BRF_GRA | CPS1_TILES },
 	{ "6.bin",         0x040000, 0x3eea321a, BRF_GRA | CPS1_TILES },
@@ -4784,7 +4989,7 @@ static struct BurnRomInfo Wonder3haRomDesc[] = {
 	
 	{ "rt24b.1a",      0x000117, 0x54b85159, BRF_OPT },	// b-board PLDs
 	{ "iob1.11e",      0x000117, 0x3abc0700, BRF_OPT },
-	{ "ioc1.ic1",      0x000117, 0x0d182081, BRF_OPT },	// c-board PLDs
+	{ "ioc1.ic1",      0x000104, 0xa399772d, BRF_OPT },	// c-board PLDs
 };
 
 STD_ROM_PICK(Wonder3ha)
@@ -9353,6 +9558,46 @@ static struct BurnRomInfo Sf2sttRomDesc[] = {
 STD_ROM_PICK(Sf2stt)
 STD_ROM_FN(Sf2stt)
 
+static struct BurnRomInfo Sf2lyRomDesc[] = {
+	/* Street Fighter II - The World Warrior with bosses availables like in Champion Edition
+	
+	Dumped from an official Capcom board. Only eproms on the PCB.
+	
+	A-board 89626A-4 DASH
+	B-board 91634B-2
+	C-board PPU B-11*/
+	
+	{ "23",  		   0x080000, 0xca331c3c, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "22",  		   0x080000, 0xe446d96a, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+		
+	{ "1",     		   0x080000, 0x22c9cc8e, BRF_GRA | CPS1_TILES },
+	{ "2",     		   0x080000, 0x57213be8, BRF_GRA | CPS1_TILES },
+	{ "3",     		   0x080000, 0xba529b4f, BRF_GRA | CPS1_TILES },
+	{ "4",     		   0x080000, 0x4b1b33a8, BRF_GRA | CPS1_TILES },
+	{ "5",     		   0x080000, 0x2c7e2229, BRF_GRA | CPS1_TILES },
+	{ "6",     		   0x080000, 0xb5548f17, BRF_GRA | CPS1_TILES },
+	{ "7",     		   0x080000, 0x14b84312, BRF_GRA | CPS1_TILES },
+	{ "8",     		   0x080000, 0x5e9cd89a, BRF_GRA | CPS1_TILES },
+	{ "10",    		   0x080000, 0x4267b696, BRF_GRA | CPS1_TILES },
+	{ "11",    		   0x080000, 0xdf9b9146, BRF_GRA | CPS1_TILES },
+	{ "12",     	   0x080000, 0xa08a9786, BRF_GRA | CPS1_TILES },
+	{ "13",    		   0x080000, 0x80feac31, BRF_GRA | CPS1_TILES },
+
+	{ "9",     		   0x010000, 0xa4823a1b, BRF_PRG | CPS1_Z80_PROGRAM },
+
+	{ "18",    		   0x020000, 0x7f162009, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	{ "19",    		   0x020000, 0xbeade53f, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	
+	A_BOARD_PLDS
+	
+	{ "stf29.1a",      0x000117, 0x043309c5, BRF_OPT },	// b-board PLDs
+	{ "iob1.11d",      0x000117, 0x3abc0700, BRF_OPT },
+	{ "c632.ic1",      0x000117, 0x0fbd9270, BRF_OPT },	// c-board PLDs
+};
+
+STD_ROM_PICK(Sf2ly)
+STD_ROM_FN(Sf2ly)
+
 static struct BurnRomInfo Sf2uaRomDesc[] = {
 	{ "sf2u_30a.11e",  0x020000, 0x08beb861, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
 	{ "sf2u_37a.11f",  0x020000, 0xb7638d69, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
@@ -12636,12 +12881,12 @@ static struct BurnRomInfo Sf2ceuab8RomDesc[] = {
 	{ "yyc-4.1",          	0x020000, 0x1073b7b6, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
 	{ "yyc-5.3",          	0x020000, 0x924c6ce2, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
 	
-	{ "a-se235.bin", 	0x100000, 0xa258de13, BRF_GRA | CPS1_TILES }, 
-	{ "c-se005.bin", 	0x100000, 0xc781bf87, BRF_GRA | CPS1_TILES }, 
-	{ "b-se194.bin", 	0x100000, 0x5726cab8, BRF_GRA | CPS1_TILES }, 
-	{ "d-se064.bin", 	0x100000, 0x4dd24197, BRF_GRA | CPS1_TILES },
-	{ "e-sf004.bin", 	0x100000, 0x187667cc, BRF_GRA | CPS1_TILES }, 
-	{ "f-sf001.bin", 	0x100000, 0x5b585071, BRF_GRA | CPS1_TILES }, 
+	{ "a-se235.bin", 		0x100000, 0xa258de13, BRF_GRA | CPS1_TILES }, 
+	{ "c-se005.bin", 		0x100000, 0xc781bf87, BRF_GRA | CPS1_TILES }, 
+	{ "b-se194.bin", 		0x100000, 0x5726cab8, BRF_GRA | CPS1_TILES }, 
+	{ "d-se064.bin", 		0x100000, 0x4dd24197, BRF_GRA | CPS1_TILES },
+	{ "e-sf004.bin", 		0x100000, 0x187667cc, BRF_GRA | CPS1_TILES }, 
+	{ "f-sf001.bin", 		0x100000, 0x5b585071, BRF_GRA | CPS1_TILES }, 
 
 	{ "27c512.3",          	0x010000, 0xa4823a1b, BRF_PRG | CPS1_Z80_PROGRAM },
 	
@@ -12730,6 +12975,38 @@ static struct BurnRomInfo Sf2ceuab10RomDesc[] = {
 
 STD_ROM_PICK(Sf2ceuab10)
 STD_ROM_FN(Sf2ceuab10)
+
+static struct BurnRomInfo Sf2ceuab11RomDesc[] = {
+	// PCB is marked: "STF REV.3" on component side
+	// PCB is labeled: "STREET FIGHTER III" on component side 
+	// f205v id 1615
+	{ "7.bin",          0x080000, 0x74803532, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "5.bin",          0x080000, 0x66c91972, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "6.bin",          0x020000, 0x1073b7b6, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	{ "4.bin",          0x020000, 0x924c6ce2, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
+	
+	{ "a-se168.07", 	0x100000, 0xa258de13, BRF_GRA | CPS1_TILES }, 
+	{ "c-se005.12", 	0x100000, 0xc781bf87, BRF_GRA | CPS1_TILES }, 
+	{ "b-se194.02", 	0x100000, 0x5726cab8, BRF_GRA | CPS1_TILES }, 
+	{ "d-se064.05", 	0x100000, 0x4dd24197, BRF_GRA | CPS1_TILES },
+	{ "e-sf004.09", 	0x100000, 0x187667cc, BRF_GRA | CPS1_TILES }, 
+	{ "f-sf001.01", 	0x100000, 0x5b585071, BRF_GRA | CPS1_TILES }, 
+
+	{ "3.bin",          0x010000, 0xa4823a1b, BRF_PRG | CPS1_Z80_PROGRAM },
+	
+	{ "2.18",          	0x020000, 0x7f162009, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	{ "1.19",          	0x020000, 0xbeade53f, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	
+	{ "10.09",        	0x020000, 0x84427d1b, BRF_GRA | CPS1_EXTRA_TILES_400000 },
+	{ "12.11",        	0x020000, 0x55bc790c, BRF_GRA | CPS1_EXTRA_TILES_400000 },
+	{ "9.03",         	0x020000, 0xf8725add, BRF_GRA | CPS1_EXTRA_TILES_400000 },
+	{ "11.06",      	0x020000, 0xc2a5373e, BRF_GRA | CPS1_EXTRA_TILES_400000 },
+	
+	{ "8.bin",          0x010000, 0x13ea1c44, BRF_OPT }, // unknown
+};
+
+STD_ROM_PICK(Sf2ceuab11)
+STD_ROM_FN(Sf2ceuab11)
 
 static struct BurnRomInfo Sf2ceucblRomDesc[] = {
 	{ "s92u_23c.8f",   0x080000, 0x0a8b6aa2, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP }, // not included in dump (matches first half of ym.u23)
@@ -14759,6 +15036,7 @@ static const struct GameConfig ConfigTable[] =
 	{ "sf2ebbl2"      , CPS_B_17    , mapper_STF29 , 0, NULL                },
 	{ "sf2ebbl3"      , CPS_B_17    , mapper_STF29 , 0, NULL                },
 	{ "sf2stt"        , CPS_B_17    , mapper_STF29 , 0, NULL                },
+	{ "sf2ly"         , CPS_B_11    , mapper_STF29 , 0, NULL                },
 	{ "sf2ua"         , CPS_B_17    , mapper_STF29 , 0, NULL                },
 	{ "sf2ub"         , CPS_B_17    , mapper_STF29 , 0, NULL                },
 	{ "sf2uc"         , CPS_B_12    , mapper_STF29 , 0, NULL                },
@@ -14859,6 +15137,7 @@ static const struct GameConfig ConfigTable[] =
 	{ "sf2ceuab8"     , HACK_B_1    , mapper_S9263B, 0, NULL                },
 	{ "sf2ceuab9"     , HACK_B_1    , mapper_S9263B, 0, NULL                },
 	{ "sf2ceuab10"    , HACK_B_1    , mapper_S9263B, 0, NULL                },
+	{ "sf2ceuab11"    , HACK_B_1    , mapper_S9263B, 0, NULL                },
 	{ "sf2ceucbl"     , CPS_B_21_DEF, mapper_S9263B, 0, NULL                },
 	{ "sf2level"      , HACK_B_2    , mapper_S9263B, 0, NULL                },
 	{ "sf2cebltw"     , CPS_B_21_DEF, mapper_S9263B, 0, NULL                },
@@ -20309,7 +20588,7 @@ struct BurnDriver BurnDrvCpsKnightsh = {
 	"Knights of the Round (hack set 1)\0", NULL, "hack", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
-	NULL, KnightshRomInfo, KnightshRomName, NULL, NULL, NULL, NULL, KnightsInputInfo, KnightsDIPInfo,
+	NULL, KnightshRomInfo, KnightshRomName, NULL, NULL, NULL, NULL, KnightshInputInfo, KnightshDIPInfo,
 	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -20319,7 +20598,7 @@ struct BurnDriver BurnDrvCpsKnightsh2 = {
 	"Knights of the Round (hack set 2, 911127 etc)\0", NULL, "hack", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
-	NULL, Knightsh2RomInfo, Knightsh2RomName, NULL, NULL, NULL, NULL, KnightsInputInfo, KnightsDIPInfo,
+	NULL, Knightsh2RomInfo, Knightsh2RomName, NULL, NULL, NULL, NULL, KnightshInputInfo, KnightshDIPInfo,
 	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -20399,7 +20678,7 @@ struct BurnDriver BurnDrvCpsKodh = {
 	"The King of Dragons (hack)\0", NULL, "Capcom", "CPS1",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
-	NULL, KodhRomInfo, KodhRomName, NULL, NULL, NULL, NULL, KodhInputInfo, KodDIPInfo,
+	NULL, KodhRomInfo, KodhRomName, NULL, NULL, NULL, NULL, KodhInputInfo, KodhDIPInfo,
 	KodhInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
@@ -20931,6 +21210,16 @@ struct BurnDriver BurnDrvCpsSf2stt = {
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG | BDF_HISCORE_SUPPORTED, 2, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, FBF_SF,
 	NULL, Sf2sttRomInfo, Sf2sttRomName, NULL, NULL, NULL, NULL, Sf2yycInputInfo, Sf2DIPInfo,
 	Sf2sttInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
+};
+
+struct BurnDriver BurnDrvCpsSf2ly = {
+	"sf2ly", "sf2", NULL, NULL, "1991",
+	"Street Fighter II - The World Warrior (with bosses like Champion Edition, 910522 Japan, CPS-B-11)\0", NULL, "Capcom", "CPS1",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HISCORE_SUPPORTED, 2, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, FBF_SF,
+	NULL, Sf2lyRomInfo, Sf2lyRomName, NULL, NULL, NULL, NULL, Sf2InputInfo, Sf2DIPInfo,
+	DrvInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -21961,6 +22250,16 @@ struct BurnDriver BurnDrvCpsSf2ceuab10 = {
 	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, FBF_SF,
 	NULL, Sf2ceuab10RomInfo, Sf2ceuab10RomName, NULL, NULL, NULL, NULL, Sf2yycInputInfo, Sf2DIPInfo,
 	Sf2ceuab9Init, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
+	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
+};
+
+struct BurnDriver BurnDrvCpsSf2ceuab11 = {
+	"sf2ceuab11", "sf2ce", NULL, NULL, "1992",
+	"Street Fighter II' - Champion Edition (920313 USA bootleg set 11)\0", "Some graphic issues due to roms", "bootleg", "CPS1",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_BOOTLEG, 2, HARDWARE_CAPCOM_CPS1, GBF_VSFIGHT, FBF_SF,
+	NULL, Sf2ceuab11RomInfo, Sf2ceuab11RomName, NULL, NULL, NULL, NULL, Sf2yycInputInfo, Sf2DIPInfo,
+	Sf2ceuab8Init, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
@@ -23322,7 +23621,9 @@ struct BurnDriver BurnDrvCpsFfightae = {
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
-// Captain Commando (1 V 4 GOTVG)
+// Captain Commando (Enhanced edition 1 V 4, Hack)
+// Hacked by unknown
+// GOTVG 2015-12-05
 
 static struct BurnRomInfo Captcommp4RomDesc[] = {
 	{ "captcommp4_23d.8f",  0x080000, 0x40e8a541, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
@@ -23357,9 +23658,9 @@ STD_ROM_PICK(Captcommp4)
 STD_ROM_FN(Captcommp4)
 
 struct BurnDriver BurnDrvCpsCaptcommp4 = {
-	"captcommp4", "captcomm", NULL, NULL, "2020",
-	"Captain Commando (1 V 4 GOTVG)\0", NULL, "hack", "CPS1",
-	L"Captain Commando (1 V 4 GOTVG)\0\u540D\u5C06 (1 v 4 \u6E38\u805A\u52A0\u5F3A\u7248)\0", NULL, NULL, NULL,
+	"captcommp4", "captcomm", NULL, NULL, "2015-12-05",
+	"Captain Commando (Enhanced edition 1 V 4, Hack)\0", NULL, "hack", "CPS1",
+	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK | BDF_HISCORE_SUPPORTED, 4, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, Captcommp4RomInfo, Captcommp4RomName, NULL, NULL, NULL, NULL, CaptcommInputInfo, Captcomm4pDIPInfo,
 	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
@@ -23401,24 +23702,25 @@ STD_ROM_FN(Captcommr1pwx)
 struct BurnDriver BurnDrvCpsCaptcommr1pwx = {
 	"captcommr1pwx", "captcomm", NULL, NULL, "2020",
 	"Captain Commando (Unlimited Bullet Update 2020-02-19)\0", NULL, "Hack", "CPS1",
-	L"Captain Commando (Unlimited Bullet Update 2020-02-19)\0\u540D\u5C06 (\u65E0\u9650\u5B50\u5F39\u589E\u5f3A\u7248 2020-02-19)\0", NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK | BDF_HISCORE_SUPPORTED, 4, HARDWARE_CAPCOM_CPS1, GBF_SCRFIGHT, 0,
 	NULL, Captcommr1pwxRomInfo, Captcommr1pwxRomName, NULL, NULL, NULL, NULL, CaptcommInputInfo, Captcomm4pDIPInfo,  
 	Cps1RasterInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
-// Cadillacs and Dinosaurs (God of War Edition Update 2020-03-25, Ngs)
-// This set is known as dinos239 in HBMAME
+// Cadillacs and Dinosaurs (God of War Edition, Hack)
+// Hacked by Ngs
+// GOTVG Last update: 2020-04-19
 
 static struct BurnRomInfo DinodsRomDesc[] = {
-	{ "cdes239.10f",    0x200000, 0x8998c062, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "dinods.bin",		0x200000, 0xf1f661c6, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
-	{ "cd-1m.3a",       0x080000, 0x8da4f917, BRF_GRA | CPS1_TILES },
-	{ "cd-3m.5a",       0x080000, 0x6c40f603, BRF_GRA | CPS1_TILES },
-	{ "cd-2m.4a",       0x080000, 0x09c8fc2d, BRF_GRA | CPS1_TILES },
-	{ "cd-4m.6a",       0x080000, 0x637ff38f, BRF_GRA | CPS1_TILES },
-	{ "cd-5m.7a",       0x080000, 0x470befee, BRF_GRA | CPS1_TILES },
+	{ "cd-1m.3a",		0x080000, 0x8da4f917, BRF_GRA | CPS1_TILES },
+	{ "cd-3m.5a",		0x080000, 0x6c40f603, BRF_GRA | CPS1_TILES },
+	{ "cd-2m.4a",		0x080000, 0x09c8fc2d, BRF_GRA | CPS1_TILES },
+	{ "cd-4m.6a",		0x080000, 0x637ff38f, BRF_GRA | CPS1_TILES },
+	{ "cd-5m.7a",		0x080000, 0x470befee, BRF_GRA | CPS1_TILES },
 	{ "cd-7m.9a",       0x080000, 0x22bfb7a3, BRF_GRA | CPS1_TILES },
 	{ "cd-6m.8a",       0x080000, 0xe7599ac4, BRF_GRA | CPS1_TILES },
 	{ "cd-8m.10a",      0x080000, 0x211b4b15, BRF_GRA | CPS1_TILES },
@@ -23437,47 +23739,48 @@ STD_ROM_PICK(Dinods)
 STD_ROM_FN(Dinods)
 
 struct BurnDriver BurnDrvCpsDinods = {
-	"dinods", "dino", NULL, NULL, "2020",
-	"Cadillacs and Dinosaurs (God of War Edition Update 2020-03-25, Ngs)\0", NULL, "Hack", "CPS1 / QSound",
-	L"Cadillacs and Dinosaurs (God of War Edition Update 2020-03-25, Ngs)\0\u6050\u9F99\u65B0\u4E16\u7EAA (\u6597\u795E 2020-03-05, Ngs)\0", NULL, NULL, NULL,
+	"dinods", "dino", NULL, NULL, "2020-04-19",
+	"Cadillacs and Dinosaurs (God of War Edition, Hack)\0", NULL, "Hack", "CPS1 / QSound",
+	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1_QSOUND, GBF_SCRFIGHT, 0,
 	NULL, DinodsRomInfo, DinodsRomName, NULL, NULL, NULL, NULL, DinoInputInfo, DinoDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,
 	&CpsRecalcPal, 0x1000, 384, 224, 4, 3
 };
 
-// Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition Update 2020-02-15, Bindi)
-// This set is known as tk2h158 in HBMAME
+// 天地を喰らう II - 赤壁の戦い (達人 バージョン, ハック) / Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)
+// Hacked by Bindi
+// GOTVG Last update 2020-03-26
 
 static struct BurnRomInfo WofjdrRomDesc[] = {
-	{ "tk2h158.10f",   0x200000, 0x4296c806, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "wofjdr.bin",		0x200000, 0x3fc42adb, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
-	{ "tk2-1m.3a",     0x080000, 0x0d9cb9bf, BRF_GRA | CPS1_TILES },
-	{ "tk2-3m.5a",     0x080000, 0x45227027, BRF_GRA | CPS1_TILES },
-	{ "tk2-2m.4a",     0x080000, 0xc5ca2460, BRF_GRA | CPS1_TILES },
-	{ "tk2-4m.6a",     0x080000, 0xe349551c, BRF_GRA | CPS1_TILES },
-	{ "tk2h140.7a",    0x080000, 0xe3c8c198, BRF_GRA | CPS1_TILES },
-	{ "tk2h140.8a",    0x080000, 0x5e3c0642, BRF_GRA | CPS1_TILES },
-	{ "tk2h140.9a",    0x080000, 0xd65a91d9, BRF_GRA | CPS1_TILES },
-	{ "tk2h140.10a",   0x080000, 0x675d490e, BRF_GRA | CPS1_TILES },
+	{ "tk2-1m.3a",		0x080000, 0x0d9cb9bf, BRF_GRA | CPS1_TILES },
+	{ "tk2-3m.5a",		0x080000, 0x45227027, BRF_GRA | CPS1_TILES },
+	{ "tk2-2m.4a",		0x080000, 0xc5ca2460, BRF_GRA | CPS1_TILES },
+	{ "tk2-4m.6a",		0x080000, 0xe349551c, BRF_GRA | CPS1_TILES },
+	{ "wofjdr-5m.7a",	0x080000, 0xe3c8c198, BRF_GRA | CPS1_TILES },
+	{ "wofjdr-6m.8a",	0x080000, 0x5e3c0642, BRF_GRA | CPS1_TILES },
+	{ "wofjdr-7m.9a",	0x080000, 0xd65a91d9, BRF_GRA | CPS1_TILES },
+	{ "wofjdr-8m.10a",	0x080000, 0x675d490e, BRF_GRA | CPS1_TILES },
 
-	{ "tk2_qa.5k",     0x020000, 0xc9183a0d, BRF_PRG | CPS1_Z80_PROGRAM },
+	{ "tk2_qa.5k",		0x020000, 0xc9183a0d, BRF_PRG | CPS1_Z80_PROGRAM },
 
-	{ "tk2-q1.1k",     0x080000, 0x611268cf, BRF_SND | CPS1_QSOUND_SAMPLES },
-	{ "tk2-q2.2k",     0x080000, 0x20f55ca9, BRF_SND | CPS1_QSOUND_SAMPLES },
-	{ "tk2-q3.3k",     0x080000, 0xbfcf6f52, BRF_SND | CPS1_QSOUND_SAMPLES },
-	{ "tk2-q4.4k",     0x080000, 0x36642e88, BRF_SND | CPS1_QSOUND_SAMPLES },
+	{ "tk2-q1.1k",		0x080000, 0x611268cf, BRF_SND | CPS1_QSOUND_SAMPLES },
+	{ "tk2-q2.2k",		0x080000, 0x20f55ca9, BRF_SND | CPS1_QSOUND_SAMPLES },
+	{ "tk2-q3.3k",		0x080000, 0xbfcf6f52, BRF_SND | CPS1_QSOUND_SAMPLES },
+	{ "tk2-q4.4k",		0x080000, 0x36642e88, BRF_SND | CPS1_QSOUND_SAMPLES },
 	
-	{ "wof.key",       0x000080, 0xef8848dd, BRF_OPT },
+	{ "wof.key",		0x000080, 0xef8848dd, BRF_OPT },
 };
 
 STD_ROM_PICK(Wofjdr)
 STD_ROM_FN(Wofjdr)
 
 struct BurnDriver BurnDrvCpsWofjdr = {
-	"wofjdr", "wof", NULL, NULL, "2020",
-	"Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition Update 2020-02-15, Bindi)\0", NULL, "Hack", "CPS1 / QSound",
-	L"Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition Update 2020-02-15, Bindi)\0\u541E\u98DF\u5929\u5730 II - \u8D64\u58C1\u4E4B\u6218 (\u8FBE\u4eBA\u7248 2020-02-15, Bindi)\0 ", NULL, NULL, NULL,
+	"wofjdr", "wof", NULL, NULL, "2020-03-26",
+	"Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0", NULL, "Hack", "CPS1 / QSound",
+	L"\u5929\u5730\u3092\u55b0\u3089\u3046 II - \u8d64\u58c1\u306e\u6226\u3044 (\u9054\u4eba \u30d0\u30fc\u30b8\u30e7\u30f3, \u30cf\u30c3\u30af)\0Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1_QSOUND, GBF_SCRFIGHT, 0,
 	NULL, WofjdrRomInfo, WofjdrRomName, NULL, NULL, NULL, NULL, WofInputInfo, WofDIPInfo,
 	TwelveMhzInit, DrvExit, Cps1Frame, CpsRedraw, CpsAreaScan,

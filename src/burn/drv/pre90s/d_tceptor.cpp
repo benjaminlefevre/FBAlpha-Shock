@@ -67,9 +67,9 @@ static UINT8 DrvInputs[2];
 static UINT8 DrvDips[3];
 static UINT8 DrvReset;
 
-static INT32 DrvAnalogPort0 = 0;
-static INT32 DrvAnalogPort1 = 0;
-static INT32 DrvAnalogPort2 = 0;
+static INT16 DrvAnalogPort0 = 0;
+static INT16 DrvAnalogPort1 = 0;
+static INT16 DrvAnalogPort2 = 0;
 
 #define A(a, b, c, d) {a, b, (UINT8*)(c), d}
 static struct BurnInputInfo TceptorInputList[] = {
@@ -199,7 +199,9 @@ static UINT8 tceptor_m6809_read(UINT16 address)
 			return 0; // nop
 
 		case 0x4f01: // pedal (accel)
-			if (DrvAnalogPort2 == 0xffff) DrvAnalogPort2 = 0xfc04; // digital button -> accel
+			if (DrvAnalogPort2 == -1 /* 0xffff */) { // digital button mapped to accel
+				DrvAnalogPort2 = -0x3fc; /* 0xfc04 */
+			}
 			return ProcessAnalog(DrvAnalogPort2, 0, 1, 0x00, 0xd6);
 
 		case 0x4f02: // x

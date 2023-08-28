@@ -1,7 +1,5 @@
 // 680x0 (Sixty Eight K) Interface
 
-// todo: (I think!) if SekRunEnd() is called while running, wrong cycles get returned by SekRun() for m68k -dink
-
 #include "burnint.h"
 #include "m68000_intf.h"
 #include "m68000_debug.h"
@@ -998,6 +996,8 @@ void SekNewFrame()
 
 	for (INT32 i = 0; i <= nSekCount; i++) {
 		nSekCycles[i] = 0;
+		nSekCyclesToDoCache[i] = 0;
+		nSekm68k_ICount[i] = 0;
 	}
 
 	nSekCyclesToDo = m68k_ICount = 0;
@@ -1338,7 +1338,7 @@ void SekClose()
 	// Allow for SekRun() reentrance:
 	nSekCyclesToDoCache[nSekActive] = nSekCyclesToDo;
 	nSekm68k_ICount[nSekActive] = m68k_ICount;
-	
+
 	nSekActive = -1;
 }
 
@@ -1741,6 +1741,21 @@ INT32 SekRun(INT32 nCPU, INT32 nCycles)
 	SekCPUPush(nCPU);
 
 	INT32 nRet = SekRun(nCycles);
+
+	SekCPUPop();
+
+	return nRet;
+}
+
+INT32 SekIdle(INT32 nCPU, INT32 nCycles)
+{
+#if defined FBNEO_DEBUG
+	if (!DebugCPU_SekInitted) bprintf(PRINT_ERROR, _T("SekIdle called without init\n"));
+#endif
+
+	SekCPUPush(nCPU);
+
+	INT32 nRet = SekIdle(nCycles);
 
 	SekCPUPop();
 

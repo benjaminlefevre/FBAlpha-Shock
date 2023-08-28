@@ -12545,7 +12545,6 @@ DRV		BurnDrvMSX_3dragon;
 DRV		BurnDrvsms_3dragon;
 DRV		BurnDrvmd_tick;
 DRV		BurnDrvTinstar;
-DRV		BurnDrvTinstar2;
 DRV		BurnDrvThetogyu;
 DRV		BurnDrvpce_druaga;
 DRV		BurnDrvMSX_druaga;
@@ -26587,7 +26586,6 @@ static struct BurnDriver* pDriver[] = {
 	&BurnDrvsms_3dragon,		// The Three Dragon Story (Kor)
 	&BurnDrvmd_tick,			// The Tick (USA)
 	&BurnDrvTinstar,			// The Tin Star (set 1)
-	&BurnDrvTinstar2,			// The Tin Star (set 2)
 	&BurnDrvThetogyu,			// The Togyu (315-5065, Japan)
 	&BurnDrvpce_druaga,			// The Tower of Druaga
 	&BurnDrvMSX_druaga,			// The Tower of Druaga (Jpn)
