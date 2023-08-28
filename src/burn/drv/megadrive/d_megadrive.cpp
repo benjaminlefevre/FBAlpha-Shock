@@ -2022,6 +2022,25 @@ struct BurnDriver BurnDrvmd_3ninja = {
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
 
+// 3 Ninjas Kick Back (Hack, Spanish)
+// https://www.romhacking.net/translations/2785/
+static struct BurnRomInfo md_3ninjasRomDesc[] = {
+	{ "3 Ninjas Kick Back (Hack, Spanish).bin", 2097152, 0x9a0e98a9, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_3ninjas)
+STD_ROM_FN(md_3ninjas)
+
+struct BurnDriver BurnDrvmd_3ninjass = {
+	"md_3ninjas", "md_3ninja", NULL, NULL, "2018",
+	"3 Ninjas Kick Back (Hack, Spanish)\0", NULL, "Sony Imagesoft", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_VSFIGHT, 0,
+	MegadriveGetZipName, md_3ninjasRomInfo, md_3ninjasRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
 // 3 in 1 Flashback - World Championship Soccer - Tecmo World Cup 92 (Pirate)
 static struct BurnRomInfo md_3in1fwtRomDesc[] = {
 	{ "3-in-1 flashback - world champ. soccer - tecmo world cup 92 (pirate).bin", 0x200000, 0xa8fd28d7, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
@@ -3026,6 +3045,25 @@ struct BurnDriver BurnDrvmd_aliensolj = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_RUNGUN, 0,
 	MegadriveGetZipName, md_aliensoljRomInfo, md_aliensoljRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
+// Alien Soldier (Hack, Italian)
+//Translation project: https://romhacking.it/project/view/id/47
+static struct BurnRomInfo md_aliensoliRomDesc[] = {
+	{ "alien soldier (italian translation).bin", 0x200000, 0xe5e614a5, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_aliensoli)
+STD_ROM_FN(md_aliensoli)
+
+struct BurnDriver BurnDrvmd_aliensoli = {
+	"md_aliensoli", "md_aliensol", NULL, NULL, "2002",
+	"Alien Soldier (Hack, Italian)\0", NULL, "Sega", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_RUNGUN, 0,
+	MegadriveGetZipName, md_aliensoliRomInfo, md_aliensoliRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
 	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
@@ -8087,6 +8125,25 @@ struct BurnDriver BurnDrvmd_comixup = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_SCRFIGHT, 0,
 	MegadriveGetZipName, md_comixupRomInfo, md_comixupRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
+// Comix Zone (Hack, Italian)
+//Translation project: https://romhacking.it/project/view/id/49
+static struct BurnRomInfo md_comixiRomDesc[] = {
+	{ "comix zone (italian translation).bin", 0x200000, 0xf2bba578, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_comixi)
+STD_ROM_FN(md_comixi)
+
+struct BurnDriver BurnDrvmd_comixi = {
+	"md_comixi", "md_comix", NULL, NULL, "2002",
+	"Comix Zone (Hack, Italian)\0", NULL, "Sega", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_SCRFIGHT, 0,
+	MegadriveGetZipName, md_comixiRomInfo, md_comixiRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
 	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
@@ -30888,6 +30945,25 @@ struct BurnDriver BurnDrvmd_sor2upw = {
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
 
+// Streets of Rage 2 (Hack, Italian)
+//Translation project: https://romhacking.it/project/view/id/53
+static struct BurnRomInfo md_sor2iRomDesc[] = {
+	{ "streets of rage 2 (italian translation).bin", 0x200000, 0x7c034b79, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_sor2i)
+STD_ROM_FN(md_sor2i)
+
+struct BurnDriver BurnDrvmd_sor2i = {
+	"md_sor2i", "md_sor2", NULL, NULL, "2003",
+	"Streets of Rage 2 (Hack, Italian)\0", NULL, "Sega", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_SCRFIGHT, 0,
+	MegadriveGetZipName, md_sor2iRomInfo, md_sor2iRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
 // Bare Knuckle II (Jpn, Prototype)
 static struct BurnRomInfo md_bk2pRomDesc[] = {
 	{ "bare knuckle ii (jpn) (beta).bin", 0x130000, 0x0cf2acbe, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
@@ -32867,6 +32943,25 @@ struct BurnDriver BurnDrvmd_tecmocup = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY, 2, HARDWARE_SEGA_MEGADRIVE, GBF_MISC, 0,
 	MegadriveGetZipName, md_tecmocupRomInfo, md_tecmocupRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
+// Tecmo Cup (Hack, Italian)
+//Translation project: https://romhacking.it/project/view/id/360
+static struct BurnRomInfo md_tecmocupiRomDesc[] = {
+	{ "tecmo cup (italian translation).bin", 0x080000, 0x580ad795, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_tecmocupi)
+STD_ROM_FN(md_tecmocupi)
+
+struct BurnDriver BurnDrvmd_tecmocupi = {
+	"md_tecmocupi", "md_tecmocup", NULL, NULL, "2007",
+	"Tecmo Cup (Hack, Italian)\0", NULL, "<unknown>", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_MISC, 0,
+	MegadriveGetZipName, md_tecmocupiRomInfo, md_tecmocupiRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
 	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
@@ -36308,6 +36403,25 @@ struct BurnDriver BurnDrvmd_wboy5 = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE | HARDWARE_SEGA_MEGADRIVE_PCB_SEGA_EEPROM, GBF_MISC, 0,
 	MegadriveGetZipName, md_wboy5RomInfo, md_wboy5RomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
+// Wonder Boy in Monster World (Hack, Italian)
+//Translation project: https://romhacking.it/project/view/id/364
+static struct BurnRomInfo md_wboymwiRomDesc[] = {
+	{ "mpr-14556 (italian translation).bin", 0x0c0000, 0xaae9f03d, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_wboymwi)
+STD_ROM_FN(md_wboymwi)
+
+struct BurnDriver BurnDrvmd_wboymwi = {
+	"md_wboymwi", "md_wboymw", NULL, NULL, "2008",
+	"Wonder Boy in Monster World (Hack, Italian)\0", NULL, "Sega", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE | HARDWARE_SEGA_MEGADRIVE_PCB_SEGA_EEPROM, GBF_MISC, 0,
+	MegadriveGetZipName, md_wboymwiRomInfo, md_wboymwiRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
 	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
