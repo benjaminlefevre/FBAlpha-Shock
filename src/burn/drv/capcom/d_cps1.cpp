@@ -5281,7 +5281,13 @@ static struct BurnRomInfo Captcommb2RomDesc[] = {
 				
 	{ "1.bin",         0x040000, 0xaed2f4bd, BRF_PRG | CPS1_Z80_PROGRAM },
 	
-	{ "2_gal16v8.ic7", 0x000117, 0xbad3316b, BRF_OPT },
+	{ "1_gal20v8.ic169", 0x000157, 0xe5cf9f53, BRF_OPT },
+	{ "2_gal16v8.ic7", 	 0x000117, 0x0ebc7cd7, BRF_OPT },
+	{ "3_gal20v8.ic72",  0x000117, 0xebf1f643, BRF_OPT },
+	{ "4_gal20v8.ic80",  0x000117, 0x2c43c330, BRF_OPT },
+	{ "5_gal20v8.ic121", 0x000157, 0x76fa8969, BRF_OPT },
+	{ "6_gal20v8.ic120", 0x000157, 0x6a55a974, BRF_OPT },
+	// ic116  tpc1020afn-084c  no dump
 };
 
 STD_ROM_PICK(Captcommb2)
@@ -5808,11 +5814,7 @@ static struct BurnRomInfo Dinopic2RomDesc[] = {
 	{ "27c4000-m12374r-1.bin", 0x080000, 0x0e4058ba, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_BYTESWAP },
 	
 	{ "27c4000-m12481-4.bin",  0x080000, 0xf3c2c98d, BRF_GRA | CPS1_TILES },
-#if !defined ROM_VERIFY
-	{ "27c4000-m12481-3.bin",  0x080000, 0xd574befc, BRF_GRA | CPS1_TILES },
-#else
-	{ "27c4000-m12481-3.bin",  0x080000, 0x417a4816, BRF_GRA | CPS1_TILES },
-#endif
+	{ "27c4000-m12481-3.bin",  0x080000, 0xa0e1f6e0, BRF_GRA | CPS1_TILES },
 	{ "27c4000-m12481-2.bin",  0x080000, 0x55ef0adc, BRF_GRA | CPS1_TILES },
 	{ "27c4000-m12481-1.bin",  0x080000, 0xcc0805fc, BRF_GRA | CPS1_TILES },
 	{ "27c4000-m12481-8.bin",  0x080000, 0x1371f714, BRF_GRA | CPS1_TILES },
@@ -5824,12 +5826,12 @@ static struct BurnRomInfo Dinopic2RomDesc[] = {
 
 	{ "27c4000-m12623.bin",    0x080000, 0x7d921309, BRF_SND | CPS1_OKIM6295_SAMPLES },
 	
-	{ "cat93c46p.bin",         0x000080, 0xd49fa351, BRF_OPT },
 	{ "gal20v8a-1.bin",        0x000157, 0xcd99ca47, BRF_OPT },
 	{ "gal20v8a-2.bin",        0x000157, 0x60d016b9, BRF_OPT },
 	{ "gal20v8a-3.bin",        0x000157, 0x049b7f4f, BRF_OPT },
 	{ "palce16v8h-1.bin",      0x000117, 0x48253c66, BRF_OPT },
 	{ "palce16v8h-2.bin",      0x000117, 0x9ae375ba, BRF_OPT },
+	{ "palce16v8h-3.bin",      0x000117, 0xb0f10adf, BRF_OPT },
 };
 
 STD_ROM_PICK(Dinopic2)
@@ -5931,6 +5933,18 @@ static struct BurnRomInfo Jurassic99RomDesc[] = {
 	{ "210102_cdb2.bin",      0x200000, 0x8a6920d8, BRF_GRA | CPS1_TILES },
 	
 	{ "21003_u27.bin",    	  0x080000, 0x7d921309, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	
+	{ "1_atf20v8.u25",        0x000157, 0xcd99ca47, BRF_OPT },
+	{ "2_atf16v8.u66",        0x000117, 0x48253c66, BRF_OPT },
+	{ "3_atf16v8.u100",       0x000117, 0x9ae375ba, BRF_OPT },
+	{ "4_atf20v8.u118",       0x000157, 0x60d016b9, BRF_OPT },
+	{ "5_atf20v8.u146",       0x000157, 0x049b7f4f, BRF_OPT },
+	{ "6_atf16v8.u160",       0x000117, 0xb0f10adf, BRF_OPT },
+	{ "8_atf16v8.u96g",       0x000117, 0x11f38ab7, BRF_OPT },
+	{ "8_atf16v8.u97g",       0x000117, 0x11f38ab7, BRF_OPT },
+	{ "8_atf16v8.u98g",       0x000117, 0x11f38ab7, BRF_OPT },
+	{ "8_atf16v8.u99g",       0x000117, 0x11f38ab7, BRF_OPT },
+	{ "8_atf16v8.u134g",      0x000117, 0x11f38ab7, BRF_OPT },
 };
 
 STD_ROM_PICK(Jurassic99)
@@ -7539,6 +7553,9 @@ static struct BurnRomInfo Knightsb3RomDesc[] = {
 	{ "svr-08.bin",    0x080000, 0xaa9d82fb, BRF_GRA | CPS1_TILES },
 
 	{ "1.ic26",        0x040000, 0xbd6f9cc1, BRF_PRG | CPS1_Z80_PROGRAM },
+	
+	{ "1_palce20v8.bin", 0x000157, 0xa5078c38, BRF_OPT },
+	{ "2_palce16v8.bin", 0x000117, 0xbad3316b, BRF_OPT },
 };
 
 STD_ROM_PICK(Knightsb3)
@@ -13634,6 +13651,13 @@ static struct BurnRomInfo SlampicRomDesc[] = {
 #endif
 
 	{ "18.bin",        0x080000, 0x73a0c11c, BRF_SND | CPS1_OKIM6295_SAMPLES },
+	
+	{ "1_palce16v8.bin",       0x000117, 0xbac89609, BRF_OPT },
+	{ "2_palce16v8.bin",       0x000117, 0x680edfd5, BRF_OPT },
+	{ "3_palce20v8.bin",       0x000157, 0xf1fe9368, BRF_OPT },
+	{ "4_palce20v8.bin",       0x000157, 0x20946530, BRF_OPT },
+	{ "5_palce20v8.bin",       0x000157, 0x44df0cc6, BRF_OPT },
+	{ "6_palce16v8.bin",       0x000117, 0x12516583, BRF_OPT },
 };
 
 STD_ROM_PICK(Slampic)
@@ -23780,10 +23804,10 @@ struct BurnDriver BurnDrvCpsCaptcommr1pwx = {
 
 // Cadillacs and Dinosaurs (God of War Edition, Hack)
 // Hacked by Ngs
-// GOTVG Last update: 2020-04-19
+// GOTVG Last update: 2020-07-30
 
 static struct BurnRomInfo DinodsRomDesc[] = {
-	{ "dinods.bin",		0x200000, 0xf1f661c6, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "dinods.bin",		0x200000, 0x5df7391a, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
 	{ "cd-1m.3a",		0x080000, 0x8da4f917, BRF_GRA | CPS1_TILES },
 	{ "cd-3m.5a",		0x080000, 0x6c40f603, BRF_GRA | CPS1_TILES },
@@ -23808,7 +23832,7 @@ STD_ROM_PICK(Dinods)
 STD_ROM_FN(Dinods)
 
 struct BurnDriver BurnDrvCpsDinods = {
-	"dinods", "dino", NULL, NULL, "2020-04-19",
+	"dinods", "dino", NULL, NULL, "2020-07-30",
 	"Cadillacs and Dinosaurs (God of War Edition, Hack)\0", NULL, "Hack", "CPS1 / QSound",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1_QSOUND, GBF_SCRFIGHT, 0,
@@ -23819,10 +23843,10 @@ struct BurnDriver BurnDrvCpsDinods = {
 
 // Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)
 // Hacked by Bindi
-// GOTVG 20200811
+// GOTVG ver. 20200913
 
 static struct BurnRomInfo WofjdrRomDesc[] = {
-	{ "wofjdr.bin",		0x200000, 0x88c9dbb8, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
+	{ "wofjdr.bin",		0x200000, 0x076D76D2, BRF_ESS | BRF_PRG | CPS1_68K_PROGRAM_NO_BYTESWAP },
 
 	{ "tk2_01.3a",		0x080000, 0x0d9cb9bf, BRF_GRA | CPS1_TILES },
 	{ "tk2_02.4a",		0x080000, 0x45227027, BRF_GRA | CPS1_TILES },
@@ -23847,7 +23871,7 @@ STD_ROM_PICK(Wofjdr)
 STD_ROM_FN(Wofjdr)
 
 struct BurnDriver BurnDrvCpsWofjdr = {
-	"wofjdr", "wof", NULL, NULL, "2020-08-11",
+	"wofjdr", "wof", NULL, NULL, "2020-09-13",
 	"Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0", NULL, "Hack", "CPS1 / QSound",
 	L"\u5929\u5730\u3092\u55b0\u3089\u3046 II - \u8d64\u58c1\u306e\u6226\u3044 (\u9054\u4eba \u30d0\u30fc\u30b8\u30e7\u30f3, \u30cf\u30c3\u30af)\0Tenchi wo Kurau II - Sekiheki no Tatakai (Master Edition, Hack)\0 ", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 3, HARDWARE_CAPCOM_CPS1_QSOUND, GBF_SCRFIGHT, 0,

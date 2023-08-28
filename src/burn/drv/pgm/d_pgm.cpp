@@ -2494,7 +2494,7 @@ struct BurnDriver BurnDrvPhotoy2k104 = {
 
 // Real and Fake / Photo Y2K (V103, Japan)
 
-static struct BurnRomInfo photoy2k103RomDesc[] = {
+static struct BurnRomInfo photoy2k103jRomDesc[] = {
 	{ "photo_y2k_v103_u4.u4",		0x0080000, 0xc16dc699, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 	{ "photo_y2k_v103_u6.u6",   	0x0080000, 0x2e2671a4, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "photo_y2k_v103_u5.u5",   	0x0080000, 0x97839a61, 1 | BRF_PRG | BRF_ESS }, //  2
@@ -2514,15 +2514,15 @@ static struct BurnRomInfo photoy2k103RomDesc[] = {
 	{ "igs027a_photoy2k_v100_china.asic",	0x0004000, 0x1a0b68f6, 7 | BRF_PRG | BRF_ESS }, //  8 Internal ARM7 Rom
 };
 
-STDROMPICKEXT(photoy2k103, photoy2k103, pgm)
-STD_ROM_FN(photoy2k103)
+STDROMPICKEXT(photoy2k103j, photoy2k103j, pgm)
+STD_ROM_FN(photoy2k103j)
 
-struct BurnDriver BurnDrvphotoy2k103 = {
-	"photoy2k103", "photoy2k", "pgm", NULL, "1999",
+struct BurnDriver BurnDrvphotoy2k103j = {
+	"photoy2k103j", "photoy2k", "pgm", NULL, "1999",
 	"Photo Y2K / Real and Fake (V103, Japan)\0", NULL, "IGS", "PolyGameMaster",
 	L"\u30EA\u30A2\u30EB\u30A2\u30F3\u30C9 \u30D5\u30A7\u30A4\u30AF\0Photo Y2K\0\u5927\u5BB6\u6765 \u627E\u78B4\0\u8D85\u7EA7 \u6BD4\u4E00\u6BD4 (V103, Japan)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING  | BDF_CLONE, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_PUZZLE, 0,
-	NULL, photoy2k103RomInfo, photoy2k103RomName, NULL, NULL, NULL, NULL, pgmInputInfo, py2k103DIPInfo,
+	NULL, photoy2k103jRomInfo, photoy2k103jRomName, NULL, NULL, NULL, NULL, pgmInputInfo, py2k103DIPInfo,
 	photoy2kInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
 	448, 224, 4, 3
 };
@@ -2535,7 +2535,7 @@ struct BurnDriver BurnDrvphotoy2k103 = {
    ROM TYPES: U4 U5 U6 U8 TI TMS27C040
    CREDITS TO: "GC8TECH.COM" */
 
-static struct BurnRomInfo photoy2k102RomDesc[] = {
+static struct BurnRomInfo photoy2k102jRomDesc[] = {
 	{ "photo_y2k_v102_u4.u4",		0x0080000, 0xa65eda9f, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 	{ "photo_y2k_v102_u6.u6",   	0x0080000, 0xb9ca5504, 1 | BRF_PRG | BRF_ESS }, //  1
 	{ "photo_y2k_v102_u5.u5",   	0x0080000, 0x9201621b, 1 | BRF_PRG | BRF_ESS }, //  2
@@ -2555,15 +2555,15 @@ static struct BurnRomInfo photoy2k102RomDesc[] = {
 	{ "igs027a_photoy2k_v100_china_alt.asic",	0x0004000, 0x6dd7f257, 7 | BRF_PRG | BRF_ESS }, // 14 Internal ARM7 Rom
 };
 
-STDROMPICKEXT(photoy2k102, photoy2k102, pgm)
-STD_ROM_FN(photoy2k102)
+STDROMPICKEXT(photoy2k102j, photoy2k102j, pgm)
+STD_ROM_FN(photoy2k102j)
 
-struct BurnDriver BurnDrvphotoy2k102 = {
-	"photoy2k102", "photoy2k", "pgm", NULL, "1999",
+struct BurnDriver BurnDrvphotoy2k102j = {
+	"photoy2k102j", "photoy2k", "pgm", NULL, "1999",
 	"Photo Y2K / Real and Fake (V102, Japan)\0", NULL, "IGS", "PolyGameMaster",
 	L"\u30EA\u30A2\u30EB\u30A2\u30F3\u30C9 \u30D5\u30A7\u30A4\u30AF\0Photo Y2K\0\u5927\u5BB6\u6765 \u627E\u78B4\0\u8D85\u7EA7 \u6BD4\u4E00\u6BD4 (V102, Japan)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING  | BDF_CLONE, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_PUZZLE, 0,
-	NULL, photoy2k102RomInfo, photoy2k102RomName, NULL, NULL, NULL, NULL, pgmInputInfo, py2k103DIPInfo,
+	NULL, photoy2k102jRomInfo, photoy2k102jRomName, NULL, NULL, NULL, NULL, pgmInputInfo, py2k103DIPInfo,
 	photoy2kInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
 	448, 224, 4, 3
 };
@@ -2777,10 +2777,64 @@ struct BurnDriver BurnDrvMartmast = {
 };
 
 
+// Martial Masters / Xing Yi (V104, 102, 101, China)
+// Needs proper martial_masters_v102_cn.asic to be dumped
+
+static struct BurnRomInfo martmast104cRomDesc[] = {
+	{ "v104_32m.u9",   				0x0400000, 0xcfd9dff4, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+
+	{ "pgm_t1000.u3",	 			0x0800000, 0xbbf879b5, 2 | BRF_GRA },			//  1 Tile data
+
+	{ "pgm_a1000.u3",    			0x0800000, 0x43577ac8, 3 | BRF_GRA },			//  2 Sprite Color Data
+	{ "pgm_a1001.u4",    			0x0800000, 0xfe7a476f, 3 | BRF_GRA },			//  3
+	{ "pgm_a1002.u6",    			0x0800000, 0x62e33d38, 3 | BRF_GRA },			//  4
+	{ "pgm_a1003.u8",    			0x0800000, 0xb2c4945a, 3 | BRF_GRA },			//  5
+	{ "pgm_a1004.u10",   			0x0400000, 0x9fd3f5fd, 3 | BRF_GRA },			//  6
+
+	{ "pgm_b1000.u9",	  			0x0800000, 0xc5961f6f, 4 | BRF_GRA },			//  7 Sprite Masks & Color Indexes
+	{ "pgm_b1001.u11",	  			0x0800000, 0x0b7e1c06, 4 | BRF_GRA },			//  8
+
+	{ "pgm_m1000.u5",     			0x0800000, 0xed407ae8, 5 | BRF_SND },			//  9 Samples
+	{ "pgm_m1001.u7",      			0x0400000, 0x662d2d48, 5 | BRF_SND },			// 10
+
+//	{ "martial_masters_v102_cn.asic",	0x0004000, 0x00000000, 7 | BRF_PRG | BRF_ESS | BRF_NODUMP },  // 11 Internal ARM7 Rom	
+	{ "martial_masters_v101_cn.asic",	0x0004000, 0xb3e25b7d, 7 | BRF_PRG | BRF_ESS },  // 11 Internal ARM7 Rom
+
+	{ "v102_16m.u10",  				0x0200000, 0x18b745e6, 8 | BRF_PRG | BRF_ESS }, // 12 External ARM7 Rom
+};
+
+STDROMPICKEXT(martmast104c, martmast104c, pgm)
+STD_ROM_FN(martmast104c)
+
+static INT32 martmastcInit()
+{
+	pPgmInitCallback = pgm_decrypt_martmast;
+	pPgmProtCallback = install_protection_asic27a_martmast;
+
+	nPgmAsicRegionHackAddress = 0x2cb5;
+
+	INT32 nRet = pgmInit();
+
+	Arm7SetIdleLoopAddress(0x800039e);
+
+	return nRet;
+}
+
+struct BurnDriver BurnDrvmartmast104c = {
+	"martmast104c", "martmast", "pgm", NULL, "2001",
+	"Martial Masters (V104, 102, 101, China)\0", NULL, "IGS", "PolyGameMaster",
+	L"Martial Masters\0\u5f62\u610f\u62f3 (V104, 102, 101, China)\0", NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_VSFIGHT, 0,
+	NULL, martmast104cRomInfo, martmast104cRomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmast102DIPInfo,
+	martmastcInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
+	448, 224, 4, 3
+};
+
+
 // Martial Masters / Xing Yi (V103, 102, 101, China)
 // Needs proper martial_masters_v102_cn.asic to be dumped
 
-static struct BurnRomInfo martmast103RomDesc[] = {
+static struct BurnRomInfo martmast103cRomDesc[] = {
 	{ "v103_32m.u9",   				0x0400000, 0xdf5ffbe9, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 
 	{ "pgm_t1000.u3",	 			0x0800000, 0xbbf879b5, 2 | BRF_GRA },			//  1 Tile data
@@ -2803,23 +2857,23 @@ static struct BurnRomInfo martmast103RomDesc[] = {
 	{ "v102_16m.u10",  				0x0200000, 0x18b745e6, 8 | BRF_PRG | BRF_ESS }, // 12 External ARM7 Rom
 };
 
-STDROMPICKEXT(martmast103, martmast103, pgm)
-STD_ROM_FN(martmast103)
+STDROMPICKEXT(martmast103c, martmast103c, pgm)
+STD_ROM_FN(martmast103c)
 
-struct BurnDriver BurnDrvmartmast103 = {
-	"martmast103", "martmast", "pgm", NULL, "2001",
+struct BurnDriver BurnDrvmartmast103c = {
+	"martmast103c", "martmast", "pgm", NULL, "2001",
 	"Martial Masters (V103, 102, 101, China)\0", NULL, "IGS", "PolyGameMaster",
 	L"Martial Masters\0\u5f62\u610f\u62f3 (V103, 102, 101, China)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_VSFIGHT, 0,
-	NULL, martmast103RomInfo, martmast103RomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmast102DIPInfo,
-	martmastInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
+	NULL, martmast103cRomInfo, martmast103cRomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmast102DIPInfo,
+	martmastcInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
 	448, 224, 4, 3
 };
 
 
 // Martial Masters / Xing Yi (V102, 101, 101, China)
 
-static struct BurnRomInfo martmast102RomDesc[] = {
+static struct BurnRomInfo martmast102cRomDesc[] = {
 	{ "mm_v102_u9.u9",			    0x0400000, 0xbb24b92a, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 
 	{ "pgm_t1000.u3",	 			0x0800000, 0xbbf879b5, 2 | BRF_GRA },			//  1 Tile data
@@ -2841,29 +2895,15 @@ static struct BurnRomInfo martmast102RomDesc[] = {
 	{ "mm_v101_u10.u10",		    0x0400000, 0x41b9497c, 8 | BRF_PRG | BRF_ESS }, // 12 External ARM7 Rom
 };
 
-STDROMPICKEXT(martmast102, martmast102, pgm)
-STD_ROM_FN(martmast102)
+STDROMPICKEXT(martmast102c, martmast102c, pgm)
+STD_ROM_FN(martmast102c)
 
-static INT32 martmastcInit()
-{
-	pPgmInitCallback = pgm_decrypt_martmast;
-	pPgmProtCallback = install_protection_asic27a_martmast;
-
-	nPgmAsicRegionHackAddress = 0x2cb5;
-
-	INT32 nRet = pgmInit();
-
-	Arm7SetIdleLoopAddress(0x800039e);
-
-	return nRet;
-}
-
-struct BurnDriver BurnDrvmartmast102 = {
-	"martmast102", "martmast", "pgm", NULL, "2001",
+struct BurnDriver BurnDrvmartmast102c = {
+	"martmast102c", "martmast", "pgm", NULL, "2001",
 	"Martial Masters (V102, 101, 101, China)\0", NULL, "IGS", "PolyGameMaster",
 	L"Martial Masters\0\u5f62\u610f\u62f3 (V102, 101, 101, China)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_VSFIGHT, 0,
-	NULL, martmast102RomInfo, martmast102RomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmast102DIPInfo,
+	NULL, martmast102cRomInfo, martmast102cRomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmast102DIPInfo,
 	martmastcInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
 	448, 224, 4, 3
 };
@@ -7590,10 +7630,10 @@ struct BurnDriver BurnDrvoldsmx = {
 
 // Knights of Valour Plus - Qun Xiong Luan Wu 2020 (Hack) / 三國戰紀 - 群雄亂舞 2020 (修改版)
 // Hacked by Shuanger
-// GOTVG ver. 20200708
+// GOTVG ver. 20200910
 
 static struct BurnRomInfo kovplus2020txRomDesc[] = {
-	{ "kovplus2020tx_p0600.119",	0x0400000, 0x74b001e7, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+	{ "kovplus2020tx_p0600.119",	0x0400000, 0x1564ca87, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 
 	{ "kovplus2020tx_t0600.u11",	0x0800000, 0xe451df7f, 2 | BRF_GRA },			//  1 Tile data
 	
@@ -7614,11 +7654,129 @@ STDROMPICKEXT(kovplus2020tx, kovplus2020tx, pgm)
 STD_ROM_FN(kovplus2020tx)
 
 struct BurnDriver BurnDrvkovplus2020tx = {
-	"kovplus2020tx", "kovplus", "pgm", NULL, "2020-07-08",
+	"kovplus2020tx", "kovplus", "pgm", NULL, "2020-09-10",
 	"Knights of Valour Plus - Qun Xiong Luan Wu 2020 (Hack)\0", NULL, "Hack", "PolyGameMaster",
 	L"Knights of Valour Plus - Qun Xiong Luan Wu 2020 (Hack)\0\u4e09\u570b\u6230\u7d00 - \u7fa4\u96c4\u4e82\u821e 2020 (\u4fee\u6539\u7248)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_IGS_PGM, GBF_SCRFIGHT, 0,
 	NULL, kovplus2020txRomInfo, kovplus2020txRomName, NULL, NULL, NULL, NULL, pgmInputInfo, kovassgaDIPInfo,
 	kovplusInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
+	448, 224, 4, 3
+};
+
+
+// Knights of Valour 2 Plus - Extend Magic Plus (Hack)
+// Hack by Ruisayg
+
+static struct BurnRomInfo kov2pempRomDesc[] = {
+	{ "kov2pemp_32m.u8",				0x0400000, 0xde8bf78a, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+
+	{ "pgm_t1200.u21",					0x0800000, 0xd7e26609, 2 | BRF_GRA },			//  1 Tile data
+
+	{ "pgm_a1200.u1",					0x0800000, 0xceeb81d8, 3 | BRF_GRA },			//  2 Sprite Color Data
+	{ "pgm_a1201.u4",					0x0800000, 0x21063ca7, 3 | BRF_GRA },			//  3
+	{ "pgm_a1202.u6",					0x0800000, 0x4bb92fae, 3 | BRF_GRA },			//  4
+	{ "pgm_a1203.u8",					0x0800000, 0xe73cb627, 3 | BRF_GRA },			//  5
+	{ "pgm_a1204.u10",					0x0200000, 0x14b4b5bb, 3 | BRF_GRA },			//  6
+
+	{ "pgm_b1200.u5",					0x0800000, 0xbed7d994, 4 | BRF_GRA },			//  7 Sprite Masks & Color Indexes
+	{ "pgm_b1201.u7",					0x0800000, 0xf251eb57, 4 | BRF_GRA },			//  8
+
+	{ "pgm_m1200.u3",					0x0800000, 0xb0d88720, 5 | BRF_SND },			//  9 Samples
+
+	{ "kov2pemp_igs027a_china.bin",		0x0004000, 0x06214503, 7 | BRF_PRG | BRF_ESS }, // 10 Internal ARM7 Rom
+
+	{ "kov2pemp_16m.u23",				0x0200000, 0x03ffac76, 8 | BRF_PRG | BRF_ESS }, // 11 External ARM7 Rom
+};
+
+STDROMPICKEXT(kov2pemp, kov2pemp, pgm)
+STD_ROM_FN(kov2pemp)
+
+struct BurnDriver BurnDrvKov2pemp = {
+	"kov2pemp", "kov2p", "pgm", NULL, "2020-09-07",
+	"Knights of Valour 2 Plus - Extend Magic Plus (Hack)\0", NULL, "Hack", "PolyGameMaster",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_SCRFIGHT, 0,
+	NULL, kov2pempRomInfo, kov2pempRomName, NULL, NULL, NULL, NULL, pgmInputInfo, kovassgaDIPInfo,
+	kov2pInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
+	448, 224, 4, 3
+};
+
+
+// Martial Masters - Community Patch (Hack)
+// Hack by GwyrgynBlood
+// Enhance game balance
+
+static struct BurnRomInfo marmatcpRomDesc[] = {
+	{ "v104_32m_cp.u9",   			0x0400000, 0x29d89916, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+
+	{ "pgm_t1000.u3",	 			0x0800000, 0xbbf879b5, 2 | BRF_GRA },			//  1 Tile data
+
+	{ "pgm_a1000.u3",    			0x0800000, 0x43577ac8, 3 | BRF_GRA },			//  2 Sprite Color Data
+	{ "pgm_a1001.u4",    			0x0800000, 0xfe7a476f, 3 | BRF_GRA },			//  3
+	{ "pgm_a1002.u6",    			0x0800000, 0x62e33d38, 3 | BRF_GRA },			//  4
+	{ "pgm_a1003.u8",    			0x0800000, 0xb2c4945a, 3 | BRF_GRA },			//  5
+	{ "pgm_a1004.u10",   			0x0400000, 0x9fd3f5fd, 3 | BRF_GRA },			//  6
+
+	{ "pgm_b1000.u9",	  			0x0800000, 0xc5961f6f, 4 | BRF_GRA },			//  7 Sprite Masks & Color Indexes
+	{ "pgm_b1001.u11",	  			0x0800000, 0x0b7e1c06, 4 | BRF_GRA },			//  8
+
+	{ "pgm_m1000.u5",     			0x0800000, 0xed407ae8, 5 | BRF_SND },			//  9 Samples
+	{ "pgm_m1001.u7",      			0x0400000, 0x662d2d48, 5 | BRF_SND },			// 10
+
+	{ "martial_masters_v102_usa.asic",	0x0004000, 0xa6c0828c, 7 | BRF_PRG | BRF_ESS },  // 11 Internal ARM7 Rom
+
+	{ "v102_16m.u10",  				0x0200000, 0x18b745e6, 8 | BRF_PRG | BRF_ESS }, // 12 External ARM7 Rom
+};
+
+STDROMPICKEXT(marmatcp, marmatcp, pgm)
+STD_ROM_FN(marmatcp)
+
+struct BurnDriver BurnDrvMarmatcp = {
+	"marmatcp", "martmast", "pgm", NULL, "20??",
+	"Martial Masters - Community Patch (Hack)\0", NULL, "Hack", "PolyGameMaster",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_VSFIGHT, 0,
+	NULL, marmatcpRomInfo, marmatcpRomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmastDIPInfo,
+	martmastInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
+	448, 224, 4, 3
+};
+
+
+// Martial Masters - Secret Characters (Hack)
+// Hack by kuze (?)
+// patch available from https://www.arcade-projects.com/forums/index.php?thread/3034
+
+static struct BurnRomInfo marmatscRomDesc[] = {
+	{ "v104_32m_sc.u9",   			0x0400000, 0xda10c8d1, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+
+	{ "pgm_t1000.u3",	 			0x0800000, 0xbbf879b5, 2 | BRF_GRA },			//  1 Tile data
+
+	{ "pgm_a1000.u3",    			0x0800000, 0x43577ac8, 3 | BRF_GRA },			//  2 Sprite Color Data
+	{ "pgm_a1001.u4",    			0x0800000, 0xfe7a476f, 3 | BRF_GRA },			//  3
+	{ "pgm_a1002.u6",    			0x0800000, 0x62e33d38, 3 | BRF_GRA },			//  4
+	{ "pgm_a1003.u8",    			0x0800000, 0xb2c4945a, 3 | BRF_GRA },			//  5
+	{ "pgm_a1004.u10",   			0x0400000, 0x9fd3f5fd, 3 | BRF_GRA },			//  6
+
+	{ "pgm_b1000.u9",	  			0x0800000, 0xc5961f6f, 4 | BRF_GRA },			//  7 Sprite Masks & Color Indexes
+	{ "pgm_b1001.u11",	  			0x0800000, 0x0b7e1c06, 4 | BRF_GRA },			//  8
+
+	{ "pgm_m1000.u5",     			0x0800000, 0xed407ae8, 5 | BRF_SND },			//  9 Samples
+	{ "pgm_m1001.u7",      			0x0400000, 0x662d2d48, 5 | BRF_SND },			// 10
+
+	{ "martial_masters_v102_usa.asic",	0x0004000, 0xa6c0828c, 7 | BRF_PRG | BRF_ESS },  // 11 Internal ARM7 Rom
+
+	{ "v102_16m.u10",  				0x0200000, 0x18b745e6, 8 | BRF_PRG | BRF_ESS }, // 12 External ARM7 Rom
+};
+
+STDROMPICKEXT(marmatsc, marmatsc, pgm)
+STD_ROM_FN(marmatsc)
+
+struct BurnDriver BurnDrvMarmatsc = {
+	"marmatsc", "martmast", "pgm", NULL, "2017",
+	"Martial Masters - Secret Characters (Hack)\0", NULL, "Hack", "PolyGameMaster",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_IGS_PGM | HARDWARE_IGS_USE_ARM_CPU, GBF_VSFIGHT, 0,
+	NULL, marmatscRomInfo, marmatscRomName, NULL, NULL, NULL, NULL, pgmInputInfo, martmastDIPInfo,
+	martmastInit, pgmExit, pgmFrame, pgmDraw, pgmScan, &nPgmPalRecalc, 0x900,
 	448, 224, 4, 3
 };
