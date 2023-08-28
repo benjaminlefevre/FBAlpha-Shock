@@ -116,10 +116,49 @@ void TMS34010Init()
 	CpuCheatRegister(0, &TMS34010Config);
 }
 
-int TMS34010Run(int cycles) 
+int TMS34010Run(int cycles)
 {
-    tms::run(&tms34010, cycles);
-    return 0;
+    return tms::run(&tms34010, cycles);
+}
+
+void TMS34010TimerSetCB(void (*timer_cb)())
+{
+	tms::timer_set_cb(&tms34010, timer_cb);
+}
+
+void TMS34010TimerSet(int cycles)
+{
+	tms::timer_arm(&tms34010, cycles);
+}
+
+INT64 TMS34010TotalCycles()
+{
+	return tms::total_cycles(&tms34010);
+}
+
+void TMS34010NewFrame()
+{
+	tms::new_frame(&tms34010);
+}
+
+void TMS34010RunEnd()
+{
+	tms::stop(&tms34010);
+}
+
+void TMS34010Scan(INT32 nAction)
+{
+	tms::scan(&tms34010, nAction);
+}
+
+UINT32 TMS34010GetPC()
+{
+	return tms::get_pc(&tms34010);
+}
+
+UINT32 TMS34010GetPPC()
+{
+	return tms::get_ppc(&tms34010);
 }
 
 void TMS34010Reset()
@@ -215,8 +254,8 @@ void TMS34010WriteROM(UINT32 address, UINT8 value) // for cheat-engine
 void TMS34010MapReset()
 {
     for (int page = 0; page < PAGE_COUNT; page++) {
-        g_mmap.map[page] = NULL; // JHM: for pre c++ 11, use NULL not nullptr
-        g_mmap.map[page + PAGE_WADD] = NULL; // JHM: for pre c++ 11, use NULL not nullptr
+        g_mmap.map[page] = NULL;
+        g_mmap.map[page + PAGE_WADD] = NULL;
     }
     for (int handler = 0; handler < MAXHANDLER; handler++) {
         g_mmap.read[handler] = default_read;
@@ -239,7 +278,7 @@ void TMS34010MapMemory(UINT8 *mem, UINT32 start, UINT32 end, UINT8 type)
     }
 }
 
-void TMS34010MapHandler(UINT32 num, UINT32 start, UINT32 end, UINT8 type)
+void TMS34010MapHandler(uintptr_t num, UINT32 start, UINT32 end, UINT8 type)
 {
     const int max_pages = (PFN(end) - PFN(start)) + 1;
 
