@@ -42,12 +42,6 @@
 #define MAX_CARTRIDGE_SIZE      0xc00000
 #define MAX_SRAM_SIZE           0x010000
 
-#if defined (__GNUC__) && defined (__LIBRETRO__)
-#define OPTIMIZE_ATTR __attribute__((optimize("O2")))
-#else
-#define OPTIMIZE_ATTR
-#endif
-
 // PicoDrive Sek interface
 static UINT64 SekCycleCnt, SekCycleAim, SekCycleCntDELTA, line_base_cycles;
 
@@ -172,7 +166,7 @@ struct MegadriveJoyPad {
 	TeamPlayer teamplayer[2]; // Sega "team player" 4 port adapter
 };
 
-static UINT8 *Mem = NULL, *MemEnd = NULL;
+static UINT8 *AllMem = NULL, *MemEnd = NULL;
 static UINT8 *RamStart, *RamEnd;
 
 static UINT8 *RomMain;
@@ -382,7 +376,7 @@ inline static void CalcCol(INT32 index, UINT16 nColour)
 
 static INT32 MemIndex()
 {
-	UINT8 *Next; Next = Mem;
+	UINT8 *Next; Next = AllMem;
 	RomMain 	= Next; Next += MAX_CARTRIDGE_SIZE;	// 68000 ROM, Max enough
 
 	RamStart	= Next;
@@ -406,7 +400,7 @@ static INT32 MemIndex()
 
 	MegadriveCurPal		= (UINT32 *) Next; Next += 0x000040 * sizeof(UINT32) * 4;
 
-	HighColFull	= Next; Next += (8 + 320 + 8) * 240 + 1;
+	HighColFull	= Next; Next += (8 + 320 + 8) * 240 + 1 + 3; // +3 alignment
 
 	LineBuf     = (UINT16 *) Next; Next += 320 * 320 * sizeof(UINT16); // palete-processed line-buffer (dink / for sonic mode)
 
@@ -2455,6 +2449,18 @@ static UINT16 __fastcall TopfigReadWord(UINT32 sekAddress)
 	return 0;
 }
 
+static UINT16 __fastcall _16ZhangReadWord(UINT32 sekAddress)
+{
+	if (sekAddress == 0x400004) return 0xc900;
+
+	return 0xffff;
+}
+
+static UINT8 __fastcall _16ZhangReadByte(UINT32 sekAddress)
+{
+	return _16ZhangReadWord(sekAddress) >> ((~sekAddress & 1) << 3);
+}
+
 static void __fastcall TopfigWriteByte(UINT32 /*sekAddress*/, UINT8 byteValue)
 {
 	if (byteValue == 0x002a)
@@ -2814,6 +2820,15 @@ static void SetupCustomCartridgeMappers()
 		SekMapHandler(8, 0x700000, 0x7fffff, MAP_WRITE);
 		SekSetWriteByteHandler(8, TopfigWriteByte);
 		SekSetWriteWordHandler(8, TopfigWriteWord);
+		SekClose();
+	}
+
+	if ((BurnDrvGetHardwareCode() & 0xff) == HARDWARE_SEGA_MEGADRIVE_PCB_16ZHANG) {
+		bprintf(0, _T("md 16zhang mapper\n"));
+		SekOpen(0);
+		SekMapHandler(7, 0x400000, 0x400004 | 0x3ff, MAP_READ);
+		SekSetReadByteHandler(7, _16ZhangReadByte);
+		SekSetReadWordHandler(7, _16ZhangReadWord);
 		SekClose();
 	}
 
@@ -3336,12 +3351,13 @@ static INT32 __fastcall MegadriveTAScallback(void)
 
 INT32 MegadriveInit()
 {
-	Mem = NULL;
-	MemIndex();
-	INT32 nLen = MemEnd - (UINT8 *)0;
-	if ((Mem = (UINT8 *)BurnMalloc(nLen)) == NULL) return 1;
-	memset(Mem, 0, nLen);
-	MemIndex();
+	BurnAllocMemIndex();
+
+	// unmapped cart-space must return 0xff -dink (Nov.27, 2020)
+	// Fido Dido (Prototype) goes into a weird debug mode in bonus stage #2
+	// if 0x645046 is 0x00 - making the game unplayable.
+
+	memset(RomMain, 0xff, MAX_CARTRIDGE_SIZE);
 
 	MegadriveLoadRoms(0);
 	if (MegadriveLoadRoms(1)) return 1;
@@ -3460,10 +3476,7 @@ INT32 MegadriveExit()
 	BurnMD2612Exit();
 	SN76496Exit();
 
-	if (Mem) {
-		BurnFree(Mem);
-		Mem = NULL;
-	}
+	BurnFreeMemIndex();
 
 	if (OriginalRom) {
 		BurnFree(OriginalRom);
@@ -4264,7 +4277,7 @@ static void DrawSpritesFromCache(INT32 *hc, INT32 sh)
 // Index + 0  :    hhhhvvvv ab--hhvv yyyyyyyy yyyyyyyy // a: offscreen h, b: offs. v, h: horiz. size
 // Index + 4  :    xxxxxxxx xxxxxxxx pccvhnnn nnnnnnnn // x: x coord + 8
 
-static void OPTIMIZE_ATTR PrepareSprites(INT32 full)
+static void PrepareSprites(INT32 full)
 {
 	INT32 u=0,link=0,sblocks=0;
 	INT32 table=0;
@@ -4629,7 +4642,7 @@ INT32 MegadriveDraw()
 #define CYCLES_M68K_VINT_LAG  68
 #define CYCLES_M68K_ASD      148
 
-INT32 OPTIMIZE_ATTR MegadriveFrame()
+INT32 MegadriveFrame()
 {
 	if (MegadriveReset) {
 		MegadriveResetDo();
