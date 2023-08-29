@@ -2032,6 +2032,38 @@ static void mapper41_map()
 #undef mapper41_chr
 #undef mapper41_mirror
 
+// ---[ mapper 53 SuperVision 16-in-1
+#define mapper53_reg(x)	(mapper_regs[0 + (x)])
+
+static void mapper53_write(UINT16 address, UINT8 data)
+{
+	mapper53_reg((address & 0x8000) >> 15) = data;
+
+	mapper_map();
+}
+
+static UINT8 mapper53_exp_read(UINT16 address)
+{
+	return Cart.PRGRom[PRGExpMap + (address & 0x1fff)];
+}
+
+static void mapper53_map()
+{
+	UINT8 bank = (mapper53_reg(0) & 0xf) << 3;
+	mapper_map_exp_prg((0xf | (bank << 1)) + 4);
+	if (mapper53_reg(0) & 0x10) {
+		mapper_map_prg(16, 0, ((bank | (mapper53_reg(1) & 7)) + 2));
+		mapper_map_prg(16, 1, ((bank | 7) + 2));
+	} else {
+		mapper_map_prg(32, 0, 0);
+	}
+
+	mapper_map_chr( 8, 0, 0);
+
+	set_mirroring((mapper53_reg(0) & 0x20) ? HORIZONTAL : VERTICAL);
+}
+#undef mapper53_reg
+
 // ---[ mapper 104 Golden Five, Pegasus 5-in-1
 #define mapper104_prg(x)	(mapper_regs[0 + (x)])
 
@@ -4744,6 +4776,105 @@ static void mapper91_map()
 #undef mapper91_irqcount
 #undef mapper91_irqenable
 
+// --[ mapper 17: FFE / Front Far East SMC (type 17)
+#define mapper17_prg(x)		(mapper_regs[0x00 + (x)])
+#define mapper17_chr(x)		(mapper_regs[0x04 + (x)])
+#define mapper17_irqcount   (mapper_regs16[0x00])
+#define mapper17_irqenable	(mapper_regs[0x1f - 0x00])
+#define mapper17_mirror		(mapper_regs[0x1f - 0x01])
+
+static void mapper17_write(UINT16 address, UINT8 data)
+{
+	switch (address) {
+		case 0x42fe:
+			switch (data & 0x10) {
+				case 0x00: mapper17_mirror = 2; break;
+				case 0x10: mapper17_mirror = 3; break;
+			}
+			break;
+		case 0x42ff:
+			switch (data & 0x10) {
+				case 0x00: mapper17_mirror = 0; break;
+				case 0x10: mapper17_mirror = 1; break;
+			}
+			break;
+
+		case 0x4501:
+			mapper17_irqenable = 0;
+			M6502SetIRQLine(0, CPU_IRQSTATUS_NONE);
+			break;
+		case 0x4502:
+			mapper17_irqcount = (mapper17_irqcount & 0xff00) | data;
+			M6502SetIRQLine(0, CPU_IRQSTATUS_NONE);
+			break;
+		case 0x4503:
+			mapper17_irqcount = (mapper17_irqcount & 0x00ff) | (data << 8);
+			mapper17_irqenable = 1;
+			M6502SetIRQLine(0, CPU_IRQSTATUS_NONE);
+			break;
+
+		case 0x4504:
+		case 0x4505:
+		case 0x4506:
+		case 0x4507:
+			mapper17_prg(address & 3) = data;
+			break;
+
+		case 0x4510:
+		case 0x4511:
+		case 0x4512:
+		case 0x4513:
+		case 0x4514:
+		case 0x4515:
+		case 0x4516:
+		case 0x4517:
+			mapper17_chr(address & 7) = data;
+			break;
+	}
+
+	mapper_map();
+}
+
+static void mapper17_cycle()
+{
+	if (mapper17_irqenable) {
+		mapper17_irqcount++;
+		if (mapper17_irqcount == 0x0000) {
+			mapper_irq(0);
+			mapper17_irqenable = 0;
+		}
+	}
+}
+
+static void mapper17_map()
+{
+	mapper_map_prg( 8, 0, mapper17_prg(0));
+	mapper_map_prg( 8, 1, mapper17_prg(1));
+	mapper_map_prg( 8, 2, mapper17_prg(2));
+	mapper_map_prg( 8, 3, mapper17_prg(3));
+
+	mapper_map_chr( 1, 0, mapper17_chr(0));
+	mapper_map_chr( 1, 1, mapper17_chr(1));
+	mapper_map_chr( 1, 2, mapper17_chr(2));
+	mapper_map_chr( 1, 3, mapper17_chr(3));
+	mapper_map_chr( 1, 4, mapper17_chr(4));
+	mapper_map_chr( 1, 5, mapper17_chr(5));
+	mapper_map_chr( 1, 6, mapper17_chr(6));
+	mapper_map_chr( 1, 7, mapper17_chr(7));
+
+	switch (mapper17_mirror & 0x3) {
+		case 0: set_mirroring(VERTICAL); break;
+		case 1: set_mirroring(HORIZONTAL); break;
+		case 2: set_mirroring(SINGLE_LOW); break;
+		case 3: set_mirroring(SINGLE_HIGH); break;
+	}
+}
+#undef mapper17_prg
+#undef mapper17_chr
+#undef mapper17_irqcount
+#undef mapper17_irqenable
+#undef mapper17_mirror
+
 // --[ mapper 28: Action53 Home-brew multicart
 #define mapper28_mirror		(mapper_regs[0x1f - 0])
 #define mapper28_mirrorbit  (mapper_regs[0x1f - 1])
@@ -5102,6 +5233,7 @@ static UINT8 mapper120_exp_read(UINT16 address)
 #define mapper64_irqlatch		(mapper_regs[0x1f - 5])
 #define mapper64_irqcount		(mapper_regs[0x1f - 6])
 #define mapper64_irqprescale	(mapper_regs[0x1f - 7])
+#define mapper64_cycles         (mapper_regs16[0])
 
 static void mapper64_write(UINT16 address, UINT8 data)
 {
@@ -5161,9 +5293,14 @@ static void mapper64_irq_reload_logic()
 {
 	if (mapper64_reload) {
 		mapper64_irqcount = (mapper64_irqlatch) ? mapper64_irqlatch | 1 : 0;
+		if (mapper64_irqcount == 0 && mapper64_cycles > 0x10)
+			mapper64_irqcount = 1;
 		mapper64_reload = 0;
+		mapper64_cycles = 0;
 	} else if (mapper64_irqcount == 0) {
 		mapper64_irqcount = mapper64_irqlatch;
+		if (mapper64_cycles > 0x10)
+			mapper64_cycles = 0;
 	} else mapper64_irqcount --;
 }
 
@@ -5183,6 +5320,8 @@ static void mapper64_scanline()
 
 static void mapper64_cycle()
 {
+	if (mapper64_cycles == 0xffff) mapper64_cycles = 0x10;
+	mapper64_cycles++;
 	if (mapper64_irqmode == 1) {
 		mapper64_irqprescale++;
 		while (mapper64_irqprescale == 4) {
@@ -5837,6 +5976,281 @@ static void vrc7_cycle()
 #undef mapper85_irqmode
 #undef mapper85_irqcount
 #undef mapper85_irqcycle
+
+// --[ mapper 116: Somari (AV Girl Fighting)
+// it's a frankensteinian mess-mapper -dink
+#define mapper116_vrc2_prg(x)		(mapper_regs[0x00 + (x)])
+#define mapper116_vrc2_chr(x)		(mapper_regs[0x02 + (x)])
+#define mapper116_vrc2_mirror		(mapper_regs[0x0a])
+#define mapper116_mode				(mapper_regs[0x0b])
+
+#define mapper116_mmc3_banksel      (mapper_regs[0x0c])
+#define mapper116_mmc3_mirror		(mapper_regs[0x0d])
+#define mapper116_mmc3_irqlatch 	(mapper_regs[0x0e])
+#define mapper116_mmc3_irqcount		(mapper_regs[0x0f])
+#define mapper116_mmc3_irqenable	(mapper_regs[0x10])
+#define mapper116_mmc3_irqreload	(mapper_regs[0x11])
+#define mapper116_mmc3_regs(x)		(mapper_regs16[0x12 + (x)]) // must be regs16!
+
+#define mapper116_mmc1_regs(x)		(mapper_regs[0x1b + (x)])
+#define mapper116_mmc1_serialbyte	(mapper_regs16[0])
+#define mapper116_mmc1_bitcount		(mapper_regs16[1])
+
+static void mapper116_defaults()
+{
+	mapper116_vrc2_prg(0) = 0;
+	mapper116_vrc2_prg(1) = 1;
+	mapper116_vrc2_chr(0) = 0xff;
+	mapper116_vrc2_chr(1) = 0xff;
+	mapper116_vrc2_chr(2) = 0xff;
+	mapper116_vrc2_chr(3) = 0xff;
+	mapper116_vrc2_chr(4) = 4;
+	mapper116_vrc2_chr(5) = 5;
+	mapper116_vrc2_chr(6) = 6;
+	mapper116_vrc2_chr(7) = 7;
+
+	mapper116_mmc1_regs(0) = 0x0c;
+
+	mapper116_mmc3_regs(0) = 0;
+	mapper116_mmc3_regs(1) = 2;
+	mapper116_mmc3_regs(2) = 4;
+	mapper116_mmc3_regs(3) = 5;
+	mapper116_mmc3_regs(4) = 6;
+	mapper116_mmc3_regs(5) = 7;
+	mapper116_mmc3_regs(6) = -4;
+	mapper116_mmc3_regs(7) = -3;
+	mapper116_mmc3_regs(8) = -2;
+	mapper116_mmc3_regs(9) = -1;
+}
+
+static void mapper116_write(UINT16 address, UINT8 data)
+{
+	if (address < 0x8000) {
+		if ((address & 0x4100) == 0x4100) {
+			// Someri
+			mapper116_mode = data;
+			if (address & 1) {
+				mapper116_mmc1_bitcount = 0;
+				mapper116_mmc1_serialbyte = 0;
+				mapper116_mmc1_regs(0) = 0x0c;
+				mapper116_mmc1_regs(3) = 0x00;
+			}
+			mapper_map();
+		}
+	} else {
+		if (address == 0xa131) {
+			// Gouder SL-1632, mode & 2 == mmc3, ~mode & 2 == vrc2
+			mapper116_mode = (data & ~3) | ((data & 2) >> 1);
+		}
+		switch (mapper116_mode & 3) {
+			case 0:	{
+				if (address >= 0xb000 && address <= 0xe003) {
+					INT32 reg = ((((address & 2) | (address >> 10)) >> 1) + 2) & 7;
+
+					if (~address & 1) {
+						mapper116_vrc2_chr(reg) = (mapper116_vrc2_chr(reg) & 0xf0) | (data & 0x0f);
+					} else {
+						mapper116_vrc2_chr(reg) = (mapper116_vrc2_chr(reg) & 0x0f) | ((data & 0x0f) << 4);
+					}
+				} else {
+					switch (address & 0xf000) {
+						case 0x8000: mapper116_vrc2_prg(0) = data; break;
+						case 0x9000: mapper116_vrc2_mirror = data & 1; break;
+						case 0xa000: mapper116_vrc2_prg(1) = data; break;
+					}
+				}
+				mapper_map();
+			}
+			break;
+			case 1: {
+				switch (address & 0xe001) {
+					case 0x8000: mapper116_mmc3_banksel = data; break;
+					case 0x8001: mapper116_mmc3_regs(mapper116_mmc3_banksel & 0x7) = data; break;
+					case 0xa000: mapper116_mmc3_mirror = data & 1; break;
+					case 0xc000: mapper116_mmc3_irqlatch = data; break;
+					case 0xc001: mapper116_mmc3_irqreload = 1; break;
+					case 0xe000: mapper116_mmc3_irqenable = 0; M6502SetIRQLine(0, CPU_IRQSTATUS_NONE); break;
+					case 0xe001: mapper116_mmc3_irqenable = 1; break;
+				}
+				mapper_map();
+			}
+			break;
+			case 2:
+			case 3: {
+				if (address & 0x8000) {
+					if (data & 0x80) { // bit 7, mapper reset
+						mapper116_mmc1_bitcount = 0;
+						mapper116_mmc1_serialbyte = 0;
+						mapper116_mmc1_regs(0) |= 0x0c;
+						if (mapper_map) mapper_map();
+					} else {
+						mapper116_mmc1_serialbyte |= (data & 1) << mapper116_mmc1_bitcount;
+						mapper116_mmc1_bitcount++;
+						if (mapper116_mmc1_bitcount == 5) {
+							UINT8 reg = (address >> 13) & 0x3;
+							mapper116_mmc1_regs(reg) = mapper116_mmc1_serialbyte;
+							mapper116_mmc1_bitcount = 0;
+							mapper116_mmc1_serialbyte = 0;
+							if (mapper_map) mapper_map();
+						}
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
+static void mapper116_map()
+{
+	INT32 bank = (mapper116_mode & 4) << 6;
+	switch (mapper116_mode & 3) {
+		case 0: {
+			mapper_map_chr( 1, 0, mapper116_vrc2_chr(0) | bank);
+			mapper_map_chr( 1, 1, mapper116_vrc2_chr(1) | bank);
+			mapper_map_chr( 1, 2, mapper116_vrc2_chr(2) | bank);
+			mapper_map_chr( 1, 3, mapper116_vrc2_chr(3) | bank);
+			mapper_map_chr( 1, 4, mapper116_vrc2_chr(4) | bank);
+			mapper_map_chr( 1, 5, mapper116_vrc2_chr(5) | bank);
+			mapper_map_chr( 1, 6, mapper116_vrc2_chr(6) | bank);
+			mapper_map_chr( 1, 7, mapper116_vrc2_chr(7) | bank);
+
+			mapper_map_prg( 8, 0, mapper116_vrc2_prg(0));
+			mapper_map_prg( 8, 1, mapper116_vrc2_prg(1));
+			mapper_map_prg( 8, 2, -2);
+			mapper_map_prg( 8, 3, -1);
+
+			set_mirroring((mapper116_vrc2_mirror) ? HORIZONTAL : VERTICAL);
+		}
+		break;
+		case 1: {
+			mapper_map_prg(8, ((mapper116_mmc3_banksel & 0x40) >> 5), mapper116_mmc3_regs(6));
+			mapper_map_prg(8, 1, mapper116_mmc3_regs(7));
+			mapper_map_prg(8, 2 ^ ((mapper116_mmc3_banksel & 0x40) >> 5), mapper116_mmc3_regs(8));
+			mapper_map_prg(8, 3, mapper116_mmc3_regs(9));
+
+			INT32 swap = (mapper116_mmc3_banksel & 0x80) >> 5;
+			mapper_map_chr( 1, 0 ^ swap, (mapper116_mmc3_regs(0) & 0xfe) | bank);
+			mapper_map_chr( 1, 1 ^ swap, (mapper116_mmc3_regs(0) | 0x01) | bank);
+			mapper_map_chr( 1, 2 ^ swap, (mapper116_mmc3_regs(1) & 0xfe) | bank);
+			mapper_map_chr( 1, 3 ^ swap, (mapper116_mmc3_regs(1) | 0x01) | bank);
+			mapper_map_chr( 1, 4 ^ swap, mapper116_mmc3_regs(2) | bank);
+			mapper_map_chr( 1, 5 ^ swap, mapper116_mmc3_regs(3) | bank);
+			mapper_map_chr( 1, 6 ^ swap, mapper116_mmc3_regs(4) | bank);
+			mapper_map_chr( 1, 7 ^ swap, mapper116_mmc3_regs(5) | bank);
+
+			set_mirroring((mapper116_mmc3_mirror) ? HORIZONTAL : VERTICAL);
+		}
+		break;
+		case 2:
+		case 3: {
+			if (mapper116_mmc1_regs(0) & 0x8) {
+				if (mapper116_mmc1_regs(0) & 0x4) {
+					mapper_map_prg(16, 0, mapper116_mmc1_regs(3) & 0xf);
+					mapper_map_prg(16, 1, 0x0f);
+				} else {
+					mapper_map_prg(16, 0, 0);
+					mapper_map_prg(16, 1, mapper116_mmc1_regs(3) & 0xf);
+				}
+			} else {
+				mapper_map_prg(32, 0, (mapper116_mmc1_regs(3) & 0xf) >> 1);
+			}
+
+			if (mapper116_mmc1_regs(0) & 0x10) {
+				mapper_map_chr( 4, 0, mapper116_mmc1_regs(1));
+				mapper_map_chr( 4, 1, mapper116_mmc1_regs(2));
+			} else {
+				mapper_map_chr( 8, 0, mapper116_mmc1_regs(1) >> 1);
+			}
+
+			switch (mapper116_mmc1_regs(0) & 3) {
+				case 0: set_mirroring(SINGLE_LOW); break;
+				case 1: set_mirroring(SINGLE_HIGH); break;
+				case 2: set_mirroring(VERTICAL); break;
+				case 3: set_mirroring(HORIZONTAL); break;
+			}
+		}
+		break;
+	}
+}
+
+static void mapper14_map()
+{
+	switch (mapper116_mode & 3) {
+		case 0: {
+			mapper_map_chr( 1, 0, mapper116_vrc2_chr(0));
+			mapper_map_chr( 1, 1, mapper116_vrc2_chr(1));
+			mapper_map_chr( 1, 2, mapper116_vrc2_chr(2));
+			mapper_map_chr( 1, 3, mapper116_vrc2_chr(3));
+			mapper_map_chr( 1, 4, mapper116_vrc2_chr(4));
+			mapper_map_chr( 1, 5, mapper116_vrc2_chr(5));
+			mapper_map_chr( 1, 6, mapper116_vrc2_chr(6));
+			mapper_map_chr( 1, 7, mapper116_vrc2_chr(7));
+
+			mapper_map_prg( 8, 0, mapper116_vrc2_prg(0));
+			mapper_map_prg( 8, 1, mapper116_vrc2_prg(1));
+			mapper_map_prg( 8, 2, -2);
+			mapper_map_prg( 8, 3, -1);
+
+			set_mirroring((mapper116_vrc2_mirror) ? HORIZONTAL : VERTICAL);
+		}
+		break;
+		case 1: {
+			mapper_map_prg(8, ((mapper116_mmc3_banksel & 0x40) >> 5), mapper116_mmc3_regs(6));
+			mapper_map_prg(8, 1, mapper116_mmc3_regs(7));
+			mapper_map_prg(8, 2 ^ ((mapper116_mmc3_banksel & 0x40) >> 5), mapper116_mmc3_regs(8));
+			mapper_map_prg(8, 3, mapper116_mmc3_regs(9));
+
+			INT32 swap = (mapper116_mmc3_banksel & 0x80) >> 5;
+			INT32 bank0 = (mapper116_mode & 0x08) << 5;
+			INT32 bank1 = (mapper116_mode & 0x20) << 3;
+			INT32 bank2 = (mapper116_mode & 0x80) << 1;
+			mapper_map_chr( 1, 0 ^ swap, (mapper116_mmc3_regs(0) & 0xfe) | bank0);
+			mapper_map_chr( 1, 1 ^ swap, (mapper116_mmc3_regs(0) | 0x01) | bank0);
+			mapper_map_chr( 1, 2 ^ swap, (mapper116_mmc3_regs(1) & 0xfe) | bank0);
+			mapper_map_chr( 1, 3 ^ swap, (mapper116_mmc3_regs(1) | 0x01) | bank0);
+			mapper_map_chr( 1, 4 ^ swap, mapper116_mmc3_regs(2) | bank1);
+			mapper_map_chr( 1, 5 ^ swap, mapper116_mmc3_regs(3) | bank1);
+			mapper_map_chr( 1, 6 ^ swap, mapper116_mmc3_regs(4) | bank2);
+			mapper_map_chr( 1, 7 ^ swap, mapper116_mmc3_regs(5) | bank2);
+
+			set_mirroring((mapper116_mmc3_mirror) ? HORIZONTAL : VERTICAL);
+		}
+		break;
+	}
+}
+
+static void mapper116_mmc3_scanline()
+{
+	if ((mapper116_mode & 0x03) != 1) return;
+
+	if (mapper116_mmc3_irqcount == 0 || mapper116_mmc3_irqreload) {
+		mapper116_mmc3_irqreload = 0;
+		mapper116_mmc3_irqcount = mapper116_mmc3_irqlatch;
+	} else {
+		mapper116_mmc3_irqcount--;
+	}
+
+	if (mapper116_mmc3_irqcount == 0 && mapper116_mmc3_irqenable && (mmc5_mask[0] & 0x18)) {
+		mapper_irq(0);
+	}
+}
+#undef mapper116_vrc2_prg
+#undef mapper116_vrc2_chr
+#undef mapper116_vrc2_mirror
+#undef mapper116_mode
+
+#undef mapper116_mmc3_banksel
+#undef mapper116_mmc3_mirror
+#undef mapper116_mmc3_irqlatch
+#undef mapper116_mmc3_irqcount
+#undef mapper116_mmc3_irqenable
+#undef mapper116_mmc3_irqreload
+#undef mapper116_mmc3_regs
+
+#undef mapper116_mmc1_regs
+#undef mapper116_mmc1_serialbyte
+#undef mapper116_mmc1_bitcount
 
 // --[ mapper 80: Taito X1-005
 // --[ mapper 207: with advanced mirroring
@@ -6560,12 +6974,11 @@ static void mapper152_map()
 	set_mirroring((mapper_regs[0] & 0x80) ? SINGLE_HIGH : SINGLE_LOW);
 }
 
-// --[ mapper 156: Open (Metal Force, Buzz & Waldog, Koko Adv.)
+// --[ mapper 156: Open (Metal Force, Buzz & Waldog, Koko Adv., Janggun-ui Adeul)
 #define mapper156_chr_lo(x)     (mapper_regs[0 + (x)])  // x = 0 - 7
 #define mapper156_chr_hi(x)     (mapper_regs[8 + (x)])  // x = 0 - 7
 #define mapper156_prg           (mapper_regs[0x1f - 0])
 #define mapper156_mirror        (mapper_regs[0x1f - 1])
-#define mapper156_mirrorheur    (mapper_regs[0x1f - 2])
 
 static void mapper156_write(UINT16 address, UINT8 data)
 {
@@ -6594,8 +7007,7 @@ static void mapper156_write(UINT16 address, UINT8 data)
 			mapper156_prg = data;
 			break;
 		case 0xc014:
-			mapper156_mirror = (data & 1) ^ 1;
-			mapper156_mirrorheur = 1;
+			mapper156_mirror = 0x10 | (data & 1);
 			break;
 	}
 
@@ -6611,10 +7023,10 @@ static void mapper156_map()
 		mapper_map_chr( 1, i, (mapper156_chr_hi(i) << 8) | mapper156_chr_lo(i));
 	}
 
-	if (mapper156_mirrorheur) {
-		set_mirroring((mapper156_mirror) ? VERTICAL : HORIZONTAL);
-	} else {
-		set_mirroring(SINGLE_LOW);
+	switch (mapper156_mirror) {
+		case 0: set_mirroring(SINGLE_LOW); break;
+		case 0x10: set_mirroring(VERTICAL); break;
+		case 0x11: set_mirroring(HORIZONTAL); break;
 	}
 }
 
@@ -6797,6 +7209,17 @@ static INT32 mapper_init(INT32 mappernum)
 			cart_exp_write = mapper41_write;
 			mapper_write = mapper41_write;
 			mapper_map   = mapper41_map;
+			mapper_map();
+			retval = 0;
+			break;
+		}
+
+		case 53: { // SuperVision 16-in-1
+			NESMode |= MAPPER_NOCLEAR; // preserve mapper regs on soft-reset
+			cart_exp_read = mapper53_exp_read;
+			cart_exp_write = mapper53_write;
+			mapper_write = mapper53_write;
+			mapper_map   = mapper53_map;
 			mapper_map();
 			retval = 0;
 			break;
@@ -7045,6 +7468,19 @@ static INT32 mapper_init(INT32 mappernum)
 			cart_exp_write = mapper91_write; // 6000 - 7fff
 			mapper_map = mapper91_map;
 			mapper_scanline = mapper91_scanline;
+			mapper_map();
+			retval = 0;
+			break;
+		}
+
+		case 17: { // Front Far East FFE SMC (Type 17)
+			psg_area_write = mapper17_write; // 4020 - 5fff
+			mapper_map = mapper17_map;
+			mapper_cycle = mapper17_cycle;
+			mapper_regs[0] = ~3;
+			mapper_regs[1] = ~2;
+			mapper_regs[2] = ~1;
+			mapper_regs[3] = ~0;
 			mapper_map();
 			retval = 0;
 			break;
@@ -7655,6 +8091,30 @@ static INT32 mapper_init(INT32 mappernum)
 			mapper_map   = mapper115_map;
 			mapper_scanline = mapper04_scanline;
 			mapper4_mirror = Cart.Mirroring; // wagyan land doesn't set the mapper bit!
+		    mapper_map();
+			retval = 0;
+			break;
+		}
+
+		case 116: { // Somari (AV Girl Fighter)
+			mapper_write = mapper116_write;
+			psg_area_write = mapper116_write;
+			cart_exp_write = mapper116_write;
+			mapper_map   = mapper116_map;
+			mapper_scanline = mapper116_mmc3_scanline;
+			mapper116_defaults();
+		    mapper_map();
+			retval = 0;
+			break;
+		}
+
+		case 14: { // Gouder SL-1632 (Samurai Spirits)
+			mapper_write = mapper116_write;
+			psg_area_write = mapper116_write;
+			cart_exp_write = mapper116_write;
+			mapper_map   = mapper14_map; // difference from 116
+			mapper_scanline = mapper116_mmc3_scanline;
+			mapper116_defaults();
 		    mapper_map();
 			retval = 0;
 			break;
@@ -12433,6 +12893,116 @@ struct BurnDriver BurnDrvnes_apudinknoise = {
 */
 // Non Homebrew (hand-added!)
 
+static INT32 topriderInit()
+{
+	INT32 rc = NESInit();
+
+	if (!rc) {
+		// Top Rider size / crc: 163856, 0xca1a395a
+		// Patch in standard controller -dink feb.25, 2021
+		// Game Genie code: IUEOKOAL
+		// lda $494
+		// ora $311
+		// and #$10
+		//*bne 99c5 ; start pressed, next screen
+		// jsr 9f68 ; check if code entered on controller #2
+		// bcs 99c2 ; yes? start game with normal controller in port #1
+		// ...
+		//*d0 38  bne 99c5 -> d0 35  bne 99c2
+
+		Cart.PRGRom[0x1998c] = 0x35;
+	}
+
+	return rc;
+}
+
+static struct BurnRomInfo nes_topriderRomDesc[] = {
+	{ "Top Rider (Japan).nes",          163856, 0xca1a395a, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_toprider)
+STD_ROM_FN(nes_toprider)
+
+struct BurnDriver BurnDrvnes_toprider = {
+	"nes_toprider", NULL, NULL, NULL, "1988",
+	"Top Rider (Japan)\0", NULL, "Varie", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_topriderRomInfo, nes_topriderRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	topriderInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_samuraispiritsRomDesc[] = {
+	{ "Samurai Spirits (Unl).nes",          786448, 0x9b7305f7, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_samuraispirits)
+STD_ROM_FN(nes_samuraispirits)
+
+struct BurnDriver BurnDrvnes_samuraispirits = {
+	"nes_samuraispirits", NULL, NULL, NULL, "199x",
+	"Samurai Spirits (Unl)\0", NULL, "Rex Soft", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_samuraispiritsRomInfo, nes_samuraispiritsRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_avpregirfigRomDesc[] = {
+	{ "AV Pretty Girl Fight (Unl).nes",          655376, 0xc3d2b090, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_avpregirfig)
+STD_ROM_FN(nes_avpregirfig)
+
+struct BurnDriver BurnDrvnes_avpregirfig = {
+	"nes_avpregirfig", NULL, NULL, NULL, "1994",
+	"AV Pretty Girl Fight (Unl)\0", NULL, "Someri Team", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_avpregirfigRomInfo, nes_avpregirfigRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_janggunuiadeulRomDesc[] = {
+	{ "Janggun-ui Adeul (Korea) (Unl).nes",          655376, 0x54171ca4, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_janggunuiadeul)
+STD_ROM_FN(nes_janggunuiadeul)
+
+struct BurnDriver BurnDrvnes_janggunuiadeul = {
+	"nes_janggunuiadeul", NULL, NULL, NULL, "1992",
+	"Janggun-ui Adeul (Korea) (Unl)\0", NULL, "Daou", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_janggunuiadeulRomInfo, nes_janggunuiadeulRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+// Famista '93 (T-Eng)
+// https://www.romhacking.net/
+static struct BurnRomInfo nes_famista93eRomDesc[] = {
+	{ "famista '93 (t-eng).nes",          262160, 0xd9301c12, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_famista93e)
+STD_ROM_FN(nes_famista93e)
+
+struct BurnDriver BurnDrvnes_famista93e = {
+	"nes_famista93e", "nes_famista93", NULL, NULL, "1993",
+	"Famista '93 (T-Eng)\0", NULL, "Namco", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_famista93eRomInfo, nes_famista93eRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
 static struct BurnRomInfo nes_ultimexoremRomDesc[] = {
 	{ "Ultima - Exodus Remastered (USA)(Hack).nes",          262160, 0x8afe467a, BRF_ESS | BRF_PRG },
 };
@@ -14252,11 +14822,11 @@ static struct BurnRomInfo nes_dragobalziiirejinicRomDesc[] = {
 STD_ROM_PICK(nes_dragobalziiirejinic)
 STD_ROM_FN(nes_dragobalziiirejinic)
 
-struct BurnDriverD BurnDrvnes_dragobalziiirejinic = {
+struct BurnDriver BurnDrvnes_dragobalziiirejinic = {
 	"nes_dragobalziiirejinic", "nes_dragobalziiirejini", NULL, NULL, "1989 ?",
 	"Dragon Ball Z III - Ressen Jinzou Ningen (Japan) - Castellano v1.0a\0", NULL, "Nintendo", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 2, HARDWARE_NES, GBF_MISC, 0,
 	NESGetZipName, nes_dragobalziiirejinicRomInfo, nes_dragobalziiirejinicRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
 	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -16758,6 +17328,99 @@ struct BurnDriver BurnDrvnes_dai2jisuprotajc = {
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
 };
 
+// Grand Master (T-Chi, v1.1)
+// Translation by Han Hua Ni Mei Team - THIRTEEN, 姜维第二
+static struct BurnRomInfo nes_grandmastercRomDesc[] = {
+	{ "Grand Master (T-Chi, v1.1).nes",          1048592, 0x505d11c0, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_grandmasterc)
+STD_ROM_FN(nes_grandmasterc)
+
+struct BurnDriver BurnDrvnes_grandmasterc = {
+	"nes_grandmasterc", "nes_grandmaster", NULL, NULL, "2021-01-01",
+	"Grand Master (T-Chi, v1.1)\0", NULL, "Nintendo", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_grandmastercRomInfo, nes_grandmastercRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+// Nekketsu! Street Basket - Ganbare Dunk Heroes (T-Chi, v2)
+// Translation by Han Hua Ni Mei Team - 惊风, 空气, 火光 & goner 
+static struct BurnRomInfo nes_nekkestrbascRomDesc[] = {
+	{ "nekketsu! street basket - ganbare dunk heroes (T-Chi, v2).nes",          524304, 0x8f359b4f, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_nekkestrbasc)
+STD_ROM_FN(nes_nekkestrbasc)
+
+struct BurnDriver BurnDrvnes_nekkestrbasc = {
+	"nes_nekkestrbasc", "nes_nekkestrbas", NULL, NULL, "2020-10-05",
+	"Nekketsu! Street Basket - Ganbare Dunk Heroes (T-Chi, v2)\0", NULL, "Nintendo", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_nekkestrbascRomInfo, nes_nekkestrbascRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+// Grand Master (Japan) (Castellano)
+// https://www.romhacking.net/
+static struct BurnRomInfo nes_grandmasterjcRomDesc[] = {
+	{ "grand master (japan) - castellano.nes",          393232, 0x3ad512ce, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_grandmasterjc)
+STD_ROM_FN(nes_grandmasterjc)
+
+struct BurnDriver BurnDrvnes_grandmasterjc = {
+	"nes_grandmasterjc", "nes_grandmaster", NULL, NULL, "1989 ?",
+	"Grand Master (Japan) - Castellano\0", NULL, "Nintendo", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_grandmasterjcRomInfo, nes_grandmasterjcRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+// A Ressha de Ikou (T-Eng)
+// https://www.romhacking.net/
+static struct BurnRomInfo nes_atrainRomDesc[] = {
+{ "a ressha de ikou (t-eng).nes",          147472, 0xfd7bc532, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_atrain)
+STD_ROM_FN(nes_atrain)
+
+struct BurnDriver BurnDrvnes_atrain = {
+"nes_atrain", NULL, NULL, NULL, "1989 ?",
+"A Ressha de Ikou (T-Eng)\0", NULL, "Nintendo", "Miscellaneous",
+NULL, NULL, NULL, NULL,
+BDF_GAME_WORKING | BDF_HACK, 2, HARDWARE_NES, GBF_MISC, 0,
+NESGetZipName, nes_atrainRomInfo, nes_atrainRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+// A Ressha de Ikou (Japan)
+static struct BurnRomInfo nes_atrainjRomDesc[] = {
+	{ "a ressha de ikou (japan).nes",          147472, 0x58fe5467, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_atrainj)
+STD_ROM_FN(nes_atrainj)
+
+	struct BurnDriver BurnDrvnes_atrainj = {
+	"nes_atrainj", "nes_atrain", NULL, NULL, "1991",
+	"A Ressha de Ikou (Japan)\0", NULL, "Pony Canyon", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_atrainjRomInfo, nes_atrainjRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
 
 // END of "Non Homebrew (hand-added!)"
 
@@ -25864,6 +26527,40 @@ struct BurnDriver BurnDrvnes_explodingfist = {
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
 };
 
+static struct BurnRomInfo nes_f1heroRomDesc[] = {
+	{ "F-1 Hero (Japan).nes",          262160, 0xab82d025, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_f1hero)
+STD_ROM_FN(nes_f1hero)
+
+struct BurnDriver BurnDrvnes_f1hero = {
+	"nes_f1hero", NULL, NULL, NULL, "1988",
+	"F-1 Hero (Japan)\0", NULL, "Varie", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_f1heroRomInfo, nes_f1heroRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_f1hero2RomDesc[] = {
+	{ "F-1 Hero 2 (Japan).nes",          262160, 0x36b9506d, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_f1hero2)
+STD_ROM_FN(nes_f1hero2)
+
+struct BurnDriver BurnDrvnes_f1hero2 = {
+	"nes_f1hero2", NULL, NULL, NULL, "1991",
+	"F-1 Hero 2 (Japan)\0", NULL, "Varie", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_f1hero2RomInfo, nes_f1hero2RomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
 static struct BurnRomInfo nes_f1raceRomDesc[] = {
 	{ "F-1 Race (Japan).nes",          24592, 0x827dc0b9, BRF_ESS | BRF_PRG },
 };
@@ -30744,7 +31441,7 @@ struct BurnDriver BurnDrvnes_karnov = {
 };
 
 static struct BurnRomInfo nes_kartfighterRomDesc[] = {
-	{ "Kart Fighter (Unl).nes",          393232, 0x4877213a, BRF_ESS | BRF_PRG },
+	{ "Kart Fighter (Unl).nes",          393232, 0x7318bed4, BRF_ESS | BRF_PRG },
 };
 
 STD_ROM_PICK(nes_kartfighter)
@@ -31278,10 +31975,10 @@ STD_ROM_PICK(nes_kokoadventure)
 STD_ROM_FN(nes_kokoadventure)
 
 struct BurnDriver BurnDrvnes_kokoadventure = {
-	"nes_kokoadventure", NULL, NULL, NULL, "1989?",
+	"nes_kokoadventure", "nes_buzzwaldog", NULL, NULL, "1989?",
 	"Koko Adventure (Korea)\0", NULL, "Nintendo", "Miscellaneous",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
 	NESGetZipName, nes_kokoadventureRomInfo, nes_kokoadventureRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
 	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -34258,6 +34955,23 @@ struct BurnDriver BurnDrvnes_nantebas = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
 	NESGetZipName, nes_nantebasRomInfo, nes_nantebasRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_napoleonsenkiRomDesc[] = {
+	{ "Napoleon Senki (Japan).nes",          163856, 0x9fea33c2, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_napoleonsenki)
+STD_ROM_FN(nes_napoleonsenki)
+
+struct BurnDriver BurnDrvnes_napoleonsenki = {
+	"nes_napoleonsenki", NULL, NULL, NULL, "1988",
+	"Napoleon Senki (Japan)\0", NULL, "Irem", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_napoleonsenkiRomInfo, nes_napoleonsenkiRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
 	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
 };
@@ -38665,6 +39379,40 @@ struct BurnDriver BurnDrvnes_spyvsspy = {
 	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
 };
 
+static struct BurnRomInfo nes_spyvsspyislcajRomDesc[] = {
+	{ "Spy vs Spy - The Island Caper (Japan).nes",          131088, 0x23dff27d, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_spyvsspyislcaj)
+STD_ROM_FN(nes_spyvsspyislcaj)
+
+struct BurnDriver BurnDrvnes_spyvsspyislcaj = {
+	"nes_spyvsspyislcaj", "nes_spyvsspyislca", NULL, NULL, "1987",
+	"Spy vs Spy - The Island Caper (Japan)\0", NULL, "Kemco", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_CLONE, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_spyvsspyislcajRomInfo, nes_spyvsspyislcajRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
+static struct BurnRomInfo nes_spyvsspyislcaRomDesc[] = {
+	{ "Spy vs Spy - The Island Caper (T-Eng).nes",          131088, 0xf9e51c93, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_spyvsspyislca)
+STD_ROM_FN(nes_spyvsspyislca)
+
+struct BurnDriver BurnDrvnes_spyvsspyislca = {
+	"nes_spyvsspyislca", NULL, NULL, NULL, "1989?",
+	"Spy vs Spy - The Island Caper (T-Eng)\0", NULL, "Nintendo", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_spyvsspyislcaRomInfo, nes_spyvsspyislcaRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
+};
+
 static struct BurnRomInfo nes_sqoonRomDesc[] = {
 	{ "Sqoon (USA).nes",          40976, 0xa3815bac, BRF_ESS | BRF_PRG },
 };
@@ -39785,6 +40533,23 @@ struct BurnDriver BurnDrvnes_superturrican = {
 	NESGetZipName, nes_superturricanRomInfo, nes_superturricanRomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
 	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
 	SCREEN_WIDTH, SCREEN_HEIGHT_PAL, SCREEN_WIDTH, SCREEN_HEIGHT_PAL
+};
+
+static struct BurnRomInfo nes_super16in1RomDesc[] = {
+	{ "Supervision 16-in-1 (Unl).nes",          2129936, 0x48017a49, BRF_ESS | BRF_PRG },
+};
+
+STD_ROM_PICK(nes_super16in1)
+STD_ROM_FN(nes_super16in1)
+
+struct BurnDriver BurnDrvnes_super16in1 = {
+	"nes_super16in1", NULL, NULL, NULL, "1989?",
+	"Supervision 16-in-1 (Unl)\0", NULL, "Nintendo", "Miscellaneous",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING, 2, HARDWARE_NES, GBF_MISC, 0,
+	NESGetZipName, nes_super16in1RomInfo, nes_super16in1RomName, NULL, NULL, NULL, NULL, NESInputInfo, NESDIPInfo,
+	NESInit, NESExit, NESFrame, NESDraw, NESScan, &NESRecalc, 0x40,
+	SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT
 };
 
 static struct BurnRomInfo nes_superxevRomDesc[] = {

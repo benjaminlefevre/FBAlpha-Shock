@@ -476,10 +476,10 @@ static struct BurnInputInfo acityaInputList[] = {
 	{"P1 Button 5",		  BIT_DIGITAL,	DrvJoy2 + 5, "p1 fire 5"},
 	{"P1 Button 6",		  BIT_DIGITAL,	DrvJoy2 + 6, "p1 fire 6"},
 
-	{"Service Mode 1",	  BIT_DIGITAL,	DrvJoy1 + 4,	"diag"},
-	{"Service Mode 2",	  BIT_DIGITAL,	DrvJoy2 + 4,	"diag"},
+	{"Service",	  		  BIT_DIGITAL,	DrvJoy1 + 4,	"service"},
+	{"Service Mode",	  BIT_DIGITAL,	DrvJoy2 + 4,	"diag"},
 
-	{"Reset",		  BIT_DIGITAL,	&DrvReset,	"reset"},
+	{"Reset",		  	BIT_DIGITAL,	&DrvReset,		"reset"},
 	{"Dip Switches 1",	BIT_DIPSWITCH,	DrvDips + 2,	"dip"},
 	{"Dip Switches 2",	BIT_DIPSWITCH,	DrvDips + 1,	"dip"},
 	{"Dip Switches 3",	BIT_DIPSWITCH,	DrvDips + 0,	"dip"},
@@ -504,7 +504,7 @@ static struct BurnInputInfo bwcasinoInputList[] = {
 	{"P2 Button 5",		  BIT_DIGITAL,	DrvJoy2 + 5, "p2 fire 5"},
 	{"P2 Button 6",		  BIT_DIGITAL,	DrvJoy1 + 7, "p2 fire 6"},
 
-	{"Service Mode ",	  BIT_DIGITAL,	DrvJoy1 + 4,	"diag"},
+	{"Service Mode",	  BIT_DIGITAL,	DrvJoy1 + 4,	"diag"},
 
 	{"Reset",		  BIT_DIGITAL,	&DrvReset,	"reset"},
 	{"Dip Switches 1",	BIT_DIPSWITCH,	DrvDips + 1,	"dip"},
@@ -6500,10 +6500,10 @@ static INT32 eeekkpInit()
 }
 
 struct BurnDriver BurnDrvEeekkp = {
-	"eeekkp", NULL, NULL, NULL, "1984",
+	"eeekkp", "eeekk", NULL, NULL, "1984",
 	"Eeekk! (Pac-man conversion)\0", NULL, "Epos Corporation", "Pac-man",
 	NULL, NULL, NULL, NULL,
-	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED, 2, HARDWARE_PACMAN, GBF_PLATFORM, 0,
+	BDF_GAME_WORKING | BDF_ORIENTATION_VERTICAL | BDF_ORIENTATION_FLIPPED | BDF_CLONE, 2, HARDWARE_PACMAN, GBF_PLATFORM, 0,
 	NULL, eeekkpRomInfo, eeekkpRomName, NULL, NULL, NULL, NULL, EeekkpInputInfo, EeekkpDIPInfo,
 	eeekkpInit, DrvExit, DrvFrame, DrvDraw, DrvScan, &DrvRecalc, 0x200,
 	224, 288, 3, 4
