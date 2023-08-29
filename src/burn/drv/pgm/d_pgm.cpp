@@ -7441,9 +7441,9 @@ static INT32 kov2pfwllInit()
 {
 	INT32 nRet = kov2pInit();
 	
-	if (nRet == 0 && PGM68KROM[0xc3c] == 0x64 && PGM68KROM[0x336cb] == 0x4e && PGMARMROM[0x26f] == 0x0a) {
+	if (nRet == 0 && PGM68KROM[0xc3c] == 0x64 && PGM68KROM[0x336cc] == 0x63 && PGMARMROM[0x26f] == 0x0a) {
 		PGM68KROM[0xc3c] = 0x44;	// 4M address patch
-		PGM68KROM[0x336cb] = 0x02;	// scene switching patch
+		PGM68KROM[0x336cc] = 0x43;	// scene switching patch
 		PGMARMROM[0x26f] = 0xea;	// crash patch
 	}
 
@@ -7502,13 +7502,14 @@ struct BurnDriver BurnDrvkov2pshpd = {
 
 // Oriental Legend Special / Da Sheng Gui Lai (Hack)
 // Hacked by XIAOYUER
-// GOTVG 20201123
+// GOTVG 20201231
 
 static struct BurnRomInfo oldsdsglRomDesc[] = {
-	{ "dsgl_p0500_v100.u24",	0x0400000, 0x575bc7eb, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
+	{ "dsgl_p0500_v100.u24",	0x0400000, 0xadcb2a8a, 1 | BRF_PRG | BRF_ESS }, //  0 68K Code
 
 	{ "dsgl_t0500.u18",			0x0400000, 0x434ddae8, 2 | BRF_GRA },			//  1 Tile data
 	{ "pgm_t0501.u19",			0x0200000, 0xd2106864, 2 | BRF_GRA },			//  2
+	
 
 	{ "pgm_a0500.u5",			0x0400000, 0x80a59197, 3 | BRF_GRA },			//  3 Sprite Color Data
 	{ "pgm_a0501.u6",			0x0400000, 0x98c931b1, 3 | BRF_GRA },			//  4
@@ -7536,7 +7537,7 @@ STDROMPICKEXT(oldsdsgl, oldsdsgl, pgm)
 STD_ROM_FN(oldsdsgl)
 
 struct BurnDriver BurnDrvoldsdsgl = {
-	"oldsdsgl", "olds", "pgm", NULL, "2020-11-23",
+	"oldsdsgl", "olds", "pgm", NULL, "2020-12-31",
 	"Oriental Legend Special - Da Sheng Gui Lai (Hack)\0", NULL, "Hack", "PolyGameMaster",
 	L"Oriental Legend Super - Da Sheng Gui Lai (Hack)\0\u897f\u884c\u5e73\u5996\u8a18 - \u5927\u8056\u6b78\u4f86 (\u4fee\u6539\u7248)\0", NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_CLONE | BDF_HACK, 4, HARDWARE_IGS_PGM, GBF_SCRFIGHT, 0,

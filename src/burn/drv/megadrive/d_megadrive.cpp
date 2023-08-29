@@ -35598,7 +35598,7 @@ struct BurnDriver BurnDrvmd_valis3j = {
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
 
-// Vapor Trail (US)
+// Vapor Trail (USA)
 static struct BurnRomInfo md_vaportrRomDesc[] = {
 	{ "vapor trail (usa).bin", 0x100000, 0xc49e3a0a, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
 };
@@ -35608,7 +35608,7 @@ STD_ROM_FN(md_vaportr)
 
 struct BurnDriver BurnDrvmd_vaportr = {
 	"md_vaportr", NULL, NULL, NULL, "1991",
-	"Vapor Trail (US)\0", NULL, "Renovation", "Sega Megadrive",
+	"Vapor Trail (USA)\0", NULL, "Renovation", "Sega Megadrive",
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY, 2, HARDWARE_SEGA_MEGADRIVE, GBF_MISC, 0,
 	MegadriveGetZipName, md_vaportrRomInfo, md_vaportrRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
@@ -38836,6 +38836,25 @@ struct BurnDriver BurnDrvmd_xmenu = {
 	NULL, NULL, NULL, NULL,
 	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_MISC, 0,
 	MegadriveGetZipName, md_xmenuRomInfo, md_xmenuRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
+
+// Ultimate X-Men (Hack, Enhanced)
+// https://www.romhacking.net/translations/5639/
+static struct BurnRomInfo md_uxmenRomDesc[] = {
+	{ "ultimate x-men (hack, enhanced).bin", 1048576, 0x4528a2bb, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_uxmen)
+STD_ROM_FN(md_uxmen)
+
+struct BurnDriver BurnDrvmd_uxmen = {
+	"md_uxmen", "md_xmen", NULL, NULL, "2021",
+	"Ultimate X-Men (Hack, Enhanced)\0", NULL, "Sega", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_CLONE, 2, HARDWARE_SEGA_MEGADRIVE, GBF_MISC, 0,
+	MegadriveGetZipName, md_uxmenRomInfo, md_uxmenRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
 	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
 	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
 };
@@ -42643,6 +42662,24 @@ struct BurnDriver BurnDrvmd_sks3 = {
 };
 
 // -- Homebrew additions below --
+
+// Arkagis Revolution - https://arkagis.itch.io/arkagis-revolution
+static struct BurnRomInfo md_arkagisrRomDesc[] = {
+	{ "Arkagis Revolution (2019)(Sik).bin", 4194304, 0xa9bdc71b, BRF_PRG | SEGA_MD_ROM_LOAD16_WORD_SWAP | SEGA_MD_ROM_OFFS_000000  },
+};
+
+STD_ROM_PICK(md_arkagisr)
+STD_ROM_FN(md_arkagisr)
+
+struct BurnDriver BurnDrvmd_arkagisr = {
+	"md_arkagisr", NULL, NULL, NULL, "2019",
+	"Arkagis Revolution (HB)\0", NULL, "Sik", "Sega Megadrive",
+	NULL, NULL, NULL, NULL,
+	BDF_GAME_WORKING | BDF_16BIT_ONLY | BDF_HOMEBREW, 1, HARDWARE_SEGA_MEGADRIVE, GBF_PLATFORM, 0,
+	MegadriveGetZipName, md_arkagisrRomInfo, md_arkagisrRomName, NULL, NULL, NULL, NULL, MegadriveInputInfo, MegadriveDIPInfo,
+	MegadriveInit, MegadriveExit, MegadriveFrame, MegadriveDraw, MegadriveScan,
+	&bMegadriveRecalcPalette, 0x100, 320, 224, 4, 3
+};
 
 // Uwol Quest for Money (HB)
 static struct BurnRomInfo md_uwolRomDesc[] = {
